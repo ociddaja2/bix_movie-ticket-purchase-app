@@ -67,8 +67,8 @@ flutter:
     - lib/assets/images/bixcinema.png
     - lib/assets/images/icons/
     - lib/assets/images/movies/
-    - lib/assets/images/movies/row/
-    - lib/assets/images/movies/column/
+    - lib/assets/images/movies/sedangtayang/
+    - lib/assets/images/movies/comingsoon/
     - lib/assets/images/carousel/banner1.png
     - lib/assets/images/carousel/banner2.png
 

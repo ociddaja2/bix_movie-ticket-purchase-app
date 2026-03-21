@@ -1,11 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:bixcinema/ui/components/login/background_login.dart';
+import 'package:bixcinema/ui/components/login/navbar.dart';
 
 class Homepage extends StatelessWidget {
   const Homepage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    
+  final List<String> movieImagesNowShowing = [
+    'agaklaen.png',
+    'avatar.png',
+    'spongebob.png',
+    'zootopia.png',
+    'esoktanpaibu.png',
+  ];
+
+  final List<String> movieImagesComingSoon = [
+    'doomsday.png',
+    'silenthill.png',
+    'spiderman.png',
+    'minion.png',
+    'mario.png',
+  ];
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
@@ -13,25 +32,69 @@ class Homepage extends StatelessWidget {
         appBar: AppBar(
           elevation: 0,
           backgroundColor: const Color.fromARGB(255, 5, 53, 125),
-          title: Image(image:
-              AssetImage('lib/assets/images/icons/iconbix3.png'),
+          automaticallyImplyLeading: false,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(24),
+              bottomRight: Radius.circular(24),
+            ),
           ),
-          actions: [
-            IconButton(
-              icon: Icon(Icons.search, color: Colors.white),
-              onPressed: () {},
+          flexibleSpace: SafeArea(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                
+                Image.asset(
+                  'lib/assets/images/icons/iconbix3.png',
+                ),
+
+                Divider(color: const Color.fromARGB(135, 255, 255, 255), thickness: 1, height: 16),
+
+                // Dropdown lokasi
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 24),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.white54),
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.location_on_outlined, color: Colors.white, size: 18),
+                            SizedBox(width: 8),
+                            Text(
+                              'Banjarbaru',
+                              style: TextStyle(color: Colors.white, fontSize: 14),
+                            ),
+                          ],
+                        ),
+                        Icon(Icons.keyboard_arrow_down, color: Colors.white),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
-            IconButton(
-              icon: Icon(Icons.notifications_outlined, color: Colors.white),
-              onPressed: () {},
-            ),
-          ],
+          ),
+          toolbarHeight: 110,
         ),
         body: SafeArea(
-          child: SingleChildScrollView(
+          
+          child: Stack(
+            children: [
+              // Background circles
+              const DecorativeCirclesBackground(),
+
+              // Main content
+               SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                
                 const SizedBox(height: 20),
 
                 // Welcome Section
@@ -106,7 +169,7 @@ class Homepage extends StatelessWidget {
 
                 const SizedBox(height: 16),
 
-                // Movie Grid
+                // Sedang Tayang Movie Grid
                 SizedBox(
                   height: 280,
                   child: ListView.builder(
@@ -121,41 +184,18 @@ class Homepage extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Container(
-                              height: 200,
+                              height: 250,
+                              width: 180,
                               decoration: BoxDecoration(
                                 color: Colors.grey[300],
                                 borderRadius: BorderRadius.circular(12),
                                 image: DecorationImage(
                                   image: AssetImage(
-                                    'lib/assets/images/movies/row/${(index % 2) + 1}.png',
+                                    'lib/assets/images/movies/sedangtayang/${movieImagesNowShowing[index % movieImagesNowShowing.length]}',
                                   ),
                                   fit: BoxFit.cover,
                                 ),
                               ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Movie Title ${index + 1}',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                Icon(Icons.star, color: Colors.amber, size: 16),
-                                const SizedBox(width: 4),
-                                Text(
-                                  '${8 + index * 0.2}',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.black54,
-                                  ),
-                                ),
-                              ],
                             ),
                           ],
                         ),
@@ -164,7 +204,7 @@ class Homepage extends StatelessWidget {
                   ),
                 ),
 
-                const SizedBox(height: 32),
+                const Divider(),
 
                 // Coming Soon Section
                 Padding(
@@ -186,84 +226,49 @@ class Homepage extends StatelessWidget {
 
                 const SizedBox(height: 16),
 
-                // Coming Soon List
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  padding: EdgeInsets.symmetric(horizontal: 16.0),
-                  itemCount: 3,
-                  itemBuilder: (context, index) {
-                    return Container(
-                      margin: EdgeInsets.only(bottom: 16),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 100,
-                            height: 140,
-                            decoration: BoxDecoration(
-                              color: Colors.grey[300],
-                              borderRadius: BorderRadius.circular(12),
-                              image: DecorationImage(
-                                image: AssetImage(
-                                  'lib/assets/images/sample/sample${(index % 5) + 1}.jpg',
+                // Coming Soon Movie Grid
+                SizedBox(
+                  height: 280,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    itemCount: 5,
+                    itemBuilder: (context, index) {
+                      return Container(
+                        width: 140,
+                        margin: EdgeInsets.only(right: 16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              height: 200,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[300],
+                                borderRadius: BorderRadius.circular(12),
+                                image: DecorationImage(
+                                  image: AssetImage(
+                                    'lib/assets/images/movies/comingsoon/${movieImagesComingSoon[index % movieImagesComingSoon.length]}',
+                                  ),
+                                  fit: BoxFit.cover,
                                 ),
-                                fit: BoxFit.cover,
                               ),
                             ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Upcoming Movie ${index + 1}',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'Action, Adventure, Thriller',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.black54,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'Release Date: March ${15 + index}, 2026',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.black54,
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                                ElevatedButton(
-                                  onPressed: () {},
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.red[700],
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
-                                  child: Text('Notify Me'),
-                                ),
+                            const SizedBox(height: 8),
                               ],
                             ),
-                          ),
-                        ],
+                          );
+                        },
                       ),
-                    );
-                  },
+                    ),
+                  ],
                 ),
-
-                const SizedBox(height: 20),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
+
+      bottomNavigationBar: const Navbar(),
+
       ),
     );
   }
