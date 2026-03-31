@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:bixcinema/ui/components/login/background_login.dart';
-import 'package:bixcinema/ui/components/login/logo_box.dart';
+import 'package:bixcinema/ui/widgets/backgroundLoginWidget.dart';
+import 'package:bixcinema/ui/widgets/logoBoxWidget.dart';
 
 class RegisterPage extends StatelessWidget {
   const RegisterPage({super.key});

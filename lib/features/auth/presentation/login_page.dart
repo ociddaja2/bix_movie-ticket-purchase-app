@@ -1,6 +1,6 @@
-import 'package:bixcinema/ui/components/login/background_login.dart';
+import 'package:bixcinema/ui/widgets/backgroundLoginWidget.dart';
 import 'package:flutter/material.dart';
-import 'package:bixcinema/ui/components/login/logo_box.dart';
+import 'package:bixcinema/ui/widgets/logoBoxWidget.dart';
 
 
 class LoginPage extends StatefulWidget {

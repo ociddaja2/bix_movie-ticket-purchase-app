@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:bixcinema/app/pages/splash_screen.dart';
-import 'package:bixcinema/app/pages/login_page.dart';
-import 'package:bixcinema/app/pages/register_page.dart';
-import 'package:bixcinema/app/pages/home/homepage.dart';
+import 'package:bixcinema/features/auth/presentation/splash_screen.dart';
+import 'package:bixcinema/features/auth/presentation/login_page.dart';
+import 'package:bixcinema/features/auth/presentation/register_page.dart';
+import 'package:bixcinema/features/home/homepage.dart';
+import 'package:bixcinema/features/home/location_page.dart';
+import 'package:bixcinema/features/home/movie_list_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -20,6 +22,8 @@ class MyApp extends StatelessWidget {
         '/login': (context) => const LoginPage(),
         '/register': (context) => const RegisterPage(),
         '/home': (context) => const Homepage(),
+        '/location': (context) => const LocationPage(),
+        '/movie-list': (context) => const MovieListPage(),
       },
     );
   }

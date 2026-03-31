@@ -1,4 +1,4 @@
-import 'package:bixcinema/app/pages/home/homepage.dart';
+import 'package:bixcinema/features/home/homepage.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
