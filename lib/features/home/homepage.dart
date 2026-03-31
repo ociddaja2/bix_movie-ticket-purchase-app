@@ -150,7 +150,7 @@ class Homepage extends StatelessWidget {
                             borderRadius: BorderRadius.circular(12),
                             image: DecorationImage(
                               image: AssetImage(
-                                'lib/assets/images/carousel/banner${(index % 2) + 1}.png',
+                                'lib/assets/images/banners/banner${(index % 2) + 1}.png',
                               ),
                               fit: BoxFit.cover,
                             ),

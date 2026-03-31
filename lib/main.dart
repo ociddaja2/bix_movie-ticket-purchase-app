@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:bixcinema/features/auth/presentation/splash_screen.dart';
-import 'package:bixcinema/features/auth/presentation/login_page.dart';
-import 'package:bixcinema/features/auth/presentation/register_page.dart';
-import 'package:bixcinema/features/home/homepage.dart';
-import 'package:bixcinema/features/home/location_page.dart';
-import 'package:bixcinema/features/home/movie_list_page.dart';
+import 'package:bixcinema/core/app/route.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
+void main() async {
   runApp(const MyApp());
+
+  // Inisialisasi Firebase
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -17,14 +22,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const SplashScreen(), // Set splash screen as home
-      routes: {
-        '/login': (context) => const LoginPage(),
-        '/register': (context) => const RegisterPage(),
-        '/home': (context) => const Homepage(),
-        '/location': (context) => const LocationPage(),
-        '/movie-list': (context) => const MovieListPage(),
-      },
+      home: const SplashScreen(),
+      routes: AppRoutes.getRoutes(),
     );
   }
 }
