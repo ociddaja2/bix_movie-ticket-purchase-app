@@ -58,7 +58,8 @@ class Homepage extends StatelessWidget {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => LocationPage()),
+                        MaterialPageRoute(builder: (context) => LocationPage()
+                        ),
                       );
                     },
                     child: Container(
@@ -287,7 +288,6 @@ class Homepage extends StatelessWidget {
           ),
         ),
 
-        bottomNavigationBar: const Navbar(),
       ),
     );
   }

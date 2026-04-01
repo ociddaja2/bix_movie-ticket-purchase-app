@@ -1,4 +1,5 @@
-import 'package:bixcinema/features/home/homepage.dart';
+import 'package:bixcinema/pages/auth/login_page.dart';
+import 'package:bixcinema/pages/home/homepage.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 

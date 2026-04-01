@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:bixcinema/features/auth/presentation/splash_screen.dart';
 import 'package:bixcinema/core/app/route.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -7,7 +6,7 @@ import 'firebase_options.dart';
 void main() async {
   runApp(const MyApp());
 
-  // Inisialisasi Firebase
+  // Inisialisasi Firebase 
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp(
@@ -20,10 +19,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-      home: const SplashScreen(),
-      routes: AppRoutes.getRoutes(),
+      title: 'BixCinema',
+      routerConfig: AppRoutes.router,
     );
   }
 }
