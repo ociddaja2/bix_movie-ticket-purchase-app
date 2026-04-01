@@ -37,8 +37,14 @@ class AppRoutes {
   static final GoRouter router = GoRouter(
     initialLocation: splash,
     routes: [
-      GoRoute(path: splash, builder: (context, state) => const SplashScreen()),
-      GoRoute(path: login, builder: (context, state) => const LoginPage()),
+      GoRoute(
+        path: splash,
+        builder: (context, state) => const SplashScreen()
+      ),
+      GoRoute(
+        path: login,
+        builder: (context, state) => const LoginPage()
+      ),
       GoRoute(
         path: register,
         builder: (context, state) => const RegisterPage(),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:bixcinema/ui/widgets/backgroundLoginWidget.dart';
-import 'package:bixcinema/ui/widgets/navbar.dart';
 import 'location_page.dart';
 
 class Homepage extends StatelessWidget {
@@ -14,7 +13,7 @@ class Homepage extends StatelessWidget {
       'avatar.png',
       'spongebob.png',
       'zootopia.png',
-      'esoktanpaibu.png',
+      'btr.jpg',
     ];
 
     final List<String> movieImagesComingSoon = [

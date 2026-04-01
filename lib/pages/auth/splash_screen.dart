@@ -1,6 +1,7 @@
-import 'package:bixcinema/pages/auth/login_page.dart';
+//import 'package:bixcinema/pages/auth/login_page.dart';
 import 'package:bixcinema/pages/home/homepage.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'dart:async';
 
 class SplashScreen extends StatefulWidget {
@@ -10,7 +11,8 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen>
+    with TickerProviderStateMixin {
   late AnimationController _slideController;
   late AnimationController _fadeZoomController;
   late AnimationController _separateController;
@@ -23,7 +25,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
   @override
   void initState() {
     super.initState();
-    
+
     // Controller untuk animasi slide "BIX"
     _slideController = AnimationController(
       duration: const Duration(milliseconds: 800),
@@ -43,87 +45,80 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     );
 
     // Animasi slide dari kiri ke tengah
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(-1.5, 0), // Mulai dari kiri layar
-      end: Offset.zero, // Berakhir di tengah
-    ).animate(CurvedAnimation(
-      parent: _slideController,
-      curve: Curves.easeOutCubic,
-    ));
+    _slideAnimation =
+        Tween<Offset>(
+          begin: const Offset(-1.5, 0), // Mulai dari kiri layar
+          end: Offset.zero, // Berakhir di tengah
+        ).animate(
+          CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic),
+        );
 
     // Animasi fade in untuk "cinema"
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _fadeZoomController,
-      curve: Curves.easeIn,
-    ));
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _fadeZoomController, curve: Curves.easeIn),
+    );
 
     // Animasi zoom out (dari besar ke normal) untuk "cinema"
-    _scaleAnimation = Tween<double>(
-      begin: 1.5, // Mulai dari 1.5x ukuran normal (besar)
-      end: 1.0,   // Berakhir di ukuran normal
-    ).animate(CurvedAnimation(
-      parent: _fadeZoomController,
-      curve: Curves.easeOutBack,
-    ));
+    _scaleAnimation =
+        Tween<double>(
+          begin: 1.5, // Mulai dari 1.5x ukuran normal (besar)
+          end: 1.0, // Berakhir di ukuran normal
+        ).animate(
+          CurvedAnimation(
+            parent: _fadeZoomController,
+            curve: Curves.easeOutBack,
+          ),
+        );
 
     // Animasi "BIX" naik ke atas
-    _bixSeparateAnimation = Tween<Offset>(
-      begin: Offset.zero,
-      end: const Offset(0, -8), // Naik ke atas (keluar layar)
-    ).animate(CurvedAnimation(
-      parent: _separateController,
-      curve: Curves.easeInCubic,
-    ));
+    _bixSeparateAnimation =
+        Tween<Offset>(
+          begin: Offset.zero,
+          end: const Offset(0, -8), // Naik ke atas (keluar layar)
+        ).animate(
+          CurvedAnimation(
+            parent: _separateController,
+            curve: Curves.easeInCubic,
+          ),
+        );
 
     // Animasi "cinema" turun ke bawah
-    _cinemaSeparateAnimation = Tween<Offset>(
-      begin: Offset.zero,
-      end: const Offset(0, 12), // Turun ke bawah (keluar layar)
-    ).animate(CurvedAnimation(
-      parent: _separateController,
-      curve: Curves.easeInCubic,
-    ));
+    _cinemaSeparateAnimation =
+        Tween<Offset>(
+          begin: Offset.zero,
+          end: const Offset(0, 12), // Turun ke bawah (keluar layar)
+        ).animate(
+          CurvedAnimation(
+            parent: _separateController,
+            curve: Curves.easeInCubic,
+          ),
+        );
 
     // Jalankan animasi secara berurutan
     _startAnimations();
   }
 
   void _startAnimations() async {
-
     //tunggu sebentar sebelum mulai animasi, buat bg
     await Future.delayed(const Duration(milliseconds: 500));
     //Mulai animasi slide "BIX"
     await _slideController.forward();
-    
+
     //Delay sebentar
     await Future.delayed(const Duration(milliseconds: 200));
-    
+
     //Mulai animasi fade + zoom "cinema"
     await _fadeZoomController.forward();
-    
+
     //Tunggu sebentar
     await Future.delayed(const Duration(milliseconds: 800));
-    
+
     //Animasi pemisahan (BIX ke atas, cinema ke bawah)
     await _separateController.forward();
-    
-    //Navigate ke LoginPage dengan fade transition
+
+    //Navigate ke Homepage menggunakan go_router
     if (mounted) {
-      Navigator.of(context).pushReplacement(
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => Homepage(),
-          transitionDuration: const Duration(milliseconds: 800),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return FadeTransition(
-              opacity: animation,
-              child: child,
-            );
-          },
-        ),
-      );
+      context.go('/home');
     }
   }
 
@@ -150,13 +145,13 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                 position: _bixSeparateAnimation,
                 child: Image.asset(
                   'lib/assets/images/icons/bixaja.png',
-                  width: 200
+                  width: 200,
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 8),
-            
+
             // Animasi "cinema" fade in + zoom out + turun ke bawah
             FadeTransition(
               opacity: _fadeAnimation,
@@ -164,9 +159,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                 scale: _scaleAnimation,
                 child: SlideTransition(
                   position: _cinemaSeparateAnimation,
-                  child: Image.asset(
-                    'lib/assets/images/icons/cinemanya.png',
-                  ),
+                  child: Image.asset('lib/assets/images/icons/cinemanya.png'),
                 ),
               ),
             ),
