@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:bixcinema/ui/widgets/backgroundLoginWidget.dart';
-import 'location_page.dart';
+import 'package:bixcinema/ui/widgets/appbar.dart';
+import 'package:go_router/go_router.dart';
 
 class Homepage extends StatelessWidget {
   const Homepage({super.key});
@@ -28,79 +29,7 @@ class Homepage extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         backgroundColor: Colors.white,
-        appBar: AppBar(
-          elevation: 0,
-          backgroundColor: const Color.fromARGB(255, 5, 53, 125),
-          automaticallyImplyLeading: false,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(24),
-              bottomRight: Radius.circular(24),
-            ),
-          ),
-          flexibleSpace: SafeArea(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset('lib/assets/images/icons/iconbix3.png'),
-
-                Divider(
-                  color: const Color.fromARGB(135, 255, 255, 255),
-                  thickness: 1,
-                  height: 16,
-                ),
-
-                // Dropdown lokasi
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 24),
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => LocationPage()
-                        ),
-                      );
-                    },
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.white54),
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.location_on_outlined,
-                                color: Colors.white,
-                                size: 18,
-                              ),
-                              SizedBox(width: 8),
-                              Text(
-                                'Banjarbaru',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
-                          ),
-                          Icon(Icons.keyboard_arrow_down, color: Colors.white),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          toolbarHeight: 110,
-        ),
+        appBar: const AppBarWidget(title: 'BIX Cinema'),
         body: SafeArea(
           child: Stack(
             children: [
@@ -150,7 +79,7 @@ class Homepage extends StatelessWidget {
                             borderRadius: BorderRadius.circular(12),
                             image: DecorationImage(
                               image: AssetImage(
-                                'lib/assets/images/banners/banner${(index % 2) + 1}.png',
+                                'lib/assets/images/banners/banner${(index % 4) + 2}.png',
                               ),
                               fit: BoxFit.cover,
                             ),
@@ -182,7 +111,9 @@ class Homepage extends StatelessWidget {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          TextButton(onPressed: () {}, child: Text('See All')),
+                          TextButton(onPressed: () {
+                            context.push('/movie-list');
+                          }, child: Text('See All')),
                         ],
                       ),
                     ),
@@ -205,7 +136,7 @@ class Homepage extends StatelessWidget {
                               children: [
                                 Container(
                                   height: 250,
-                                  width: 180,
+                                  width: 190,
                                   decoration: BoxDecoration(
                                     color: Colors.grey[300],
                                     borderRadius: BorderRadius.circular(12),
@@ -239,7 +170,9 @@ class Homepage extends StatelessWidget {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          TextButton(onPressed: () {}, child: Text('See All')),
+                          TextButton(onPressed: () {
+                            context.push('/movie-list');
+                          }, child: Text('See All')),
                         ],
                       ),
                     ),
@@ -262,6 +195,7 @@ class Homepage extends StatelessWidget {
                               children: [
                                 Container(
                                   height: 200,
+                                  width: 190,
                                   decoration: BoxDecoration(
                                     color: Colors.grey[300],
                                     borderRadius: BorderRadius.circular(12),

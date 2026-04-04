@@ -1,4 +1,4 @@
-package com.example.belajarappdart1
+package com.example.bixcinema
 
 import io.flutter.embedding.android.FlutterActivity
 
