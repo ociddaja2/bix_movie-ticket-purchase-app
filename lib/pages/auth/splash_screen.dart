@@ -114,9 +114,9 @@ class _SplashScreenState extends State<SplashScreen>
     //Animasi pemisahan (BIX ke atas, cinema ke bawah)
     await _separateController.forward();
 
-    //Navigate ke Homepage menggunakan go_router
+    //Navigate ke login menggunakan go_router
     if (mounted) {
-      context.go('/home');
+      context.go('/login');
     }
   }
 
