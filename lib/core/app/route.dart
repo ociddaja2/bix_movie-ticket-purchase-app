@@ -9,6 +9,7 @@ import '../../pages/home/movie_list_page.dart';
 import '../../pages/home/booking_page.dart';
 import '../../pages/home/profile_page.dart';
 import '../../ui/widgets/navbar.dart';
+import '../../pages/movie_detail_page.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
@@ -24,6 +25,7 @@ class AppRoutes {
   static const String movieList = '/movie-list';
   static const String booking = '/booking';
   static const String profile = '/profile';
+  static const String movieDetail = '/movie-detail';
 
   // Fungsi untuk mendapatkan index navbar berdasarkan location
   static int _getNavbarIndex(String location) {
@@ -56,6 +58,19 @@ class AppRoutes {
       GoRoute(
         path: movieList,
         builder: (context, state) => const MovieListPage(),
+      ),
+      GoRoute(path: movieDetail,
+      builder: (context, state) => const MovieDetailPage(),
+        // builder: (context, state) {
+        //   final movieId = state.queryParams['id'];
+        //   if (movieId == null) {
+        //     return Scaffold(
+        //       appBar: AppBar(title: Text('Error')),
+        //       body: Center(child: Text('Movie ID is missing')),
+        //     );
+        //   }
+        //   return MovieDetailPage(movieId: movieId);
+        // },
       ),
 
       // fungsi navbar di page dgn navbar

@@ -1,4 +1,6 @@
 import 'package:bixcinema/ui/widgets/backgroundLoginWidget.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core_dart/firebase_core_dart.dart';
 import 'package:flutter/material.dart';
 import 'package:bixcinema/ui/widgets/logoBoxWidget.dart';
 
@@ -14,6 +16,11 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _rememberMe = false;
+
+  // signIn()async {
+  //   // Implementasi logika login di sini
+  //   await FirebaseAuth.instance.signInWithEmailAndPassword(email: email.text, password: password.text);
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -80,8 +87,14 @@ class _LoginPageState extends State<LoginPage> {
             
                     const SizedBox(height: 8),
             
-                    TextField(
+                    TextFormField(
                       controller: _emailController,
+                      validator: ( value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Email atau nomor tidak boleh kosong';
+                        }
+                        return null;
+                      },
                       decoration: InputDecoration(
                         hoverColor: Colors.transparent,
                         labelText: 'Masukkan Email Atau Nomor',
@@ -119,8 +132,9 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     const SizedBox(height: 8),
             
-                    TextField(
+                    TextFormField(
                       controller: _passwordController,
+                      validator: (value) => (value == null || value.isEmpty) ? 'Password tidak boleh kosong' : null,
                       obscureText: true,
                       decoration: InputDecoration(
                         hoverColor: Colors.transparent,
