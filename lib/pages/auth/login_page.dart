@@ -17,11 +17,6 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
   bool _rememberMe = false;
 
-  // signIn()async {
-  //   // Implementasi logika login di sini
-  //   await FirebaseAuth.instance.signInWithEmailAndPassword(email: email.text, password: password.text);
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

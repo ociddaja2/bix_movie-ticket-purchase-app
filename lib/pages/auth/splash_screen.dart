@@ -116,7 +116,7 @@ class _SplashScreenState extends State<SplashScreen>
 
     //Navigate ke login menggunakan go_router
     if (mounted) {
-      context.go('/movie-detail');
+      context.go('/movie-list');
     }
   }
 

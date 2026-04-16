@@ -1,7 +1,10 @@
+import 'package:bixcinema/core/models/movie_model.dart';
 import 'package:flutter/material.dart';
 
 class MovieDetailPage extends StatefulWidget {
-  const MovieDetailPage({super.key});
+  final MovieModel movie;
+
+  const MovieDetailPage({super.key, required this.movie});
 
   @override
   State<MovieDetailPage> createState() => _MovieDetailPageState();
@@ -10,6 +13,7 @@ class MovieDetailPage extends StatefulWidget {
 class _MovieDetailPageState extends State<MovieDetailPage> {
   int selectedDateIndex = 0;
   String? selectedShowtime;
+  bool _synopsisExpanded = false;
 
   final List<Map<String, String>> dates = [
     {'label': 'Hari ini', 'day': '19'},
@@ -57,16 +61,13 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
           width: double.infinity,
           height: 200,
           color: Colors.black87,
-          child: Image.network(
-            'https://upload.wikimedia.org/wikipedia/en/thumb/0/0f/Avatar_Fire_and_Ash_poster.jpg/220px-Avatar_Fire_and_Ash_poster.jpg',
-            fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => Container(
-              color: Colors.grey[800],
-              child: const Center(
-                child: Icon(Icons.movie, color: Colors.white54, size: 60),
-              ),
-            ),
-          ),
+          child: widget.movie.posterUrl != null
+              ? Image.network(
+                  widget.movie.posterUrl!,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, _, _) => _posterFallback(),
+                )
+              : _posterFallback(),
         ),
         Container(
           width: double.infinity,
@@ -88,20 +89,36 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
             ),
           ),
         ),
-        Positioned.fill(
-          child: Center(
-            child: Container(
-              width: 52,
-              height: 52,
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.9),
-                shape: BoxShape.circle,
+        // Tampilkan tombol play hanya jika ada trailerUrl
+        if (widget.movie.trailerUrl != null)
+          Positioned.fill(
+            child: Center(
+              child: GestureDetector(
+                onTap: () {
+                  // TODO: navigasi ke halaman trailer
+                },
+                child: Container(
+                  width: 52,
+                  height: 52,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.9),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.play_arrow, color: Colors.black87, size: 32),
+                ),
               ),
-              child: const Icon(Icons.play_arrow, color: Colors.black87, size: 32),
             ),
           ),
-        ),
       ],
+    );
+  }
+
+  Widget _posterFallback() {
+    return Container(
+      color: Colors.grey[800],
+      child: const Center(
+        child: Icon(Icons.movie, color: Colors.white54, size: 60),
+      ),
     );
   }
 
@@ -113,44 +130,41 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(6),
-            child: Image.network(
-              'https://upload.wikimedia.org/wikipedia/en/thumb/0/0f/Avatar_Fire_and_Ash_poster.jpg/220px-Avatar_Fire_and_Ash_poster.jpg',
-              width: 64,
-              height: 90,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
-                width: 64,
-                height: 90,
-                color: Colors.grey[300],
-                child: const Icon(Icons.movie, color: Colors.grey),
-              ),
-            ),
+            child: widget.movie.posterUrl != null
+                ? Image.network(
+                    widget.movie.posterUrl!,
+                    width: 64,
+                    height: 90,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => _thumbnailFallback(),
+                  )
+                : _thumbnailFallback(),
           ),
           const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Avatar Fire And Ash',
-                  style: TextStyle(
+                Text(
+                  widget.movie.judul,
+                  style: const TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w700,
                     color: Colors.black87,
                   ),
                 ),
                 const SizedBox(height: 4),
-                const Text(
-                  'action-adventure, fantasy film',
-                  style: TextStyle(fontSize: 13, color: Colors.grey),
+                Text(
+                  widget.movie.genre.join(', '),
+                  style: const TextStyle(fontSize: 13, color: Colors.grey),
                 ),
                 const SizedBox(height: 10),
                 Wrap(
                   spacing: 8,
                   children: [
-                    _buildTag('3j 17m'),
-                    _buildTag('13+'),
-                    _buildTag('2D'),
+                    _buildTag(widget.movie.durasi),
+                    _buildTag(widget.movie.rating),
+                    _buildTag(widget.movie.format),
                   ],
                 ),
               ],
@@ -158,6 +172,15 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _thumbnailFallback() {
+    return Container(
+      width: 64,
+      height: 90,
+      color: Colors.grey[300],
+      child: const Icon(Icons.movie, color: Colors.grey),
     );
   }
 
@@ -176,6 +199,13 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
   }
 
   Widget _buildSynopsis() {
+    const int maxChars = 120;
+    final sinopsis = widget.movie.sinopsis;
+    final isLong = sinopsis.length > maxChars;
+    final displayText = (!_synopsisExpanded && isLong)
+        ? '${sinopsis.substring(0, maxChars)}...'
+        : sinopsis;
+
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -194,22 +224,22 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                 height: 1.5,
               ),
               children: [
-                const TextSpan(
-                  text:
-                      'Setelah perang yang dahsyat melawan RDA dan kehilangan putra sulung mereka, Jake Sully (Sam Worthington) dan Neytiri (Zoe Saldana) menghadapi ancaman baru di Pandora: Suku Ash, suku Na\'vi yang kejam dan haus...',
-                ),
-                WidgetSpan(
-                  child: GestureDetector(
-                    onTap: () {},
-                    child: const Text(
-                      'Lihat Selengkapnya',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Color(0xFF1A73E8),
+                TextSpan(text: displayText),
+                if (isLong)
+                  WidgetSpan(
+                    child: GestureDetector(
+                      onTap: () => setState(
+                        () => _synopsisExpanded = !_synopsisExpanded,
+                      ),
+                      child: Text(
+                        _synopsisExpanded ? ' Sembunyikan' : ' Lihat Selengkapnya',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Color(0xFF1A73E8),
+                        ),
                       ),
                     ),
                   ),
-                ),
               ],
             ),
           ),
@@ -248,7 +278,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                         style: TextStyle(
                           fontSize: 12,
                           color: selectedDateIndex == index
-                              ? Colors.white
+                              ? const Color(0xFF1A73E8)
                               : Colors.grey,
                         ),
                       ),
@@ -301,9 +331,16 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
             children: const [
               Icon(Icons.location_on_outlined, color: Colors.black54, size: 20),
               SizedBox(width: 6),
+            ],
+          ),
+          // Nama teater dari model
+          Row(
+            children: [
+              const Icon(Icons.location_on_outlined, color: Colors.transparent, size: 20),
+              const SizedBox(width: 6),
               Text(
-                'Q Mall Banjarbaru',
-                style: TextStyle(
+                widget.movie.teater,
+                style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
                   color: Colors.black87,
@@ -312,18 +349,18 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
             ],
           ),
           const SizedBox(height: 4),
-          const Padding(
-            padding: EdgeInsets.only(left: 26),
+          Padding(
+            padding: const EdgeInsets.only(left: 26),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Reguler 2D',
-                  style: TextStyle(fontSize: 13, color: Colors.grey),
+                  '${widget.movie.format}',
+                  style: const TextStyle(fontSize: 13, color: Colors.grey),
                 ),
                 Text(
-                  'Rp50.000',
-                  style: TextStyle(fontSize: 13, color: Colors.grey),
+                  'Rp${_formatHarga(widget.movie.harga)}',
+                  style: const TextStyle(fontSize: 13, color: Colors.grey),
                 ),
               ],
             ),
@@ -336,10 +373,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
               return GestureDetector(
                 onTap: () => setState(() => selectedShowtime = time),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 8,
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   decoration: BoxDecoration(
                     border: Border.all(
                       color: isSelected
@@ -347,20 +381,14 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                           : Colors.grey.shade300,
                     ),
                     borderRadius: BorderRadius.circular(6),
-                    color: isSelected
-                        ? const Color(0xFFE8F0FE)
-                        : Colors.white,
+                    color: isSelected ? const Color(0xFFE8F0FE) : Colors.white,
                   ),
                   child: Text(
                     time,
                     style: TextStyle(
                       fontSize: 13,
-                      color: isSelected
-                          ? const Color(0xFF1A73E8)
-                          : Colors.black54,
-                      fontWeight: isSelected
-                          ? FontWeight.w600
-                          : FontWeight.normal,
+                      color: isSelected ? const Color(0xFF1A73E8) : Colors.black54,
+                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                     ),
                   ),
                 ),
@@ -370,6 +398,14 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
           const SizedBox(height: 16),
         ],
       ),
+    );
+  }
+
+  String _formatHarga(int harga) {
+    // Format angka dengan titik ribuan: 50000 → 50.000
+    return harga.toString().replaceAllMapped(
+      RegExp(r'(\d)(?=(\d{3})+$)'),
+      (m) => '${m[1]}.',
     );
   }
 

@@ -10,6 +10,7 @@ import '../../pages/home/booking_page.dart';
 import '../../pages/home/profile_page.dart';
 import '../../ui/widgets/navbar.dart';
 import '../../pages/movie_detail_page.dart';
+import 'package:bixcinema/core/models/movie_model.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
@@ -60,7 +61,8 @@ class AppRoutes {
         builder: (context, state) => const MovieListPage(),
       ),
       GoRoute(path: movieDetail,
-      builder: (context, state) => const MovieDetailPage(),
+      builder: (context, state) => MovieDetailPage(movie: state.extra as MovieModel),
+      // builder: (context, state) => const MovieDetailPage(),
         // builder: (context, state) {
         //   final movieId = state.queryParams['id'];
         //   if (movieId == null) {

@@ -8,8 +8,9 @@ class MovieModel {
   final String format;
   final String rating;
   final String teater;
+  final String status;
 
-  final String? posterUrl;
+  String posterUrl;
   final String? trailerUrl;
 
   MovieModel({
@@ -22,29 +23,32 @@ class MovieModel {
     required this.format,
     required this.rating,
     required this.teater,
-    this.posterUrl,
+    required this.status,
+    required this.posterUrl,
     this.trailerUrl,
   });
 
+  // Factory method to create a MovieModel from JSON
   factory MovieModel.fromJson(Map<String, dynamic> json) {
     return MovieModel(
-      id: json['id'] as String,
-      harga: json['harga'] as int,
-      judul: json['judul'] as String,
-      sinopsis: json['sinopsis'] as String,
-      genre: List<String>.from(json['genre'] as List<dynamic>),
-      durasi: json['durasi'] as String,
-      format: json['format'] as String,
-      rating: json['rating'] as String,
-      teater: json['teater'] as String,
-      posterUrl: json['poster_url'] as String?,
+      id: json['id'] as String? ?? '',
+      harga: json['harga'] as int? ?? 0,
+      judul: json['judul'] as String? ?? '',
+      sinopsis: json['sinopsis'] as String? ?? '',
+      genre: List<String>.from(json['genre'] as List<dynamic>? ?? []),
+      durasi: json['durasi'] as String? ?? '',
+      format: json['format'] as String? ?? '',
+      rating: json['rating'] as String? ?? '',
+      teater: json['teater'] as String? ?? '',
+      status: json['status'] as String? ?? '',
+      posterUrl: json['poster_url'] as String? ?? '',
       trailerUrl: json['trailer_url'] as String?,
     );
   }
 
+  // Method to convert a MovieModel instance to JSON
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
       'harga': harga,
       'judul': judul,
       'sinopsis': sinopsis,
@@ -53,6 +57,7 @@ class MovieModel {
       'format': format,
       'rating': rating,
       'teater': teater,
+      'status': status,
       'poster_url': posterUrl,
       'trailer_url': trailerUrl,
     };

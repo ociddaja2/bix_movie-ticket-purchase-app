@@ -4,14 +4,18 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
 void main() async {
-  runApp(const MyApp());
-
+  
+  try {
   // Inisialisasi Firebase 
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  } catch (e) {
+    print('Error initializing Firebase: $e');
+  }
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {

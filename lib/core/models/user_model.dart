@@ -3,8 +3,6 @@ class UserModel {
   final String name;
   final String email;
   final String phoneNumber;
-  final String? avatarUrl;
-
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -13,7 +11,6 @@ class UserModel {
     required this.name,
     required this.email,
     required this.phoneNumber,
-    this.avatarUrl,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -25,7 +22,6 @@ class UserModel {
       name: json['name'] as String,
       email: json['email'] as String,
       phoneNumber: json['phone_number'] as String,
-      avatarUrl: json['avatar_url'] as String?,
       createdAt: (json['created_at']?.toDate()) ?? DateTime.now(),
       updatedAt: (json['updated_at']?.toDate()) ?? DateTime.now(),
     );
@@ -38,7 +34,6 @@ Map<String, dynamic> userToJson(UserModel user) {
     'name': user.name,
     'email': user.email,
     'phone_number': user.phoneNumber,
-    'avatar_url': user.avatarUrl,
     'created_at': user.createdAt.toIso8601String(),
     'updated_at': user.updatedAt.toIso8601String(),
   };
