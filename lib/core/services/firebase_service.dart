@@ -43,7 +43,7 @@ class FirebaseService {
         'id': userCredential.user!.uid,
         'name': fullName,
         'email': email,
-        'phone_number': phoneNumber,
+        'phoneNumber': phoneNumber,
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
       });
