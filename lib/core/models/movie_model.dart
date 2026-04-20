@@ -8,12 +8,12 @@ class MovieModel {
   final String format;
   final String rating;
   final String teater;
-  final String status;
+  final bool status;
 
   String posterUrl;
   final String? trailerUrl;
 
-  MovieModel({
+  MovieModel({  
     required this.id,
     required this.harga,
     required this.judul,
@@ -40,7 +40,7 @@ class MovieModel {
       format: json['format'] as String? ?? '',
       rating: json['rating'] as String? ?? '',
       teater: json['teater'] as String? ?? '',
-      status: json['status'] as String? ?? '',
+      status: json['status'] as bool? ?? false,
       posterUrl: json['poster_url'] as String? ?? '',
       trailerUrl: json['trailer_url'] as String?,
     );

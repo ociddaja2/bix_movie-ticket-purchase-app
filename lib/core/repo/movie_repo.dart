@@ -15,7 +15,7 @@ class MovieRepository {
   Future<List<MovieModel>> fetchNowShowing() async {
     final snapshot = await _db
         .collection('movies')
-        .where('status', isEqualTo: 'now_showing')
+        .where('status', isEqualTo: true)
         .get();
     return snapshot.docs
         .map((doc) => MovieModel.fromJson({...doc.data(), 'id': doc.id}))
@@ -25,7 +25,7 @@ class MovieRepository {
   Future<List<MovieModel>> fetchComingSoon() async {
     final snapshot = await _db
         .collection('movies')
-        .where('status', isEqualTo: 'coming_soon')
+        .where('status', isEqualTo: false)
         .get();
     return snapshot.docs
         .map((doc) => MovieModel.fromJson({...doc.data(), 'id': doc.id}))

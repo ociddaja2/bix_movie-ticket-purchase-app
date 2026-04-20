@@ -1,9 +1,11 @@
+import 'package:bixcinema/core/app/route.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:bixcinema/ui/widgets/backgroundLoginWidget.dart';
 import 'package:bixcinema/core/models/movie_model.dart';
 import 'package:go_router/go_router.dart';
 import 'package:bixcinema/core/repo/movie_repo.dart';
+import 'package:bixcinema/ui/widgets/loading_screen.dart';
 
 class Homepage extends StatelessWidget {
   const Homepage({super.key});
@@ -11,18 +13,21 @@ class Homepage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final repo = MovieRepository();
-    
+
     return FutureBuilder(
       // Fetch keduanya sekaligus secara paralel
-      future: Future.wait([
-        repo.fetchNowShowing(),
-        repo.fetchComingSoon(),
-      ]),
+      future: Future.wait([repo.fetchNowShowing(), repo.fetchComingSoon()]),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
+          return Stack(
+            children: [
+              _buildContent(context, [], []), // atau Scaffold transparan
+              const Scaffold(
+              backgroundColor: Colors.transparent,
+              body: BixLoadingScreen(),
+      ),
+    ],
+  );
         }
 
         if (snapshot.hasError) {
@@ -33,7 +38,7 @@ class Homepage extends StatelessWidget {
 
         // Hasil fetch
         final data = snapshot.data as List<List<MovieModel>>;
-        final nowShowing = data[0];   
+        final nowShowing = data[0];
         final comingSoon = data[1];
 
         return _buildContent(context, nowShowing, comingSoon);
@@ -96,10 +101,12 @@ class Homepage extends StatelessWidget {
     if (movies.isEmpty) {
       return const Padding(
         padding: EdgeInsets.symmetric(horizontal: 16),
-        child: Text('Tidak ada film tersedia.', style: TextStyle(color: Color.fromARGB(255, 199, 0, 0))),
+        child: Text(
+          'Tidak ada film tersedia.',
+          style: TextStyle(color: Color.fromARGB(255, 199, 0, 0)),
+        ),
       );
     }
-
 
     return SizedBox(
       height: cardHeight + 50,
@@ -115,9 +122,14 @@ class Homepage extends StatelessWidget {
     );
   }
 
-  Widget _buildMovieCard(BuildContext context, MovieModel movie, double height) {
+  Widget _buildMovieCard(
+    BuildContext context,
+    MovieModel movie,
+    double height,
+  ) {
     return GestureDetector(
-      onTap: () => context.push('/movie-detail/${movie.id}', extra: movie),
+      onTap: () =>
+          context.push('${AppRoutes.movieDetail}?id=$movie', extra: movie),
       child: Container(
         width: 140,
         margin: const EdgeInsets.only(right: 16),
@@ -129,19 +141,27 @@ class Homepage extends StatelessWidget {
               child: Stack(
                 children: [
                   // Poster dari URL, fallback ke asset lokal
-                  movie.posterUrl != null && movie.posterUrl.isNotEmpty
-                      ? Image.network(
-                          movie.posterUrl,
-                          height: height,
-                          width: 140,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, _, _) => _posterFallback(height),
-                        )
-                      : _posterFallback(height),
+                  // movie.posterUrl.isNotEmpty ?
+                  Image.network(
+                    movie.posterUrl,
+                    height: height,
+                    width: 140,
+                    fit: BoxFit.cover,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Container(
+                        height: height,
+                        width: 140,
+                        color: Colors.grey[300],
+                        child: const Center(child: CircularProgressIndicator()),
+                      );
+                    },
+                    errorBuilder: (_, __, ___) => _posterFallback(height),
+                  ),
+                  // : _posterFallback(height),
                 ],
               ),
             ),
-            
           ],
         ),
       ),
@@ -159,59 +179,66 @@ class Homepage extends StatelessWidget {
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
-              elevation: 0,
-              backgroundColor: const Color.fromARGB(255, 5, 53, 125),
-              automaticallyImplyLeading: false,
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(11),
-                  bottomRight: Radius.circular(11),
-                ),
-              ),
-              flexibleSpace: SafeArea(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset('lib/assets/images/icons/iconbix3.png'),
-                    const Divider(
-                      color: Colors.white,
-                      thickness: 1,
-                      indent: 16,
-                      endIndent: 16,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: GestureDetector(
-                        onTap: () => context.push('/location'),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
+      elevation: 0,
+      backgroundColor: const Color.fromARGB(255, 5, 53, 125),
+      automaticallyImplyLeading: false,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(11),
+          bottomRight: Radius.circular(11),
+        ),
+      ),
+      flexibleSpace: SafeArea(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset('lib/assets/images/icons/iconbix3.png'),
+            const Divider(
+              color: Colors.white,
+              thickness: 1,
+              indent: 16,
+              endIndent: 16,
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: GestureDetector(
+                onTap: () => context.push('/location'),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.white54),
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.location_on_outlined,
+                            color: Colors.white,
+                            size: 18,
                           ),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.white54),
-                            borderRadius: BorderRadius.circular(30),
+                          SizedBox(width: 8),
+                          Text(
+                            'Banjarbaru',
+                            style: TextStyle(color: Colors.white, fontSize: 14),
                           ),
-                          child: const Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  Icon(Icons.location_on_outlined, color: Colors.white, size: 18),
-                                  SizedBox(width: 8),
-                                  Text('Banjarbaru', style: TextStyle(color: Colors.white, fontSize: 14)),
-                                ],
-                              ),
-                              Icon(Icons.keyboard_arrow_down, color: Colors.white),
-                            ],
-                          ),
-                        ),
+                        ],
                       ),
-                    ),
-                  ],
+                      Icon(Icons.keyboard_arrow_down, color: Colors.white),
+                    ],
+                  ),
                 ),
               ),
-              toolbarHeight: 120,
+            ),
+          ],
+        ),
+      ),
+      toolbarHeight: 120,
     );
   }
 
@@ -219,22 +246,16 @@ class Homepage extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.0),
       child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Hi User, welcome to BIX Cinema!',
-          style: TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Hi User, welcome to BIX Cinema!',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Explore the latest movies and shows now.',
-          style: TextStyle(
-          fontSize: 14,
-          color: Colors.black54,
-            ),
+          const SizedBox(height: 8),
+          Text(
+            'Explore the latest movies and shows now.',
+            style: TextStyle(fontSize: 14, color: Colors.black54),
           ),
         ],
       ),
@@ -242,8 +263,8 @@ class Homepage extends StatelessWidget {
   }
 
   Widget _buildCarousel() {
-  return CarouselSlider(
-        items: List.generate(2, (index) {
+    return CarouselSlider(
+      items: List.generate(2, (index) {
         return Container(
           margin: EdgeInsets.symmetric(horizontal: 1.0),
           decoration: BoxDecoration(

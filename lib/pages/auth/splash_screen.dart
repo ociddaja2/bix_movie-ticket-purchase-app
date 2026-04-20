@@ -1,3 +1,6 @@
+import 'package:bixcinema/core/app/route.dart';
+import 'package:bixcinema/core/services/storage_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:async';
@@ -96,6 +99,44 @@ class _SplashScreenState extends State<SplashScreen>
     _startAnimations();
   }
 
+  Future<void> _checkLoginStatus() async {
+  // Delay untuk tampilkan loading screen sebentar
+  await Future.delayed(Duration(milliseconds: 2000));
+  
+  try {
+    // Cek apakah ada user yang sudah login
+    final currentUser = FirebaseAuth.instance.currentUser;
+    
+    if (currentUser != null) {
+      // User sudah login, ke home
+      if (mounted) {
+        context.go(AppRoutes.home);
+      }
+    } else {
+      // Check remember me
+      final isRemembered = await StorageService.isRememberMeEnabled();
+      final savedEmail = await StorageService.getSavedEmail();
+      
+      if (isRemembered && savedEmail != null) {
+        // Coba auto-login dengan saved email
+        // Tapi ini risky, sebaiknya hanya skip ke home jika session masih valid
+        // ignore: use_build_context_synchronously
+        context.go(AppRoutes.home);
+      } else {
+        // Tidak ada session, ke login
+        if (mounted) {
+          context.go(AppRoutes.login);
+        }
+      }
+    }
+  } catch (e) {
+    // Error, ke login
+    if (mounted) {
+      context.go(AppRoutes.login);
+    }
+  }
+}
+
   void _startAnimations() async {
     //tunggu sebentar sebelum mulai animasi, buat bg
     await Future.delayed(const Duration(milliseconds: 500));
@@ -116,7 +157,7 @@ class _SplashScreenState extends State<SplashScreen>
 
     //Navigate ke login menggunakan go_router
     if (mounted) {
-      context.go('/movie-list');
+      await _checkLoginStatus();
     }
   }
 

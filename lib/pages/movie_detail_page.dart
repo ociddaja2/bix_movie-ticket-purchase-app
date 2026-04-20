@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 
 class MovieDetailPage extends StatefulWidget {
   final MovieModel movie;
+  final String id;
 
-  const MovieDetailPage({super.key, required this.movie});
+  const MovieDetailPage({super.key, required this.movie, required this.id});
 
   @override
   State<MovieDetailPage> createState() => _MovieDetailPageState();
@@ -136,7 +137,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                     width: 64,
                     height: 90,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => _thumbnailFallback(),
+                    errorBuilder: (_, _, _) => _thumbnailFallback(),
                   )
                 : _thumbnailFallback(),
           ),

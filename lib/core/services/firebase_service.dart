@@ -8,8 +8,6 @@ class FirebaseService {
   static final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // ============= AUTHENTICATION =============
-
   /// Sign In dengan Email dan Password
   static Future<UserCredential> signInWithEmailPassword({
     required String email,
@@ -40,14 +38,14 @@ class FirebaseService {
         password: password,
       );
 
-      // 2. Simpan data user di Firestore
+      // 2. Simpan data user di Firestore (JANGAN simpan password di Firestore!)
       await _firestore.collection('users').doc(userCredential.user!.uid).set({
         'id': userCredential.user!.uid,
         'name': fullName,
         'email': email,
         'phone_number': phoneNumber,
-        'avatar_url': null,
-        'created_at': FieldValue.serverTimestamp(),
+        'createdAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
       });
 
       return userCredential;
@@ -65,7 +63,7 @@ class FirebaseService {
   static Future<UserModel?> getCurrentUser(String uid) async {
     try {
       final docSnapshot = await _firestore.collection('users').doc(uid).get();
-      
+
       if (docSnapshot.exists) {
         return UserModel.fromJson(docSnapshot.data()!);
       }
@@ -76,19 +74,19 @@ class FirebaseService {
   }
 
   /// Check Email Already Exists
-  static Future<bool> emailExists(String email) async {
-    try {
-      final result = await _firestore
-          .collection('users')
-          .where('email', isEqualTo: email)
-          .limit(1)
-          .get();
-      
-      return result.docs.isNotEmpty;
-    } catch (e) {
-      throw Exception('Error checking email: $e');
-    }
-  }
+  // static Future<bool> emailExists(String email) async {
+  //   try {
+  //     final result = await _firestore
+  //         .collection('users')
+  //         .where('email', isEqualTo: email)
+  //         .limit(1)
+  //         .get();
+
+  //     return result.docs.isNotEmpty;
+  //   } catch (e) {
+  //     throw Exception('Error checking email: $e');
+  //   }
+  // }
 
   /// Get Auth State Changes Stream
   static Stream<User?> authStateChanges() {

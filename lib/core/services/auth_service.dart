@@ -1,4 +1,5 @@
 // lib/core/services/auth_service.dart
+import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:bixcinema/core/services/firebase_service.dart';
 import 'package:bixcinema/core/models/user_model.dart';
@@ -45,13 +46,13 @@ class AuthService {
   }) async {
     try {
       // Cek email sudah ada
-      final emailAlreadyExists = await FirebaseService.emailExists(email);
-      if (emailAlreadyExists) {
-        return {
-          'success': false,
-          'error': 'Email sudah terdaftar',
-        };
-      }
+      // final emailAlreadyExists = await FirebaseService.emailExists(email);
+      // if (emailAlreadyExists) {
+      //   return {
+      //     'success': false,
+      //     'error': 'Email sudah terdaftar',
+      //   };
+      // }
 
       final userCredential = await FirebaseService.registerWithEmailPassword(
         email: email,

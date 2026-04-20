@@ -11,6 +11,7 @@ import '../../pages/home/profile_page.dart';
 import '../../ui/widgets/navbar.dart';
 import '../../pages/movie_detail_page.dart';
 import 'package:bixcinema/core/models/movie_model.dart';
+import '../../ui/widgets/loading_screen.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
@@ -27,6 +28,7 @@ class AppRoutes {
   static const String booking = '/booking';
   static const String profile = '/profile';
   static const String movieDetail = '/movie-detail';
+  static const String loading = '/loading';
 
   // Fungsi untuk mendapatkan index navbar berdasarkan location
   static int _getNavbarIndex(String location) {
@@ -60,19 +62,22 @@ class AppRoutes {
         path: movieList,
         builder: (context, state) => const MovieListPage(),
       ),
+      GoRoute(path: loading,
+        builder: (context, state) => const BixLoadingScreen(),
+      ),
       GoRoute(path: movieDetail,
-      builder: (context, state) => MovieDetailPage(movie: state.extra as MovieModel),
+      // builder: (context, state) => MovieDetailPage(movie: state.extra as MovieModel),
       // builder: (context, state) => const MovieDetailPage(),
-        // builder: (context, state) {
-        //   final movieId = state.queryParams['id'];
-        //   if (movieId == null) {
-        //     return Scaffold(
-        //       appBar: AppBar(title: Text('Error')),
-        //       body: Center(child: Text('Movie ID is missing')),
-        //     );
-        //   }
-        //   return MovieDetailPage(movieId: movieId);
-        // },
+        builder: (context, state) {
+          final id = state.uri.queryParameters['id'];
+          if (id == null) {
+            return Scaffold(
+              appBar: AppBar(title: Text('Error')),
+              body: Center(child: Text('Movie ID is missing')),
+            );
+          }
+          return MovieDetailPage(id: id, movie: state.extra as MovieModel);
+        },
       ),
 
       // fungsi navbar di page dgn navbar
