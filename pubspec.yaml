@@ -79,6 +79,7 @@ flutter:
     - lib/assets/images/movies/sedangtayang/
     - lib/assets/images/movies/comingsoon/
     - lib/assets/images/banners/
+    - lib/assets/images/
 
   
   # An image asset can refer to one or more resolution-specific "variants", see
