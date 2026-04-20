@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:bixcinema/core/models/user_model.dart';
 import 'package:bixcinema/core/services/firebase_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:bixcinema/core/services/auth_service.dart';
+import 'package:go_router/go_router.dart';
+import '../../ui/widgets/loading_screen.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -20,9 +23,14 @@ class ProfilePage extends StatelessWidget {
   }
 }
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+  class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     // final currentUser = FirebaseService.getCurrentAuthUser();
@@ -44,7 +52,10 @@ class ProfileScreen extends StatelessWidget {
       future: FirebaseService.getCurrentUser(userId),
       builder: (context, userSnapshot) {
         if (userSnapshot.connectionState == ConnectionState.waiting) {
-          return Scaffold(body: Center(child: CircularProgressIndicator()));
+          return Scaffold(
+            extendBody: true,
+            body: const BixLoadingScreen(),
+          );
         } else if (userSnapshot.hasError) {
           return Scaffold(
             body: Center(child: Text('Error : ${userSnapshot.error}')),
@@ -165,7 +176,10 @@ class ProfileScreen extends StatelessWidget {
                         const SizedBox(height: 20),
 
                         // Email
-                        _ProfileField(label: 'Email', value: user?.email ?? ''),
+                        _ProfileField(
+                          label: 'Email',
+                          value: user?.email ?? ''
+                        ),
 
                         const SizedBox(height: 24),
 
@@ -204,7 +218,7 @@ class ProfileScreen extends StatelessWidget {
                         SizedBox(
                           width: double.infinity,
                           child: OutlinedButton(
-                            onPressed: () {},
+                            onPressed: _handleLogout,
                             style: OutlinedButton.styleFrom(
                               side: const BorderSide(
                                 color: Colors.red,
@@ -227,19 +241,66 @@ class ProfileScreen extends StatelessWidget {
                         ),
 
                         const SizedBox(height: 32),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-        );
-      },
-    );
-  } 
+          );
+        },
+      );
+    } 
   );
 }
+  Future<void> _handleLogout() async {
+    // 1. Show confirmation dialog
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Logout'),
+        content: const Text('Apakah Anda yakin ingin keluar dari akun ini?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context); // Tutup confirmation dialog
+              
+              // 2. Call AuthService.signOut() (bukan langsung Firebase)
+              await AuthService.signOut();
+              
+              if (!mounted) return;
+              
+              // 3. Show success dialog
+              showDialog(
+                // ignore: use_build_context_synchronously
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Logout Berhasil'),
+                  content: const Text('Anda telah berhasil keluar dari akun.'),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        // 4. Navigate ke login page
+                        context.go('/login');
+                      },
+                      child: const Text('OK'),
+                    ),
+                  ],
+                ),
+              );
+            },
+            child: const Text('Ya, Logout'),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _ProfileField extends StatelessWidget {
@@ -270,3 +331,4 @@ class _ProfileField extends StatelessWidget {
     );
   }
 }
+

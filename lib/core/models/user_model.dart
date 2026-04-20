@@ -24,7 +24,7 @@ class UserModel {
       name: json['name'] as String? ?? '',
       email: json['email'] as String? ?? '',
       password: json['password'] as String? ?? '',
-      phoneNumber: json['phone_number'] as String? ?? '',
+      phoneNumber: json['phoneNumber'] as String? ?? '',
       createdAt: (json['created_at']?.toDate()) ?? DateTime.now(),
       updatedAt: (json['updated_at']?.toDate()) ?? DateTime.now(),
     );
@@ -37,7 +37,7 @@ Map<String, dynamic> userToJson(UserModel user) {
     'name': user.name,
     'email': user.email,
     'password': user.password,
-    'phone_number': user.phoneNumber,
+    'phoneNumber': user.phoneNumber,
     'created_at': user.createdAt.toIso8601String(),
     'updated_at': user.updatedAt.toIso8601String(),
   };

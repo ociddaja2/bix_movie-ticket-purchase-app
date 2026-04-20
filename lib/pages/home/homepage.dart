@@ -6,6 +6,7 @@ import 'package:bixcinema/core/models/movie_model.dart';
 import 'package:go_router/go_router.dart';
 import 'package:bixcinema/core/repo/movie_repo.dart';
 import 'package:bixcinema/ui/widgets/loading_screen.dart';
+import 'package:bixcinema/ui/widgets/appbar.dart';
 
 class Homepage extends StatelessWidget {
   const Homepage({super.key});
@@ -129,7 +130,7 @@ class Homepage extends StatelessWidget {
   ) {
     return GestureDetector(
       onTap: () =>
-          context.push('${AppRoutes.movieDetail}?id=$movie', extra: movie),
+          context.push('${AppRoutes.movieDetail}?id=${movie.id}', extra: movie),
       child: Container(
         width: 140,
         margin: const EdgeInsets.only(right: 16),
@@ -178,68 +179,7 @@ class Homepage extends StatelessWidget {
   }
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
-    return AppBar(
-      elevation: 0,
-      backgroundColor: const Color.fromARGB(255, 5, 53, 125),
-      automaticallyImplyLeading: false,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(11),
-          bottomRight: Radius.circular(11),
-        ),
-      ),
-      flexibleSpace: SafeArea(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset('lib/assets/images/icons/iconbix3.png'),
-            const Divider(
-              color: Colors.white,
-              thickness: 1,
-              indent: 16,
-              endIndent: 16,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: GestureDetector(
-                onTap: () => context.push('/location'),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.white54),
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.location_on_outlined,
-                            color: Colors.white,
-                            size: 18,
-                          ),
-                          SizedBox(width: 8),
-                          Text(
-                            'Banjarbaru',
-                            style: TextStyle(color: Colors.white, fontSize: 14),
-                          ),
-                        ],
-                      ),
-                      Icon(Icons.keyboard_arrow_down, color: Colors.white),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-      toolbarHeight: 120,
-    );
+    return const AppBarWidget(title: 'BIX Cinema');
   }
 
   Widget _buildWelcome() {
