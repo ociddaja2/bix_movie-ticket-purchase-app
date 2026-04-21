@@ -41,8 +41,8 @@ class MovieModel {
       rating: json['rating'] as String? ?? '',
       teater: json['teater'] as String? ?? '',
       status: json['status'] as bool? ?? false,
-      posterUrl: json['poster_url'] as String? ?? '',
-      trailerUrl: json['trailer_url'] as String?,
+      posterUrl: json['posterUrl'] as String? ?? '',
+      trailerUrl: json['trailerUrl'] as String?,
     );
   }
 
@@ -58,8 +58,8 @@ class MovieModel {
       'rating': rating,
       'teater': teater,
       'status': status,
-      'poster_url': posterUrl,
-      'trailer_url': trailerUrl,
+      'posterUrl': posterUrl,
+      'trailerUrl': trailerUrl,
     };
   }
 }

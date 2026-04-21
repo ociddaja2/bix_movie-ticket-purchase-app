@@ -108,25 +108,25 @@ class _SplashScreenState extends State<SplashScreen>
     final currentUser = FirebaseAuth.instance.currentUser;
     
     if (currentUser != null) {
-      // User sudah login, ke home
-      if (mounted) {
-        context.go(AppRoutes.home);
-      }
-    } else {
-      // Check remember me
+      // User sudah login, tapi cek apakah remember me enabled
       final isRemembered = await StorageService.isRememberMeEnabled();
-      final savedEmail = await StorageService.getSavedEmail();
       
-      if (isRemembered && savedEmail != null) {
-        // Coba auto-login dengan saved email
-        // Tapi ini risky, sebaiknya hanya skip ke home jika session masih valid
-        // ignore: use_build_context_synchronously
-        context.go(AppRoutes.home);
+      if (isRemembered) {
+        // Remember me enabled, lanjut ke home
+        if (mounted) {
+          context.go(AppRoutes.home);
+        }
       } else {
-        // Tidak ada session, ke login
+        // Remember me NOT enabled, harus logout dulu
+        await FirebaseAuth.instance.signOut();
         if (mounted) {
           context.go(AppRoutes.login);
         }
+      }
+    } else {
+      // User belum login, ke login page
+      if (mounted) {
+        context.go(AppRoutes.login);
       }
     }
   } catch (e) {
