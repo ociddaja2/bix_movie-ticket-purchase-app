@@ -1,6 +1,5 @@
 class MovieModel {
   final String id;
-  final int harga;
   final String judul;
   final String sinopsis;
   final List<String> genre;
@@ -10,12 +9,12 @@ class MovieModel {
   final String teater;
   final bool status;
 
+  final List<String> jam; // List of showtimes in string format
   String posterUrl;
   final String? trailerUrl;
 
   MovieModel({  
     required this.id,
-    required this.harga,
     required this.judul,
     required this.sinopsis,
     required this.genre,
@@ -24,6 +23,7 @@ class MovieModel {
     required this.rating,
     required this.teater,
     required this.status,
+    required this.jam,
     required this.posterUrl,
     this.trailerUrl,
   });
@@ -32,7 +32,6 @@ class MovieModel {
   factory MovieModel.fromJson(Map<String, dynamic> json) {
     return MovieModel(
       id: json['id'] as String? ?? '',
-      harga: json['harga'] as int? ?? 0,
       judul: json['judul'] as String? ?? '',
       sinopsis: json['sinopsis'] as String? ?? '',
       genre: List<String>.from(json['genre'] as List<dynamic>? ?? []),
@@ -41,6 +40,7 @@ class MovieModel {
       rating: json['rating'] as String? ?? '',
       teater: json['teater'] as String? ?? '',
       status: json['status'] as bool? ?? false,
+      jam: List<String>.from(json['jam'] as List<dynamic>? ?? []),
       posterUrl: json['posterUrl'] as String? ?? '',
       trailerUrl: json['trailerUrl'] as String?,
     );
@@ -49,7 +49,6 @@ class MovieModel {
   // Method to convert a MovieModel instance to JSON
   Map<String, dynamic> toJson() {
     return {
-      'harga': harga,
       'judul': judul,
       'sinopsis': sinopsis,
       'genre': genre,
@@ -58,6 +57,7 @@ class MovieModel {
       'rating': rating,
       'teater': teater,
       'status': status,
+      'jam': jam,
       'posterUrl': posterUrl,
       'trailerUrl': trailerUrl,
     };
