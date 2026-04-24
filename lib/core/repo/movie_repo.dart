@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:bixcinema/core/models/movie_model.dart';
+import 'package:bixcinema/core/models/tayang_model.dart';
 
 class MovieRepository {
   final _db = FirebaseFirestore.instance;
@@ -31,4 +32,49 @@ class MovieRepository {
         .map((doc) => MovieModel.fromJson({...doc.data(), 'id': doc.id}))
         .toList();
   }
+
+  // Fetch multiple movies by array of IDs
+  Future<List<MovieModel>> fetchMoviesByIds(List<String> movieId) async {
+    if (movieId.isEmpty) return [];
+    
+    final snapshot = await _db
+        .collection('movies')
+        .where(FieldPath.documentId, whereIn: movieId)
+        .get();
+    
+    return snapshot.docs
+        .map((doc) => MovieModel.fromJson({...doc.data(), 'id': doc.id}))
+        .toList();
+  }
+  
+  // Ambil semua tayang yang menampilkan film dengan ID ini
+  Future<List<TayangModel>> fetchTayangByMovieId(String movieId) async {
+  try {
+    final snapshot = await _db
+        .collection('tayang')
+        .where('movieId', arrayContains: movieId)
+        .get();
+
+    return snapshot.docs
+        .map((doc) => TayangModel.fromJson({...doc.data(), 'tayangId': doc.id}))
+        .toList();
+  } catch (e) {
+    print('Error: $e');
+    return [];
+  }
+}
+
+// Ambil semua film dalam satu tayang tertentu
+Future<List<String>> getMovieIdsFromTayang(String tayangId) async {
+  try {
+    final doc = await _db.collection('tayang').doc(tayangId).get();
+    if (doc.exists) {
+      return List<String>.from(doc['movieId'] ?? []);
+    }
+    return [];
+  } catch (e) {
+    print('Error: $e');
+    return [];
+  }
+}
 }

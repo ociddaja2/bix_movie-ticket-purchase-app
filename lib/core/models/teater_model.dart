@@ -1,26 +1,26 @@
-class LocationModel {
-  final String teaterid;
-  final String nama;
+class TeaterModel {
+  final String teaterId;
+  final String namaTeater;
   final String kota;
 
-  LocationModel({
-    required this.teaterid,
-    required this.nama,
+  TeaterModel({
+    required this.teaterId,
+    required this.namaTeater,
     required this.kota,
   });
 
-  factory LocationModel.fromJson(Map<String, dynamic> json) {
-    return LocationModel(
-      teaterid: json['teaterid'] as String? ?? '',
-      nama: json['nama'] as String? ?? '',
+  factory TeaterModel.fromJson(Map<String, dynamic> json) {
+    return TeaterModel(
+      teaterId: json['teaterid'] as String? ?? '',
+      namaTeater: json['nama'] as String? ?? '',
       kota: json['kota'] as String? ?? '',
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'teaterid': teaterid,
-      'nama': nama,
+      'teaterId': teaterId,
+      'namaTeater': namaTeater,
       'kota': kota,
     };
   }

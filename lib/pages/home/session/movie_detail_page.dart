@@ -1,11 +1,20 @@
 import 'package:bixcinema/core/models/movie_model.dart';
+import 'package:bixcinema/core/models/tayang_model.dart';
+import 'package:bixcinema/core/repo/tayang_repo.dart';
+import 'package:bixcinema/core/models/teater_model.dart';
 import 'package:flutter/material.dart';
 
 class MovieDetailPage extends StatefulWidget {
   final MovieModel movie;
+  final TayangModel tayang;
   final String id;
 
-  const MovieDetailPage({super.key, required this.movie, required this.id});
+  const MovieDetailPage({
+    super.key, 
+    required this.movie,
+    required this.tayang,
+    required this.id
+    });
 
   @override
   State<MovieDetailPage> createState() => _MovieDetailPageState();
@@ -16,13 +25,14 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
   String? selectedShowtime;
   bool _synopsisExpanded = false;
 
-  final List<Map<String, String>> dates = [
-    {'label': 'Hari ini', 'day': '19'},
-    {'label': 'Jum', 'day': '20'},
-    {'label': 'Sabtu', 'day': '21'},
-  ];
+  late Future<List<TayangModel>> _tayangFuture;
 
-  final List<String> showtimes = ['14:25 - 16:40', '20:00 - 21:32'];
+  @override
+  void initState() {
+    super.initState();
+    // _tayangFuture = TayangRepository().fetchTayangByMovieId(widget.id);
+    _tayangFuture = TayangRepository().fetchTayangByMovieId(widget.movie.id);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -97,6 +107,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
               child: GestureDetector(
                 onTap: () {
                   // TODO: navigasi ke halaman trailer
+                  
                 },
                 child: Container(
                   width: 52,
@@ -149,7 +160,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                 Text(
                   widget.movie.judul,
                   style: const TextStyle(
-                    fontSize: 17,
+                    fontSize: 24,
                     fontWeight: FontWeight.w700,
                     color: Colors.black87,
                   ),
@@ -157,7 +168,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                 const SizedBox(height: 4),
                 Text(
                   widget.movie.genre.join(', '),
-                  style: const TextStyle(fontSize: 13, color: Colors.grey),
+                  style: const TextStyle(fontSize: 13, color: Colors.black, fontWeight: FontWeight.w400),
                 ),
                 const SizedBox(height: 10),
                 Wrap(
@@ -189,12 +200,13 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade400),
+        border: Border.all(color: const Color.fromARGB(255, 2, 31, 127)),
         borderRadius: BorderRadius.circular(4),
+        color: Color.fromARGB(255, 2, 31, 127),
       ),
       child: Text(
         label,
-        style: const TextStyle(fontSize: 12, color: Colors.black54),
+        style: const TextStyle(fontSize: 12, color: Colors.white),
       ),
     );
   }
@@ -221,7 +233,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
             text: TextSpan(
               style: const TextStyle(
                 fontSize: 14,
-                color: Colors.black54,
+                color: Colors.black,
                 height: 1.5,
               ),
               children: [
@@ -250,76 +262,105 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
   }
 
   Widget _buildDateSelector() {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Tayang',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-          ),
-          const SizedBox(height: 14),
-          Row(
-            children: List.generate(
-              dates.length,
-              (index) => Padding(
-                padding: const EdgeInsets.only(right: 12),
-                child: GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      selectedDateIndex = index;
-                      selectedShowtime = null;
-                    });
-                  },
-                  child: Column(
-                    children: [
-                      Text(
-                        dates[index]['label']!,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: selectedDateIndex == index
-                              ? const Color(0xFF1A73E8)
-                              : Colors.grey,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Container(
-                        width: 44,
-                        height: 44,
-                        decoration: BoxDecoration(
-                          color: selectedDateIndex == index
-                              ? const Color(0xFF1A73E8)
-                              : Colors.white,
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: selectedDateIndex == index
-                                ? const Color(0xFF1A73E8)
-                                : Colors.grey.shade300,
-                          ),
-                        ),
-                        child: Center(
-                          child: Text(
-                            dates[index]['day']!,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: selectedDateIndex == index
-                                  ? Colors.white
-                                  : Colors.black87,
+    return FutureBuilder<List<TayangModel>>(
+    future: _tayangFuture,
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return const Center(child: CircularProgressIndicator());
+      }
+      
+      if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
+        return const Text('Tidak ada jadwal tayang');
+      }
+
+      final tayangList = snapshot.data!;
+      
+      return Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Tayang',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 14),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: List.generate(
+                  tayangList.first.tanggal.length,
+                  (index) {
+                    final tanggal = tayangList.first.tanggal[index];
+                    final dayName = _getDayName(tanggal.weekday);
+                    final dayNumber = tanggal.day.toString();
+                    
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 12),
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            selectedDateIndex = index;
+                            selectedShowtime = null;
+                          });
+                        },
+                        child: Column(
+                          children: [
+                            Text(
+                              dayName,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: selectedDateIndex == index
+                                    ? const Color.fromARGB(255, 0, 52, 120)
+                                    : Colors.grey,
+                              ),
                             ),
-                          ),
+                            const SizedBox(height: 4),
+                            Container(
+                              width: 44,
+                              height: 44,
+                              decoration: BoxDecoration(
+                                color: selectedDateIndex == index
+                                    ? const Color.fromARGB(255, 0, 52, 120)
+                                    : Colors.white,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: selectedDateIndex == index
+                                      ? const Color.fromARGB(255, 0, 52, 120)
+                                      : Colors.grey.shade300,
+                                ),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  dayNumber,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: selectedDateIndex == index
+                                        ? Colors.white
+                                        : Colors.black87,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
+                    );
+                  },
                 ),
               ),
             ),
-          ),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
+    },
+  );
+  
+  }
+   String _getDayName(int weekday) {
+    const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+    return days[weekday - 1];
   }
 
   Widget _buildCinemaSection() {
@@ -328,19 +369,22 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: const [
-              Icon(Icons.location_on_outlined, color: Colors.black54, size: 20),
-              SizedBox(width: 6),
-            ],
-          ),
-          // Nama teater dari model
+          // Row(
+          //   children: const [
+          //     Icon(Icons.location_on_outlined, color: Colors.black54, size: 20),
+          //     SizedBox(width: 6),
+          //   ],
+          // ),
+          // // Nama teater dari model
           Row(
             children: [
-              const Icon(Icons.location_on_outlined, color: Colors.transparent, size: 20),
+              // Icon Location
+              const Icon(Icons.location_on_outlined, color: Color.fromARGB(255, 0, 0, 94), size: 20),
+              
               const SizedBox(width: 6),
               Text(
-                widget.movie.teater,
+                // widget.movie.teater,
+                '${widget.tayang.namaTeater}',
                 style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
@@ -356,11 +400,11 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '${widget.movie.format}',
+                  widget.movie.format,
                   style: const TextStyle(fontSize: 13, color: Colors.grey),
                 ),
                 Text(
-                  'Rp${_formatHarga(widget.movie.harga)}',
+                  'Rp${_formatHarga(widget.tayang.harga)}',
                   style: const TextStyle(fontSize: 13, color: Colors.grey),
                 ),
               ],
@@ -369,8 +413,9 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
           const SizedBox(height: 12),
           Wrap(
             spacing: 10,
-            children: showtimes.map((time) {
+            children: widget.movie.jam.map((time) {
               final isSelected = selectedShowtime == time;
+              // showtimes.map((time) {
               return GestureDetector(
                 onTap: () => setState(() => selectedShowtime = time),
                 child: Container(
@@ -378,7 +423,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                   decoration: BoxDecoration(
                     border: Border.all(
                       color: isSelected
-                          ? const Color(0xFF1A73E8)
+                          ? const Color.fromARGB(255, 0, 47, 108)
                           : Colors.grey.shade300,
                     ),
                     borderRadius: BorderRadius.circular(6),
@@ -388,7 +433,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                     time,
                     style: TextStyle(
                       fontSize: 13,
-                      color: isSelected ? const Color(0xFF1A73E8) : Colors.black54,
+                      color: isSelected ? const Color.fromARGB(255, 1, 48, 110) : Colors.black54,
                       fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                     ),
                   ),

@@ -1,3 +1,4 @@
+import 'package:bixcinema/core/models/tayang_model.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../pages/auth/splash_screen.dart';
@@ -5,13 +6,14 @@ import '../../pages/auth/login_page.dart';
 import '../../pages/auth/register_page.dart';
 import '../../pages/home/homepage.dart';
 import '../../pages/home/location_page.dart';
-import '../../pages/home/movie_list_page.dart';
+import '../../pages/home/sedang-tayang.dart';
 import '../../pages/home/booking_page.dart';
 import '../../pages/home/profile_page.dart';
 import '../../ui/widgets/navbar.dart';
-import '../../pages/movie_detail_page.dart';
+import '../../pages/home/session/movie_detail_page.dart';
 import 'package:bixcinema/core/models/movie_model.dart';
 import '../../ui/widgets/loading_screen.dart';
+import '../../pages/home/coming-soon.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
@@ -29,6 +31,8 @@ class AppRoutes {
   static const String profile = '/profile';
   static const String movieDetail = '/movie-detail';
   static const String loading = '/loading';
+  static const String sedangTayang = '/sedang-tayang';
+  static const String comingSoon = '/coming-soon';
 
   // Fungsi untuk mendapatkan index navbar berdasarkan location
   static int _getNavbarIndex(String location) {
@@ -58,9 +62,12 @@ class AppRoutes {
         path: location,
         builder: (context, state) => const LocationPage(),
       ),
-      GoRoute(
-        path: movieList,
-        builder: (context, state) => const MovieListPage(),
+
+      GoRoute(path: sedangTayang,
+        builder: (context, state) => const SedangTayangPage(),
+      ),
+      GoRoute(path: comingSoon,
+        builder: (context, state) => const ComingSoonPage(),
       ),
       GoRoute(path: loading,
         builder: (context, state) => const BixLoadingScreen(),
@@ -76,7 +83,10 @@ class AppRoutes {
               body: Center(child: Text('Movie ID is missing')),
             );
           }
-          return MovieDetailPage(id: id, movie: state.extra as MovieModel);
+          final params = state.extra as MovieDetailParams;
+
+
+          return MovieDetailPage(id: id, movie: params.movie, tayang: params.tayang,);
         },
       ),
 
@@ -107,4 +117,14 @@ class AppRoutes {
       ),
     ],
   );
+}
+
+class MovieDetailParams {
+  final MovieModel movie;
+  final TayangModel tayang;
+  
+  MovieDetailParams({
+    required this.movie,
+    required this.tayang,
+  });
 }

@@ -7,13 +7,15 @@ import 'package:go_router/go_router.dart';
 import 'package:bixcinema/core/repo/movie_repo.dart';
 import 'package:bixcinema/ui/widgets/loading_screen.dart';
 import 'package:bixcinema/ui/widgets/appbar.dart';
+import 'package:bixcinema/core/models/tayang_model.dart';
+import 'package:bixcinema/core/repo/tayang_repo.dart';
 
 class Homepage extends StatelessWidget {
   const Homepage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final repo = MovieRepository();
+    final repo = MovieRepository();// Contoh ID film, bisa diganti sesuai kebutuhan
 
     return FutureBuilder(
       // Fetch keduanya sekaligus secara paralel
@@ -129,8 +131,26 @@ class Homepage extends StatelessWidget {
     double height,
   ) {
     return GestureDetector(
-      onTap: () =>
-          context.push('${AppRoutes.movieDetail}?id=${movie.id}', extra: movie),
+      onTap: () async { 
+        // Ambil tayang berdasarkan movieId
+        try {
+          final tayangList = await TayangRepository().fetchTayangByMovieId(movie.id);
+          if (tayangList.isNotEmpty) {
+            if (context.mounted) {
+              context.push('${AppRoutes.movieDetail}?id=${movie.id}', extra: MovieDetailParams(movie: movie, tayang: tayangList.first
+              ));
+            }
+          }
+        } catch (e) {
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Error fetching showtimes: $e')),
+              );
+            }
+          }
+        },
+          // =>
+          // context.push('${AppRoutes.movieDetail}?id=${movie.id}', extra: movie),
       child: Container(
         width: 140,
         margin: const EdgeInsets.only(right: 16),
@@ -246,9 +266,9 @@ class Homepage extends StatelessWidget {
           TextButton(
             onPressed: () {
               if (status == 'Sedang Tayang') {
-                context.push('/now-showing');
+                context.go('/sedang-tayang');
               } else if (status == 'Coming Soon') {
-                context.push('/coming-soon');
+                context.go('coming-soon');
               }
             },
             child: const Text('Lihat Semua'),

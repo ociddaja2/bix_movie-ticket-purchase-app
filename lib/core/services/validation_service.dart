@@ -99,4 +99,23 @@ class ValidationService {
     }
     return null;
   }
+
+  // validasi password baru saat ganti password
+  static String? validateNewPassword(String value) {
+    if (value.isEmpty) {
+      return 'Password baru wajib diisi';
+    }
+    if (value.length < 6) {
+      return 'Password minimal 6 karakter';
+    }
+    return null;
+  }
+
+  // Validasi kalau password lama = password baru
+  static String? validatePasswordNotSame(String current, String newPassword) {
+    if (current == newPassword) {
+      return 'Password baru harus berbeda dari password lama';
+    }
+    return null;
+  }
 }

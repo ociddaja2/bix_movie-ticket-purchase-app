@@ -21,6 +21,8 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
   bool _rememberMe = false;
   bool _isLoading = false;
+  bool isIconVisible = false;
+  bool hidePassword = true;
 
   @override
   Widget build(BuildContext context) {
@@ -127,11 +129,17 @@ class _LoginPageState extends State<LoginPage> {
                         const SizedBox(height: 8),
 
                         TextFormField(
+                          onChanged: (value) {
+                            value.isNotEmpty ? setState(() => isIconVisible = true) : setState(() => isIconVisible = false);
+                          },
+
                           controller: _passwordController,
                           validator: (value) => (value == null || value.isEmpty)
                               ? 'Password tidak boleh kosong'
                               : null,
-                          obscureText: true,
+                          obscureText: hidePassword,
+                          // lihat password toggle
+                        
                           decoration: InputDecoration(
                             hoverColor: Colors.transparent,
                             labelText: 'Masukkan Password',
@@ -139,6 +147,7 @@ class _LoginPageState extends State<LoginPage> {
                             floatingLabelBehavior: FloatingLabelBehavior.never,
                             filled: true,
                             fillColor: Colors.white,
+
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
                               borderSide: BorderSide(color: Colors.black),
@@ -153,6 +162,16 @@ class _LoginPageState extends State<LoginPage> {
                               horizontal: 16,
                               vertical: 14,
                             ),
+
+                            suffixIcon: isIconVisible ? IconButton(
+                              onPressed: () {
+                                setState(() => hidePassword = !hidePassword);
+                              },
+                              icon: Icon(
+                                hidePassword ? Icons.visibility_off : Icons.visibility,
+                                color: Colors.black54,
+                              ),
+                            ) : null,
                           ),
                         ),
 

@@ -98,7 +98,33 @@ class FirebaseService {
     return _firebaseAuth.currentUser;
   }
 
-  // ============= ERROR HANDLING =============
+  /// Update Password
+  static Future<void> updatePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    try {
+      final user = _firebaseAuth.currentUser;
+      
+      if (user == null || user.email == null) {
+        throw Exception('User tidak ditemukan');
+      }
+      
+      // Re-authenticate dengan password lama (Firebase requirement)
+      final credential = EmailAuthProvider.credential(
+        email: user.email!,
+        password: currentPassword,
+      );
+      
+      await user.reauthenticateWithCredential(credential);
+      
+      // Update password ke yang baru
+      await user.updatePassword(newPassword);
+      
+    } on FirebaseAuthException catch (e) {
+      throw _handleAuthException(e);
+    }
+  }
 
   /// Handle Firebase Auth Exceptions
   static Exception _handleAuthException(FirebaseAuthException e) {

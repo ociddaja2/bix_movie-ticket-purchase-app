@@ -187,7 +187,9 @@ class ProfileScreen extends StatefulWidget {
 
                         // Ubah Password row
                         InkWell(
-                          onTap: () {},
+                          onTap: () {
+                            context.push('/change_password');
+                          },
                           child: Padding(
                             padding: const EdgeInsets.symmetric(vertical: 16.0),
                             child: Row(
