@@ -3,11 +3,14 @@ import 'package:bixcinema/core/models/teater_model.dart';
 
 class TayangModel {
     final String tayangId;
+    // final TeaterModel teaterId;
     final String teaterId;
     final List<String> movieId; // ✅ Ubah dari String ke List<String>
     final List<DateTime> tanggal;
     final int harga;
-    final TeaterModel namaTeater; // Optional: nama teater dari joined data
+    // final String namaTeater;
+    final TeaterModel namaTeater;
+
 
     TayangModel({
         required this.tayangId,
@@ -19,14 +22,24 @@ class TayangModel {
     });
 
     factory TayangModel.fromJson(Map<String, dynamic> json) {
+      print('Parsing TayangModel from JSON: ${json['namaTeater']}'); // Debug print
         return TayangModel(
             tayangId: json['tayangId'] as String? ?? '',
             teaterId: json['teaterId'] as String? ?? '',
+
+            // teaterId: json['teaterId'] is Map 
+            //     ? TeaterModel.fromJson(json['teaterId'] as Map<String, dynamic>)
+            //     : TeaterModel(
+            //         teaterId: '',
+            //         namaTeater: json['namaTeater']?.toString() ?? '',
+            //         kota: '',
+            //     ),
             movieId: List<String>.from(json['movieId'] as List? ?? []),
             tanggal: (json['tanggal'] as List)
             .map((item) => (item as Timestamp).toDate())
             .toList(),
             harga: json['harga'] as int? ?? 0,
+            // namaTeater: json['namaTeater'] as String? ?? '', // Ambil nama teater jika ada
 
             namaTeater: json['namaTeater']is Map 
               ? TeaterModel.fromJson(json['namaTeater'] as Map<String, dynamic>)
@@ -45,7 +58,7 @@ class TayangModel {
             'movieId': movieId,
             'tanggal': tanggal,
             'harga': harga,
-            'namaTeater': namaTeater.toJson(), // Sertakan data teater jika ada
+            'namaTeater': namaTeater.toJson() // Sertakan data teater jika ada
         };
     }
 }

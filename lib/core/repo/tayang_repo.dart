@@ -2,6 +2,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:bixcinema/core/models/tayang_model.dart';
 
+
 class TayangRepository {
   final _db = FirebaseFirestore.instance;
 
@@ -13,11 +14,30 @@ class TayangRepository {
           .where('movieId', arrayContains: movieId)
           .get();
 
-      return snapshot.docs
-          .map(
-            (doc) => TayangModel.fromJson({...doc.data(), 'tayangId': doc.id}),
-          )
-          .toList();
+      final List<TayangModel> tayangList = [];
+
+      for (var doc in snapshot.docs) {
+        final data = {...doc.data(), 'tayangId' : doc.id}; 
+        final teaterId = data['teaterId'] as String? ?? '';
+
+        if (teaterId != '') {
+          final teaterDoc = await _db.collection('teater').doc(teaterId).get();
+          if (teaterDoc.exists) {
+            data['namaTeater'] = {...teaterDoc.data()!, 'teaterId': teaterDoc.id};
+          }
+        }
+
+        tayangList.add(TayangModel.fromJson(data));
+      }
+      return tayangList;
+    
+
+
+      // return snapshot.docs
+      //     .map(
+      //       (doc) => TayangModel.fromJson({...doc.data(), 'tayangId': doc.id}),
+      //     )
+      //     .toList();
     } catch (e) {
       print('Error fetching tayang: $e');
       return [];
@@ -89,7 +109,7 @@ class TayangRepository {
     }
   }
 
-  // ✅ TAMBAH: Ambil semua tayang
+  // Ambil semua tayang
   Future<List<TayangModel>> fetchAllTayang() async {
     try {
       final snapshot = await _db.collection('tayang').get();

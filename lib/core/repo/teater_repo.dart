@@ -10,7 +10,7 @@ class TeaterRepository {
       final snapshot = await _db.collection('teater').get();
       return snapshot.docs
           .map(
-            (doc) => TeaterModel.fromJson({...doc.data(), 'teaterid': doc.id}),
+            (doc) => TeaterModel.fromJson({...doc.data(), 'teaterId': doc.id}),
           )
           .toList();
     } catch (e) {
@@ -28,7 +28,7 @@ class TeaterRepository {
           .get();
       return snapshot.docs
           .map(
-            (doc) => TeaterModel.fromJson({...doc.data(), 'teaterid': doc.id}),
+            (doc) => TeaterModel.fromJson({...doc.data(), 'teaterId': doc.id}),
           )
           .toList();
     } catch (e) {
@@ -60,7 +60,7 @@ class TeaterRepository {
     try {
       final doc = await _db.collection('teater').doc(teaterId).get();
       if (doc.exists) {
-        return TeaterModel.fromJson({...doc.data()!, 'teaterid': doc.id});
+        return TeaterModel.fromJson({...doc.data()!, 'teaterId': doc.id});
       }
       return null;
     } catch (e) {

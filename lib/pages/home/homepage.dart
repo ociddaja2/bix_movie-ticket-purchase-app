@@ -6,9 +6,9 @@ import 'package:bixcinema/core/models/movie_model.dart';
 import 'package:go_router/go_router.dart';
 import 'package:bixcinema/core/repo/movie_repo.dart';
 import 'package:bixcinema/ui/widgets/loading_screen.dart';
-import 'package:bixcinema/ui/widgets/appbar.dart';
-import 'package:bixcinema/core/models/tayang_model.dart';
 import 'package:bixcinema/core/repo/tayang_repo.dart';
+import 'package:bixcinema/ui/widgets/appbar_2.dart';
+// import 'package:bixcinema/core/models/user_model.dart';
 
 class Homepage extends StatelessWidget {
   const Homepage({super.key});
@@ -68,7 +68,7 @@ class Homepage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 20),
-                    _buildWelcome(),
+                    _buildWelcome(), // Ganti dengan data user sebenarnya
                     const SizedBox(height: 10),
                     _buildCarousel(),
                     const SizedBox(height: 15),
@@ -177,7 +177,7 @@ class Homepage extends StatelessWidget {
                         child: const Center(child: CircularProgressIndicator()),
                       );
                     },
-                    errorBuilder: (_, __, ___) => _posterFallback(height),
+                    errorBuilder: (_, _, _) => _posterFallback(height),
                   ),
                   // : _posterFallback(height),
                 ],
@@ -199,7 +199,10 @@ class Homepage extends StatelessWidget {
   }
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
-    return const AppBarWidget(title: 'BIX Cinema');
+    return BixAppBar.home(
+      location: 'Banjarbaru',
+      onLocationTap: () => context.push('/location'),
+    );
   }
 
   Widget _buildWelcome() {
@@ -209,7 +212,7 @@ class Homepage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Hi User, welcome to BIX Cinema!',
+            'Hi , welcome to BIX Cinema!',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
@@ -268,7 +271,7 @@ class Homepage extends StatelessWidget {
               if (status == 'Sedang Tayang') {
                 context.go('/sedang-tayang');
               } else if (status == 'Coming Soon') {
-                context.go('coming-soon');
+                context.go('/coming-soon');
               }
             },
             child: const Text('Lihat Semua'),

@@ -6,14 +6,14 @@ import '../../pages/auth/login_page.dart';
 import '../../pages/auth/register_page.dart';
 import '../../pages/home/homepage.dart';
 import '../../pages/home/location_page.dart';
-import '../../pages/home/sedang-tayang.dart';
+import '../../pages/home/sedang_tayang.dart';
 import '../../pages/home/booking_page.dart';
 import '../../pages/home/profile_page.dart';
 import '../../ui/widgets/navbar.dart';
 import '../../pages/home/session/movie_detail_page.dart';
 import 'package:bixcinema/core/models/movie_model.dart';
 import '../../ui/widgets/loading_screen.dart';
-import '../../pages/home/coming-soon.dart';
+import '../../pages/home/coming_soon.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =

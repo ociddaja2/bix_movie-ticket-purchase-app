@@ -10,9 +10,10 @@ class TeaterModel {
   });
 
   factory TeaterModel.fromJson(Map<String, dynamic> json) {
+    print('Parsing TeaterModel from JSON: $json'); // Debug print
     return TeaterModel(
-      teaterId: json['teaterid'] as String? ?? '',
-      namaTeater: json['nama'] as String? ?? '',
+      teaterId: json['teaterId'] as String? ?? '',
+      namaTeater: json['namaTeater'] as String? ?? '',
       kota: json['kota'] as String? ?? '',
     );
   }

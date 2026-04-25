@@ -5,6 +5,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:bixcinema/core/services/auth_service.dart';
 import 'package:go_router/go_router.dart';
 import '../../ui/widgets/loading_screen.dart';
+import 'package:bixcinema/ui/widgets/appbar_2.dart';
+import 'package:bixcinema/core/services/imgbb_service.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -68,6 +70,7 @@ class ProfileScreen extends StatefulWidget {
 
         return Scaffold(
           backgroundColor: Colors.white,
+          appBar: BixAppBar.subtitle(title: 'Profile', subtitle: user?.name ?? ''),
           body: SafeArea(
             child: SingleChildScrollView(
               child: Column(
@@ -79,19 +82,35 @@ class ProfileScreen extends StatefulWidget {
                       padding: const EdgeInsets.only(top: 40.0, bottom: 32.0),
                       child: Stack(
                         children: [
-                          Container(
-                            width: 90,
-                            height: 90,
-                            decoration: const BoxDecoration(
-                              color: Color(0xFF1A237E),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.person,
-                              size: 55,
-                              color: Colors.white,
-                            ),
+                          // Container(
+                          //   width: 90,
+                          //   height: 90,
+                          //   decoration: const BoxDecoration(
+                          //     color: Color(0xFF1A237E),
+                          //     shape: BoxShape.circle,
+                          //   ),
+                          //   child: const Icon(
+                          //     Icons.person,
+                          //     size: 55,
+                          //     color: Colors.white,
+                          //   ),
+                          // ),
+                          CircleAvatar(
+                            radius: 45,
+                            backgroundColor: const Color(0xFF1A237E),
+                            backgroundImage: user?.avatarUrl != null
+                                ? NetworkImage(user!.avatarUrl!)
+                                : null,
+                            child: user?.avatarUrl == null
+                                ? const Icon(
+                                    Icons.person,
+                                    size: 55,
+                                    color: Colors.white,
+                                  )
+                                : null,
                           ),
+
+
                           Positioned(
                             bottom: 0,
                             right: 0,
@@ -137,7 +156,9 @@ class ProfileScreen extends StatefulWidget {
                               ),
                             ),
                             TextButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                
+                              },
                               style: TextButton.styleFrom(
                                 padding: EdgeInsets.zero,
                                 minimumSize: Size.zero,
