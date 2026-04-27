@@ -256,7 +256,6 @@ class Homepage extends StatelessWidget {
   PreferredSizeWidget _buildAppBar(BuildContext context, CityTeaterProvider cityTeaterProvider) {
     final locationName = cityTeaterProvider.selectedCity ?? 'Pilih Lokasi';
 
-    // ignore: avoid_print
     print('Appbar location: $locationName');
 
     return BixAppBar.home(
@@ -370,7 +369,7 @@ class Homepage extends StatelessWidget {
         return [[], []];
       }
 
-      final allMovies = await movieRepo.fetchMoviesByIds(movieIds);
+      final allMovies = await movieRepo.fetchMoviesById(movieIds);
       print('Fetched ${allMovies.length} movie details');
 
       final nowShowing = allMovies.where((m) => m.status == true).toList();

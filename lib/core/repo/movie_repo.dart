@@ -34,7 +34,7 @@ class MovieRepository {
   }
 
   // Fetch multiple movies by array of IDs
-  Future<List<MovieModel>> fetchMoviesByIds(List<String> movieId) async {
+  Future<List<MovieModel>> fetchMoviesById(List<String> movieId) async {
     if (movieId.isEmpty) return [];
     
     final snapshot = await _db

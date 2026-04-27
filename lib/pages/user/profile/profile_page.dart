@@ -1,12 +1,15 @@
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:bixcinema/core/models/user_model.dart';
 import 'package:bixcinema/core/services/firebase_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:bixcinema/core/services/auth_service.dart';
 import 'package:go_router/go_router.dart';
-import '../../ui/widgets/loading_screen.dart';
+import '../../../ui/widgets/loading_screen.dart';
 import 'package:bixcinema/ui/widgets/appbar_2.dart';
 import 'package:bixcinema/core/services/imgbbapi_service.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -33,7 +36,54 @@ class ProfileScreen extends StatefulWidget {
 }
 
   class _ProfileScreenState extends State<ProfileScreen> {
-  @override
+    bool _isUploading = false;
+
+  // Fungsi untuk handle upload avatar
+  Future<void> _changeProfilePicture(String userId) async {
+    final ImagePicker picker = ImagePicker();
+    
+    // 1. Pilih Gambar dari Galeri
+    final XFile? image = await picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 50, // Kompres agar tidak terlalu berat
+    );
+
+    if (image == null) return;
+
+    setState(() => _isUploading = true);
+
+    try {
+      // 2. Upload ke ImgBB
+      File file = File(image.path);
+      String? avatarUrl = await ImgbbapiService.uploadImage(file);
+
+      if (avatarUrl != null) {
+        // 3. Update URL di Firebase (Asumsi ada fungsi update di FirebaseService kamu)
+        // Pastikan kamu punya fungsi updateUserAvatar di FirebaseService
+        avatarUrl = avatarUrl.replaceAll('http://i.ibb.co.com/', 'https://i.ibb.co.com/'); // Pastikan URL aman
+
+        await FirebaseService.updateUserAvatar(userId, avatarUrl);
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Foto profil berhasil diperbarui!')),
+          );
+        }
+      } else {
+        throw 'Gagal mendapatkan URL dari ImgBB';
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isUploading = false);
+    }
+  }
+
+  @override 
   Widget build(BuildContext context) {
     // final currentUser = FirebaseService.getCurrentAuthUser();
     // final userId = currentUser?.uid;
@@ -62,58 +112,66 @@ class ProfileScreen extends StatefulWidget {
           return Scaffold(
             body: Center(child: Text('Error : ${userSnapshot.error}')),
           );
-        } else if (!userSnapshot.hasData || userSnapshot.data == null) {
-          return Scaffold(body: Center(child: Text('Error: ${userSnapshot.error}')));
         }
 
         final user = userSnapshot.data;
 
         return Scaffold(
           backgroundColor: Colors.white,
-          appBar: BixAppBar.subtitle(title: 'Profile', subtitle: user?.name ?? '', leading: BackButton(onPressed: null,),),
+          appBar: BixAppBar.subtitle(
+            title: 'Profile',
+            subtitle: user?.name ?? '',
+            leading: BackButton(onPressed: null),
+            ),
           body: SafeArea(
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Avatar
-                  Center(
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 40.0, bottom: 32.0),
-                      child: Stack(
-                        children: [
-                          // Container(
-                          //   width: 90,
-                          //   height: 90,
-                          //   decoration: const BoxDecoration(
-                          //     color: Color(0xFF1A237E),
-                          //     shape: BoxShape.circle,
-                          //   ),
-                          //   child: const Icon(
-                          //     Icons.person,
-                          //     size: 55,
-                          //     color: Colors.white,
-                          //   ),
-                          // ),
-                          CircleAvatar(
-                            radius: 45,
-                            backgroundColor: const Color(0xFF1A237E),
-                            backgroundImage: user?.avatarUrl != null
-                                ? NetworkImage(user!.avatarUrl!)
-                                : null,
-                            child: user?.avatarUrl == null
-                                ? const Icon(
-                                    Icons.person,
-                                    size: 55,
-                                    color: Colors.white,
-                                  )
-                                : null,
-                          ),
+                      // Avatar
+                      Center(
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 40.0, bottom: 32.0),
+                          child: Stack(
+                            children: [
+                              CircleAvatar(
+                                radius: 45,
+                                backgroundColor: const Color(0xFF1A237E),
+                                child: ClipOval( // Agar gambar tetap bulat sempurna
+                                  child: user?.avatarUrl != null
+                                      ? CachedNetworkImage(
+                                          imageUrl: user!.avatarUrl!,
+                                          fit: BoxFit.cover,
+                                          width: 90,
+                                          height: 90,
+                                          placeholder: (context, url) => const CircularProgressIndicator(),
+                                          errorWidget: (context, url, error) {
+                                            print("Link Error: $url"); // Cek link yang bermasalah di log
+                                            return const Icon(Icons.person, size: 55, color: Colors.white);
+                                          },
+                                        )
+                                      : const Icon(Icons.person, size: 55, color: Colors.white),
+                                ),  
+                              ),                              
+                              // CircleAvatar(
+                              //   radius: 45,
+                              //   backgroundColor: Color(0xFF1A237E),
+                              //   backgroundImage: user?.avatarUrl != null
+                              //       ? NetworkImage(user!.avatarUrl!, scale: 1.0,)
+                              //       : null,
+                              //   child: _isUploading 
+                              //       ? const CircularProgressIndicator(color: Colors.white) // Loading saat upload
+                              //       : (user?.avatarUrl == null
+                              //           ? const Icon(Icons.person, size: 55, color: Colors.white)
+                              //       : null),
+                              // ),
 
 
                           Positioned(
                             bottom: 0,
                             right: 0,
+                            child: GestureDetector(
+                              onTap: () => _changeProfilePicture(userId),
                             child: Container(
                               width: 28,
                               height: 28,
@@ -129,9 +187,10 @@ class ProfileScreen extends StatefulWidget {
                                 Icons.camera_alt,
                                 size: 14,
                                 color: Colors.white,
+                                ),
                               ),
                             ),
-                          ),
+                          )
                         ],
                       ),
                     ),
@@ -157,7 +216,7 @@ class ProfileScreen extends StatefulWidget {
                             ),
                             TextButton(
                               onPressed: () {
-                                
+                                context.push('/edit-profile');
                               },
                               style: TextButton.styleFrom(
                                 padding: EdgeInsets.zero,
@@ -209,7 +268,7 @@ class ProfileScreen extends StatefulWidget {
                         // Ubah Password row
                         InkWell(
                           onTap: () {
-                            context.push('/change_password');
+                            context.push('/change-password');
                           },
                           child: Padding(
                             padding: const EdgeInsets.symmetric(vertical: 16.0),

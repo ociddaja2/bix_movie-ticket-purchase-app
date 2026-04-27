@@ -4,16 +4,18 @@ import 'package:go_router/go_router.dart';
 import '../../pages/auth/splash_screen.dart';
 import '../../pages/auth/login_page.dart';
 import '../../pages/auth/register_page.dart';
-import '../../pages/home/homepage.dart';
-import '../../pages/home/location_page.dart';
-import '../../pages/home/sedang_tayang.dart';
-import '../../pages/home/booking_page.dart';
-import '../../pages/home/profile_page.dart';
+import '../../pages/user/homepage.dart';
+import '../../pages/user/location_page.dart';
+import '../../pages/user/sedang_tayang.dart';
+import '../../pages/user/booking_page.dart';
+import '../../pages/user/profile/profile_page.dart';
 import '../../ui/widgets/navbar.dart';
-import '../../pages/home/session/movie_detail_page.dart';
+import '../../pages/user/session/movie_detail_page.dart';
 import 'package:bixcinema/core/models/movie_model.dart';
 import '../../ui/widgets/loading_screen.dart';
-import '../../pages/home/coming_soon.dart';
+import '../../pages/user/coming_soon.dart';
+import '../../pages/user/profile/change_password.dart';
+import '../../pages/user/profile/edit_profile.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
@@ -33,6 +35,8 @@ class AppRoutes {
   static const String loading = '/loading';
   static const String sedangTayang = '/sedang-tayang';
   static const String comingSoon = '/coming-soon';
+  static const String changePassword = '/change-password';
+  static const String editProfile = '/edit-profile';
 
   // Fungsi untuk mendapatkan index navbar berdasarkan location
   static int _getNavbarIndex(String location) {
@@ -88,6 +92,15 @@ class AppRoutes {
 
           return MovieDetailPage(id: id, movie: params.movie, tayang: params.tayang,);
         },
+      ),
+
+      GoRoute(
+        path: changePassword,
+        builder: (context, state) => const ChangePasswordPage(),
+      ),
+      GoRoute(
+        path: editProfile,
+        builder: (context, state) => const EditProfilePage(),
       ),
 
       // fungsi navbar di page dgn navbar

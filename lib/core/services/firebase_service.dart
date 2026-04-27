@@ -165,4 +165,18 @@ class FirebaseService {
 
     return Exception(message);
   }
+
+  /// Update User Avatar URL
+  static Future<void> updateUserAvatar(String userId, String avatarUrl) async {
+    try {
+      await _firestore
+        .collection('users')
+        .doc(userId).update({
+        'avatarUrl': avatarUrl,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      throw Exception('Error updating avatar: $e');
+    }
+  }
 }

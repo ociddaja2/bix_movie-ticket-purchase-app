@@ -33,6 +33,15 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
     super.initState();
     // _tayangFuture = TayangRepository().fetchTayangByMovieId(widget.id);
     _tayangFuture = Future.value([widget.tayang]);
+
+    // debug;
+  print('Movie ID: ${widget.movie.id}');
+  print('Movie Judul: ${widget.movie.judul}');
+  print('Tayang ID: ${widget.tayang.tayangId}');
+  print('Tayang Teater ID: ${widget.tayang.teaterId}');
+  print('Tayang Nama Teater: ${widget.tayang.namaTeater.namaTeater}');
+  print('Tayang Kota: ${widget.tayang.namaTeater.kota}');
+  print('Tanggal: ${widget.tayang.tanggal}');
   }
 
   @override
@@ -110,13 +119,11 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
           width: double.infinity,
           height: 200,
           color: Colors.black87,
-          child: widget.movie.posterUrl != null
-              ? Image.network(
-                  widget.movie.posterUrl!,
+          child: Image.network(
+                  widget.movie.posterUrl,
                   fit: BoxFit.cover,
                   errorBuilder: (_, _, _) => _posterFallback(),
-                )
-              : _posterFallback(),
+                ),
         ),
         Container(
           width: double.infinity,
@@ -183,15 +190,13 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(6),
-            child: widget.movie.posterUrl != null
-                ? Image.network(
-                    widget.movie.posterUrl!,
+            child: Image.network(
+                    widget.movie.posterUrl,
                     width: 64,
                     height: 90,
                     fit: BoxFit.cover,
                     errorBuilder: (_, _, _) => _thumbnailFallback(),
-                  )
-                : _thumbnailFallback(),
+                  ),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -412,6 +417,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
 
   // pilih jam nonton
   Widget _buildCinemaSection() {
+    
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -432,7 +438,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
               const SizedBox(width: 6),
               Text(
                 // widget.movie.teater,
-                '${widget.tayang.namaTeater.namaTeater}',
+                widget.tayang.namaTeater.namaTeater,
                 style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,

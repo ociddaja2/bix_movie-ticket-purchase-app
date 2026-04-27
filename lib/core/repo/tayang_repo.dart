@@ -80,11 +80,29 @@ class TayangRepository {
           .where('teaterId', isEqualTo: teaterId)
           .get();
 
-      return snapshot.docs
-          .map(
-            (doc) => TayangModel.fromJson({...doc.data(), 'tayangId': doc.id}),
-          )
-          .toList();
+      final List<TayangModel> tayangList = [];
+
+      for (var doc in snapshot.docs) {
+        final data = {...doc.data(), 'tayangId' : doc.id}; 
+        final teaterId = data['teaterId'] as String? ?? '';
+
+        if (teaterId.isNotEmpty) {
+          try {
+          final teaterDoc = await _db.collection('teater').doc(teaterId).get();
+          if (teaterDoc.exists) {
+            data['namaTeater'] = {...teaterDoc.data()!, 'teaterId': teaterDoc.id};
+            print('Teater data found for teaterId $teaterId: ${data['namaTeater']}');
+          }
+        } catch (e) {
+          print('Error fetching teater data for teaterId $teaterId: $e');
+        }
+      }
+      
+
+        tayangList.add(TayangModel.fromJson(data));
+      }
+
+      return tayangList;
     } catch (e) {
       print('Error fetching tayang by movie and teater: $e');
       return [];

@@ -3,8 +3,9 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 
 class ImgbbapiService {
-  static const String apiKey = 'YOUR_IMGBB_API_KEY';
+  static const String apiKey = '608a23fc12a71b0f1cf5c3a94a18fa46';
 
+  // Upload gambar ke ImgBB dan dapatkan URL-nya
   static Future<String?> uploadImage(File imageFile) async {
     try {
       final request = http.MultipartRequest(
@@ -20,10 +21,16 @@ class ImgbbapiService {
       if (response.statusCode == 200) {
         final responseData = await response.stream.bytesToString();
         final jsonResponse = json.decode(responseData);
-        // Mengambil URL langsung (direct link)
+        
+        // DEBUG: Copy-paste hasil print ini di browser untuk tes
+        print("ImgBB Full Response: $jsonResponse"); 
+
+        // ambil URL dari response
         return jsonResponse['data']['url'];
+      } else {
+        print("Upload gagal dengan status: ${response.statusCode}");
+        return null;
       }
-      return null;
     } catch (e) {
       print("Error upload ke ImgBB: $e");
       return null;
