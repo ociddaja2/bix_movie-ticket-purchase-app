@@ -21,39 +21,50 @@ class TeaterRepository {
 
   // Fetch teater berdasarkan kota
   Future<List<TeaterModel>> fetchTeaterByCity(String city) async {
-    try {
-      final snapshot = await _db
-          .collection('teater')
-          .where('kota', isEqualTo: city)
-          .get();
-      return snapshot.docs
-          .map(
-            (doc) => TeaterModel.fromJson({...doc.data(), 'teaterId': doc.id}),
-          )
-          .toList();
-    } catch (e) {
-      print('Error fetching teater by city: $e');
-      return [];
-    }
+  try {
+    print('Querying teater collection for city: $city');
+    final snapshot = await _db
+        .collection('teater')
+        .where('kota', isEqualTo: city)
+        .get();
+    
+    print('Found ${snapshot.docs.length} teater(s) for city: $city');
+    
+    return snapshot.docs
+        .map((doc) {
+          print('Teater doc: ${doc.data()}');
+          return TeaterModel.fromJson({...doc.data(), 'teaterId': doc.id});
+        })
+        .toList();
+  } catch (e) {
+    print('Error fetching teater by city: $e');
+    return [];
   }
+}
 
   // Fetch daftar kota unik
   Future<List<String>> fetchUniqueCities() async {
-    try {
-      final snapshot = await _db.collection('teater').get();
-      final cities = <String>{};
-      for (var doc in snapshot.docs) {
-        final kota = doc['kota'] as String?;
-        if (kota != null && kota.isNotEmpty) {
-          cities.add(kota);
-        }
+  try {
+    final snapshot = await _db.collection('teater').get();
+    print('Total docs in teater collection: ${snapshot.docs.length}');
+    
+    final cities = <String>{};
+    for (var doc in snapshot.docs) {
+      final data = doc.data();
+      print('Doc data: $data');
+      
+      final kota = data['kota'] as String?;
+      if (kota != null && kota.isNotEmpty) {
+        cities.add(kota);
       }
-      return cities.toList()..sort();
-    } catch (e) {
-      print('Error fetching cities: $e');
-      return [];
     }
+    print('Unique cities found: $cities');
+    return cities.toList()..sort();
+  } catch (e) {
+    print('Error fetching cities: $e');
+    return [];
   }
+}
 
   // Fetch teater detail by ID
   Future<TeaterModel?> fetchTeaterById(String teaterId) async {

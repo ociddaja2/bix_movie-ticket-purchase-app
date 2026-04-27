@@ -1,45 +1,99 @@
 import 'package:bixcinema/core/providers/city_teater_provider.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:bixcinema/core/app/route.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
-// import 'package:provider/provider.dart';
+
+
+// void main() async {
+  
+//   try {
+//   // Inisialisasi Firebase 
+//   WidgetsFlutterBinding.ensureInitialized();
+
+//   await Firebase.initializeApp(
+//     options: DefaultFirebaseOptions.currentPlatform,
+//   );
+//   print('Firebase initialized successfully');
+//   } catch (e) {
+//     print('Error initializing Firebase: $e');
+//   }
+
+//   print('Starting app with Firebase initialized...');
+
+
+//   final currentUser = FirebaseAuth.instance.currentUser;
+//   print('Current user: ${currentUser?.email ?? 'No user logged in'}');
+
+//   CityTeaterProvider? cityTeaterProvider;
+
+//   if (currentUser != null) {
+//     print('User is authenticated, initializing CityTeaterProvider...');
+//     cityTeaterProvider = CityTeaterProvider();
+//     try {
+//       await cityTeaterProvider.initialize();
+//       print(' CityTeaterProvider initialized');
+//       print('Selected city: ${cityTeaterProvider.selectedCity}');
+//       print('Selected teater ID: ${cityTeaterProvider.selectedTeaterId}');
+//     } catch (e) {
+//       print('Error initializing CityTeaterProvider: $e');
+//     }
+//   } else {
+//     print('⚠️ User not authenticated yet, skipping CityTeaterProvider init');
+//     cityTeaterProvider = CityTeaterProvider(); // Create empty provider
+//   }
+
+//   runApp(MyApp(cityTeaterProvider: cityTeaterProvider));
+// }
+
+// class MyApp extends StatelessWidget {
+//   final CityTeaterProvider cityTeaterProvider;
+
+//   const MyApp({required this.cityTeaterProvider, Key? key}) : super(key: key);
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return ChangeNotifierProvider<CityTeaterProvider>.value(
+//       value: cityTeaterProvider,
+//       child: MaterialApp.router(
+//       debugShowCheckedModeBanner: true,
+//       title: 'BixCinema',
+//       routerConfig: AppRoutes.router,
+//       )
+//     );
+//   }
+// }
 
 
 void main() async {
-  
   try {
-  // Inisialisasi Firebase 
-  WidgetsFlutterBinding.ensureInitialized();
-
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+    WidgetsFlutterBinding.ensureInitialized();
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
   } catch (e) {
-    print('Error initializing Firebase: $e');
+    print('❌ Error initializing Firebase: $e');
   }
 
-  final cityTeaterProvider = CityTeaterProvider();
-  await cityTeaterProvider.initialize();
-
-  runApp(MyApp(cityTeaterProvider: cityTeaterProvider));
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final CityTeaterProvider cityTeaterProvider;
-
-  const MyApp({required this.cityTeaterProvider, Key? key}) : super(key: key);
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<CityTeaterProvider>.value(
-      value: cityTeaterProvider,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => CityTeaterProvider()),
+      ],
       child: MaterialApp.router(
-      debugShowCheckedModeBanner: true,
-      title: 'BixCinema',
-      routerConfig: AppRoutes.router,
-      )
+        debugShowCheckedModeBanner: true,
+        title: 'BixCinema',
+        routerConfig: AppRoutes.router,
+      ),
     );
   }
 }

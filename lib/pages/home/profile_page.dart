@@ -41,7 +41,7 @@ class ProfileScreen extends StatefulWidget {
     //   return Scaffold(body: Center(child: Text('User not found')));
     // }
     return StreamBuilder<User?>(
-      stream: FirebaseService.authStateChanges(),  // ✅ Dengarkan perubahan
+      stream: FirebaseService.authStateChanges(),
       builder: (context, authSnapshot) {
       if (!authSnapshot.hasData) {
         return Scaffold(body: Center(child: Text('User not logged in')));

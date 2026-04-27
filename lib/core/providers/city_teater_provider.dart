@@ -19,13 +19,28 @@ class CityTeaterProvider with ChangeNotifier {
 
   /// Initialize: Load semua kota
   Future<void> initialize() async {
+  try {
+    print('Fetching unique cities...');
     _cities = await _teaterRepository.fetchUniqueCities();
+    print('Cities fetched: $_cities');
+    
     if (_cities.isNotEmpty) {
       _selectedCity = _cities.first;
+      print('Selected city: $_selectedCity');
+      
       await _selectCity(_cities.first);
+      print('_selectCity completed');
+      print('Selected teater ID: $_selectedTeaterId');
+      print('Selected teaters: ${_teaters.length} teater found');
+    } else {
+      print('No cities found in database!');
     }
     notifyListeners();
+  } catch (e) {
+    print('Error in initialize: $e');
   }
+}
+
 
   /// Select kota dan load teater di kota tersebut
   Future<void> selectCity(String city) async {
@@ -35,11 +50,21 @@ class CityTeaterProvider with ChangeNotifier {
   }
 
   Future<void> _selectCity(String city) async {
+  try {
+    print('Fetching teater for city: $city');
     _teaters = await _teaterRepository.fetchTeaterByCity(city);
+    print('Teaters fetched: ${_teaters.length}');
+    
     if (_teaters.isNotEmpty) {
       _selectedTeaterId = _teaters.first.teaterId;
+      print('Selected teater ID: $_selectedTeaterId');
+    } else {
+      print('No teater found for city: $city');
     }
+  } catch (e) {
+    print('Error in _selectCity: $e');
   }
+}
 
   /// Select teater
   void selectTeater(String teaterId) {

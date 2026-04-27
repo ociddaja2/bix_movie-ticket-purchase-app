@@ -1,6 +1,6 @@
 import 'package:bixcinema/core/models/movie_model.dart';
 import 'package:bixcinema/core/models/tayang_model.dart';
-import 'package:bixcinema/core/repo/tayang_repo.dart';
+// import 'package:bixcinema/core/repo/tayang_repo.dart';
 // import 'package:bixcinema/core/models/teater_model.dart';
 import 'package:flutter/material.dart';
 

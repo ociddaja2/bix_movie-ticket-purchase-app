@@ -19,6 +19,16 @@ class Homepage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
+    final currentUser = FirebaseAuth.instance.currentUser;
+
+     if (currentUser == null) {
+      return const Scaffold(
+        body: Center(
+          child: Text('User not authenticated. Please log in.'),
+        ),
+      );
+    }
+
     return Consumer<CityTeaterProvider>(
       builder: (context, cityTeaterProvider, _) {
         final selectedTeaterId = cityTeaterProvider.selectedTeaterId;
@@ -26,6 +36,8 @@ class Homepage extends StatelessWidget {
         print('Homepage Build Ulang - Selected Teater ID: $selectedTeaterId');
 
         if (selectedTeaterId == null) {
+          print('No teater selected yet, initializing provider...');
+          cityTeaterProvider.initialize();
           return Scaffold(
             body: Center(
               child:Column(
@@ -38,6 +50,7 @@ class Homepage extends StatelessWidget {
               ),
             ),
           );
+          
         }
 
 
@@ -85,9 +98,7 @@ class Homepage extends StatelessWidget {
   ) {
     final selectedTeaterId = cityTeaterProvider.selectedTeaterId ?? '';
 
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
+    return Scaffold(
         backgroundColor: Colors.white,
         appBar: _buildAppBar(context, cityTeaterProvider),
         body: SafeArea(
@@ -123,8 +134,7 @@ class Homepage extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
+      );
   }
 
   Widget _buildMovieList(
