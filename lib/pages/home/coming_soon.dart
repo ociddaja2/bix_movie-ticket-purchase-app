@@ -1,9 +1,9 @@
 import 'package:bixcinema/ui/widgets/appbar_2.dart';
 import 'package:bixcinema/ui/widgets/navbar.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:bixcinema/core/models/movie_model.dart';
 import 'package:bixcinema/core/repo/movie_repo.dart';
+import 'package:go_router/go_router.dart';
 
 
 class ComingSoonPage extends StatefulWidget {
@@ -28,7 +28,7 @@ class _ComingSoonPageState extends State<ComingSoonPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: BixAppBar.subtitle(title: 'Coming Soon', subtitle: 'Film Yang Segera Tayang',),
+      appBar: BixAppBar.subtitle(leading: BackButton(color: Colors.white, onPressed: () => context.push('/home')),title: 'Coming Soon', subtitle: 'Film Yang Segera Tayang'),
       bottomNavigationBar: Navbar(currentIndex: 0),
       body: FutureBuilder<List<MovieModel>>(
         future: futureMovies,

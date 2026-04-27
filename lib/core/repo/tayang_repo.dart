@@ -1,4 +1,5 @@
 // lib/core/repo/tayang_repo.dart
+// import 'package:bixcinema/core/models/movie_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:bixcinema/core/models/tayang_model.dart';
 
@@ -7,7 +8,7 @@ class TayangRepository {
   final _db = FirebaseFirestore.instance;
 
   // Ambil semua tayang untuk film tertentu
-  Future<List<TayangModel>> fetchTayangByMovieId(String movieId) async {
+  Future<List<TayangModel>> fetchTayangByMovieId(String movieId, String selectedTeaterId) async {
     try {
       final snapshot = await _db
           .collection('tayang')
@@ -75,7 +76,7 @@ class TayangRepository {
     try {
       final snapshot = await _db
           .collection('tayang')
-          .where('movieId', isEqualTo: movieId)
+          .where('movieId', arrayContains: movieId)
           .where('teaterId', isEqualTo: teaterId)
           .get();
 
@@ -126,19 +127,52 @@ class TayangRepository {
   }
 
   // Ambil tayang berdasarkan ID
-  Future<TayangModel?> fetchTayangById(String tayangId) async {
-    try {
-      final doc = await _db.collection('tayang').doc(tayangId).get();
-      if (doc.exists) {
-        return TayangModel.fromJson({...doc.data()!, 'tayangId': doc.id});
-      }
-      return null;
-    } catch (e) {
-      print('Error fetching tayang by id: $e');
-      return null;
-    }
-  }
+  // Future<TayangModel?> fetchTayangById(String tayangId) async {
+  //   try {
+  //     final doc = await _db.collection('tayang').doc(tayangId).get();
+  //     if (doc.exists) {
+  //       return TayangModel.fromJson({...doc.data()!, 'tayangId': doc.id});
+  //     }
+  //     return null;
+  //   } catch (e) {
+  //     print('Error fetching tayang by id: $e');
+  //     return null;
+  //   }
+  // }
 
+  // // fetch film yang tayang di teater tertentu
+  // Future<List<MovieModel>> fetchMoviesByTeater(String teaterId) async {
+  //   try {
+
+  //     final tayangSnapshot = await _db
+  //         .collection('tayang')
+  //         .where('teaterId', isEqualTo: teaterId)
+  //         .get();
+
+  //     Set<String> movieId = {};
+  //     for (var doc in tayangSnapshot.docs) {
+  //       final data = doc.data();
+  //       final movieId = data['movieId'] as String? ?? '';
+  //       movieId.addAll(movie);
+  //     }
+
+  //     if (movieId.isEmpty) return [];
+
+  //     final moviesSnapshot = await _db
+  //         .collection('movies')
+  //         .where(FieldPath.documentId, whereIn: movieId.toList())
+  //         .get();
+
+  //     return moviesSnapshot.docs
+  //         .map((doc) => MovieModel.fromJson({...doc.data(), 'id': doc.id}))
+  //         .toList();
+  //   } catch (e) {
+  //     print('Error fetching movies by teater: $e');
+  //     return [];
+  //   }
+  // }
+
+  
     
 
 }

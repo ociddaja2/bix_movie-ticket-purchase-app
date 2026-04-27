@@ -38,11 +38,12 @@ class FirebaseService {
         password: password,
       );
 
-      // 2. Simpan data user di Firestore (JANGAN simpan password di Firestore!)
+      // 2. Simpan data user di Firestore 
       await _firestore.collection('users').doc(userCredential.user!.uid).set({
         'id': userCredential.user!.uid,
         'name': fullName,
         'email': email,
+        // 'password': password,
         'phoneNumber': phoneNumber,
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),

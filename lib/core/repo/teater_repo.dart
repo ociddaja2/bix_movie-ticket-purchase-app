@@ -68,4 +68,21 @@ class TeaterRepository {
       return null;
     }
   }
+
+  // Future<TayangModel?> fetchTeaterByCity(String city) async {
+  //     final snapshot = await _db
+  //         .collection('tayang')
+  //         .where('kota', isEqualTo: city)
+  //         .limit(1)
+  //         .get();
+
+  //     if (snapshot.docs.isNotEmpty) {
+  //       return TayangModel.fromJson({
+  //         ...snapshot.docs.first.data(),
+  //         'tayangId': snapshot.docs.first.id
+  //         });
+  //     } 
+  //     return null;
+  //   }
+  // }
 }

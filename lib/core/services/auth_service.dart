@@ -7,7 +7,7 @@ import 'package:bixcinema/core/models/user_model.dart';
 class AuthService {
   static UserModel? cachedUser;
 
-  // ============= LOGIN =============
+  // login
   static Future<Map<String, dynamic>> signIn({
     required String email,
     required String password,
@@ -37,7 +37,7 @@ class AuthService {
     }
   }
 
-  // ============= REGISTER =============
+  // register
   static Future<Map<String, dynamic>> register({
     required String email,
     required String password,
@@ -78,13 +78,13 @@ class AuthService {
     }
   }
 
-  // ============= LOGOUT =============
+  // logout
   static Future<void> signOut() async {
     await FirebaseService.signOut();
     cachedUser = null;
   }
 
-  // ============= GET CURRENT USER =============
+  // get current user
   static Future<UserModel?> getCurrentUser() async {
     try {
       final authUser = FirebaseService.getCurrentAuthUser();
@@ -96,12 +96,12 @@ class AuthService {
     }
   }
 
-  // ============= AUTH STATE STREAM =============
+  // auth state changes stream
   static Stream<User?> authStateChanges() {
     return FirebaseService.authStateChanges();
   }
 
-  // ============= GET CACHED USER =============
+  // get cached user
   static UserModel? getCachedUser() {
     return cachedUser;
   }

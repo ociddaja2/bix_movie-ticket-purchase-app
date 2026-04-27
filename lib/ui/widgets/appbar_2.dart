@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-//  BIX Cinema — AppBar System
-//  Gunakan named constructor sesuai halaman:
-//
 //  BixAppBar.logo()           → hanya logo
 //  BixAppBar.home()           → logo + dropdown lokasi (Homepage)
 //  BixAppBar.subtitle()       → logo + judul & deskripsi (MovieList, Booking, Profile)
@@ -25,10 +22,10 @@ class BixAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.timeRange,
     this.date,
     this.onBack,
-    this.onLocationTap,
+    this.onLocationTap, this.leading,
   }) : _variant = variant;
 
-  // ── Named constructors ────────────────────
+  // Constructor untuk setiap varian AppBar
 
   const BixAppBar.logo()
       : this._(variant: _BixAppBarVariant.logo);
@@ -44,9 +41,10 @@ class BixAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   const BixAppBar.subtitle({
     required String title,
-    String? subtitle,
+    String? subtitle, required BackButton leading,
   }) : this._(
           variant: _BixAppBarVariant.subtitle,
+          leading: leading,
           title: title,
           subtitle: subtitle,
         );
@@ -107,6 +105,8 @@ class BixAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String? date;
   final VoidCallback? onBack;
   final VoidCallback? onLocationTap;
+  
+  final dynamic leading;
 
   @override
   Size get preferredSize {
@@ -334,7 +334,7 @@ class _SubtitleBlock extends StatelessWidget {
         if (subtitle != null) ...[
           const SizedBox(height: 2),
           Text(subtitle!,
-              style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 12),
+              style: TextStyle(color: Colors.white54, fontSize: 12),
               textAlign: TextAlign.center),
         ],
       ],
@@ -357,7 +357,7 @@ class _LocationDropdown extends StatelessWidget {
         height: 40,
         padding: const EdgeInsets.symmetric(horizontal: 14),
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.white.withOpacity(0.6), width: 1.2),
+          border: Border.all(color: Colors.white60, width: 1.2),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(
@@ -393,7 +393,7 @@ class _FilmInfoCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.12),
+        color: Colors.white60,
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
@@ -403,12 +403,12 @@ class _FilmInfoCard extends StatelessWidget {
             Text(movieTitle,
                 style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
             const SizedBox(height: 2),
-            Text(cinema, style: TextStyle(color: Colors.white.withOpacity(0.65), fontSize: 11)),
+            Text(cinema, style: TextStyle(color: Colors.white60, fontSize: 11)),
           ]),
           Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
             Text(timeRange, style: const TextStyle(color: Colors.white, fontSize: 12)),
             const SizedBox(height: 2),
-            Text(date, style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 11)),
+            Text(date, style: TextStyle(color: Colors.white60, fontSize: 11)),
           ]),
         ],
       ),
@@ -428,7 +428,7 @@ class _TicketInfoCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.12),
+        color: Colors.white54,
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
@@ -444,6 +444,7 @@ class _TicketInfoCard extends StatelessWidget {
 }
 
 //  Demo App
+void main() => runApp(const BixDemoApp());
 
 
 class BixDemoApp extends StatelessWidget {
@@ -496,7 +497,8 @@ Widget _NavTile(String label, VoidCallback onTap) => ListTile(
 class _SedangTayangPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: const BixAppBar.subtitle(
+        appBar: BixAppBar.subtitle(
+          leading: BackButton(color: Colors.white, onPressed: () => context.push('/home')),
           title: 'Sedang Tayang',
           subtitle: 'Sedang tayang hari ini di BIX Cinema ✦',
         ),
@@ -507,7 +509,8 @@ class _SedangTayangPage extends StatelessWidget {
 class _AkanDatangPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: const BixAppBar.subtitle(
+        appBar: BixAppBar.subtitle(
+          leading: BackButton(color: Colors.white, onPressed: () => context.push('/home')),
           title: 'Akan Mendatang',
           subtitle: 'Rencanakan tontonanmu dari sekarang! ✦',
         ),
@@ -555,7 +558,8 @@ class _PembayaranPage extends StatelessWidget {
 class _BookingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: const BixAppBar.subtitle(
+        appBar: BixAppBar.subtitle(
+          leading: BackButton(color: Color.fromARGB(0, 255, 255, 255), onPressed: null),
           title: 'Booking',
           subtitle: 'Menampilkan detail pesanan tiket yang sudah di Booking',
         ),
@@ -579,6 +583,7 @@ class _ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: const BixAppBar.subtitle(
+          leading: BackButton(color: Color.fromARGB(0, 255, 255, 255), onPressed: null),
           title: 'Account',
           subtitle: 'Tempat untuk melihat dan mengatur Akun anda',
         ),

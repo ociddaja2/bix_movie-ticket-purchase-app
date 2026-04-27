@@ -1,7 +1,11 @@
+import 'package:bixcinema/core/providers/city_teater_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:bixcinema/core/app/route.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
 import 'firebase_options.dart';
+// import 'package:provider/provider.dart';
+
 
 void main() async {
   
@@ -15,18 +19,27 @@ void main() async {
   } catch (e) {
     print('Error initializing Firebase: $e');
   }
-  runApp(const MyApp());
+
+  final cityTeaterProvider = CityTeaterProvider();
+  await cityTeaterProvider.initialize();
+
+  runApp(MyApp(cityTeaterProvider: cityTeaterProvider));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  final CityTeaterProvider cityTeaterProvider;
+
+  const MyApp({required this.cityTeaterProvider, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
+    return ChangeNotifierProvider<CityTeaterProvider>.value(
+      value: cityTeaterProvider,
+      child: MaterialApp.router(
       debugShowCheckedModeBanner: true,
       title: 'BixCinema',
       routerConfig: AppRoutes.router,
+      )
     );
   }
 }

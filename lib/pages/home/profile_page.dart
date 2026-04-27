@@ -6,7 +6,7 @@ import 'package:bixcinema/core/services/auth_service.dart';
 import 'package:go_router/go_router.dart';
 import '../../ui/widgets/loading_screen.dart';
 import 'package:bixcinema/ui/widgets/appbar_2.dart';
-import 'package:bixcinema/core/services/imgbb_service.dart';
+import 'package:bixcinema/core/services/imgbbapi_service.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -70,7 +70,7 @@ class ProfileScreen extends StatefulWidget {
 
         return Scaffold(
           backgroundColor: Colors.white,
-          appBar: BixAppBar.subtitle(title: 'Profile', subtitle: user?.name ?? ''),
+          appBar: BixAppBar.subtitle(title: 'Profile', subtitle: user?.name ?? '', leading: BackButton(onPressed: null,),),
           body: SafeArea(
             child: SingleChildScrollView(
               child: Column(

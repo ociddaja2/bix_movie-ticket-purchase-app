@@ -130,7 +130,9 @@ class _LoginPageState extends State<LoginPage> {
 
                         TextFormField(
                           onChanged: (value) {
-                            value.isNotEmpty ? setState(() => isIconVisible = true) : setState(() => isIconVisible = false);
+                            value.isNotEmpty 
+                            ? setState(() => isIconVisible = true)
+                            : setState(() => isIconVisible = false);
                           },
 
                           controller: _passwordController,
@@ -275,7 +277,7 @@ class _LoginPageState extends State<LoginPage> {
                                         _showErrorDialog(
                                           'Login Gagal',
                                           result['error'] ??
-                                              'Terjadi kesalahan yang tidak diketahui',
+                                          'Terjadi kesalahan yang tidak diketahui',
                                         );
                                       }
                                     }
@@ -345,7 +347,6 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  // ============= DIALOG HELPERS =============
   void _showErrorDialog(String title, String message) {
     showDialog(
       context: context,

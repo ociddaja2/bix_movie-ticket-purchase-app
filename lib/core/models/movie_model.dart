@@ -6,7 +6,6 @@ class MovieModel {
   final String durasi;
   final String format;
   final String rating;
-  final String teater;
   final bool status;
 
   final List<String> jam; // List of showtimes in string format
@@ -21,7 +20,6 @@ class MovieModel {
     required this.durasi,
     required this.format,
     required this.rating,
-    required this.teater,
     required this.status,
     required this.jam,
     required this.posterUrl,
@@ -38,7 +36,6 @@ class MovieModel {
       durasi: json['durasi'] as String? ?? '',
       format: json['format'] as String? ?? '',
       rating: json['rating'] as String? ?? '',
-      teater: json['teater'] as String? ?? '',
       status: json['status'] as bool? ?? false,
       jam: List<String>.from(json['jam'] as List<dynamic>? ?? []),
       posterUrl: json['posterUrl'] as String? ?? '',
@@ -55,7 +52,6 @@ class MovieModel {
       'durasi': durasi,
       'format': format,
       'rating': rating,
-      'teater': teater,
       'status': status,
       'jam': jam,
       'posterUrl': posterUrl,

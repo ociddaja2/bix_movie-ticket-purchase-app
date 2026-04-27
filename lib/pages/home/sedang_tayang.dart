@@ -28,7 +28,7 @@ class _SedangTayangPageState extends State<SedangTayangPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: BixAppBar.subtitle(title: 'Sedang Tayang', subtitle: 'Film Yang Sedang Tayang'),
+      appBar: BixAppBar.subtitle(title: 'Sedang Tayang', subtitle: 'Film Yang Sedang Tayang', leading: BackButton(color: Colors.white, onPressed: () => context.push('/home'))),
       bottomNavigationBar: Navbar(currentIndex: 0),
       body: FutureBuilder<List<MovieModel>>(
         future: futureMovies,

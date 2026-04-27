@@ -1,6 +1,8 @@
+import 'package:bixcinema/core/providers/city_teater_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:bixcinema/ui/widgets/appbar_2.dart';
+import 'package:provider/provider.dart';
 
 class LocationPage extends StatelessWidget {
   const LocationPage({super.key});
@@ -52,10 +54,13 @@ class _CityListScreenState extends State<CityListScreen> {
                 padding: const EdgeInsets.only(bottom: 12.0),
                 child: GestureDetector(
                   onTap: () {
-                    setState(() {
-                      selectedCity = city;
-                    });
-                  },
+                    // ✅ Step 1: Simpan teater yang dipilih
+                    final provider = Provider.of<CityTeaterProvider>(context, listen: false);
+                    provider.selectCity(city);  // 'Banjarbaru', dll
+    
+                    // ✅ Step 2: Kembali ke Homepage
+                    context.go('/home');
+                    },
                   child: Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(
