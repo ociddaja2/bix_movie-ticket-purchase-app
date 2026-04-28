@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:bixcinema/ui/widgets/backgroundLoginWidget.dart';
+import 'package:bixcinema/ui/widgets/decorativebackground.dart';
 import 'package:bixcinema/ui/widgets/logoBoxWidget.dart';
 import 'package:bixcinema/core/services/auth_service.dart';
 import 'package:bixcinema/core/services/validation_service.dart';

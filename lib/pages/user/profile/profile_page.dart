@@ -121,7 +121,7 @@ class ProfileScreen extends StatefulWidget {
           appBar: BixAppBar.subtitle(
             title: 'Profile',
             subtitle: user?.name ?? '',
-            leading: BackButton(onPressed: null),
+            onBack: null,
             ),
           body: SafeArea(
             child: SingleChildScrollView(
@@ -137,36 +137,24 @@ class ProfileScreen extends StatefulWidget {
                               CircleAvatar(
                                 radius: 45,
                                 backgroundColor: const Color(0xFF1A237E),
-                                child: ClipOval( // Agar gambar tetap bulat sempurna
-                                  child: user?.avatarUrl != null
-                                      ? CachedNetworkImage(
-                                          imageUrl: user!.avatarUrl!,
-                                          fit: BoxFit.cover,
-                                          width: 90,
-                                          height: 90,
-                                          placeholder: (context, url) => const CircularProgressIndicator(),
-                                          errorWidget: (context, url, error) {
-                                            print("Link Error: $url"); // Cek link yang bermasalah di log
-                                            return const Icon(Icons.person, size: 55, color: Colors.white);
-                                          },
-                                        )
-                                      : const Icon(Icons.person, size: 55, color: Colors.white),
-                                ),  
-                              ),                              
-                              // CircleAvatar(
-                              //   radius: 45,
-                              //   backgroundColor: Color(0xFF1A237E),
-                              //   backgroundImage: user?.avatarUrl != null
-                              //       ? NetworkImage(user!.avatarUrl!, scale: 1.0,)
-                              //       : null,
-                              //   child: _isUploading 
-                              //       ? const CircularProgressIndicator(color: Colors.white) // Loading saat upload
-                              //       : (user?.avatarUrl == null
-                              //           ? const Icon(Icons.person, size: 55, color: Colors.white)
-                              //       : null),
-                              // ),
+                                child: ClipOval(
+                                  child: 
+                                  user?.avatarUrl != null ? CachedNetworkImage(
+                                    imageUrl: user!.avatarUrl!,
+                                    fit: BoxFit.cover,
+                                    width: 90,
+                                    height: 90,
+                                    placeholder: (context, url) => const CircularProgressIndicator(),
+                                    errorWidget: (context, url, error) {
 
+                                      print("Link Error: $url"); // Cek link yang bermasalah di log
 
+                                    return const Icon(Icons.person, size: 55, color: Colors.white);
+                                    
+                                    },
+                                  ): const Icon(Icons.person, size: 55, color: Colors.white),
+                                ),
+                              ),
                           Positioned(
                             bottom: 0,
                             right: 0,
@@ -216,7 +204,7 @@ class ProfileScreen extends StatefulWidget {
                             ),
                             TextButton(
                               onPressed: () {
-                                context.push('/edit-profile');
+                                context.go('/edit-profile');
                               },
                               style: TextButton.styleFrom(
                                 padding: EdgeInsets.zero,

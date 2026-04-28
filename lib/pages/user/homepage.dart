@@ -3,7 +3,7 @@ import 'package:bixcinema/core/models/user_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:bixcinema/ui/widgets/backgroundLoginWidget.dart';
+import 'package:bixcinema/ui/widgets/decorativebackground.dart';
 import 'package:bixcinema/core/models/movie_model.dart';
 import 'package:go_router/go_router.dart';
 import 'package:bixcinema/core/repo/movie_repo.dart';

@@ -1,4 +1,6 @@
+import 'package:bixcinema/ui/widgets/appbar_2.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class EditProfilePage extends StatelessWidget {
   const EditProfilePage({super.key});
@@ -7,11 +9,13 @@ class EditProfilePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Change Password'),
+        appBar: BixAppBar.subtitle(
+          title: 'Edit Profile',
+          subtitle: 'Ubah informasi profil Anda',
+          onBack: () => context.go('/profile'),
         ),
         body: const Center(
-          child: Text('This is the Change Password Page'),
+          child: Text('This is the Edit Profile Page'),
         ),
       ),
 

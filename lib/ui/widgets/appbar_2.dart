@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+// import 'package:go_router/go_router.dart';
 
 //  BixAppBar.logo()           → hanya logo
 //  BixAppBar.home()           → logo + dropdown lokasi (Homepage)
@@ -8,8 +8,6 @@ import 'package:go_router/go_router.dart';
 //  BixAppBar.locationPicker() → back + logo + lokasi aktif (Pilih Lokasi)
 //  BixAppBar.seatPicker()     → back + logo + info film & jadwal (Pilih Kursi)
 //  BixAppBar.ticketDetail()   → back + logo + bioskop & waktu (Lihat Tiket)
-
-const _kBlue = Color(0xFF1A2E7A);
 
 class BixAppBar extends StatelessWidget implements PreferredSizeWidget {
   const BixAppBar._({
@@ -22,52 +20,44 @@ class BixAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.timeRange,
     this.date,
     this.onBack,
-    this.onLocationTap, this.leading,
+    this.onLocationTap,
   }) : _variant = variant;
 
   // Constructor untuk setiap varian AppBar
 
-  const BixAppBar.logo()
-      : this._(variant: _BixAppBarVariant.logo);
+  const BixAppBar.logo() : this._(variant: _BixAppBarVariant.logo);
 
-  const BixAppBar.home({
-    required String location,
-    VoidCallback? onLocationTap,
-  }) : this._(
-          variant: _BixAppBarVariant.home,
-          location: location,
-          onLocationTap: onLocationTap,
-        );
+  const BixAppBar.home({required String location, VoidCallback? onLocationTap})
+    : this._(
+        variant: _BixAppBarVariant.home,
+        location: location,
+        onLocationTap: onLocationTap,
+      );
 
   const BixAppBar.subtitle({
     required String title,
-    String? subtitle, required BackButton leading,
-  }) : this._(
-          variant: _BixAppBarVariant.subtitle,
-          leading: leading,
-          title: title,
-          subtitle: subtitle,
-        );
-
-  const BixAppBar.titled({
-    required String title,
+    String? subtitle,
     VoidCallback? onBack,
   }) : this._(
-          variant: _BixAppBarVariant.titled,
-          title: title,
-          onBack: onBack,
-        );
+         variant: _BixAppBarVariant.subtitle,
+         title: title,
+         subtitle: subtitle,
+         onBack: onBack,
+       );
+
+  const BixAppBar.titled({required String title, VoidCallback? onBack})
+    : this._(variant: _BixAppBarVariant.titled, title: title, onBack: onBack);
 
   const BixAppBar.locationPicker({
     required String location,
     VoidCallback? onBack,
     VoidCallback? onLocationTap,
   }) : this._(
-          variant: _BixAppBarVariant.locationPicker,
-          location: location,
-          onBack: onBack,
-          onLocationTap: onLocationTap,
-        );
+         variant: _BixAppBarVariant.locationPicker,
+         location: location,
+         onBack: onBack,
+         onLocationTap: onLocationTap,
+       );
 
   const BixAppBar.seatPicker({
     required String movieTitle,
@@ -76,24 +66,24 @@ class BixAppBar extends StatelessWidget implements PreferredSizeWidget {
     required String date,
     VoidCallback? onBack,
   }) : this._(
-          variant: _BixAppBarVariant.seatPicker,
-          movieTitle: movieTitle,
-          cinema: cinema,
-          timeRange: timeRange,
-          date: date,
-          onBack: onBack,
-        );
+         variant: _BixAppBarVariant.seatPicker,
+         movieTitle: movieTitle,
+         cinema: cinema,
+         timeRange: timeRange,
+         date: date,
+         onBack: onBack,
+       );
 
   const BixAppBar.ticketDetail({
     required String cinema,
     required String timeRange,
     VoidCallback? onBack,
   }) : this._(
-          variant: _BixAppBarVariant.ticketDetail,
-          cinema: cinema,
-          timeRange: timeRange,
-          onBack: onBack,
-        );
+         variant: _BixAppBarVariant.ticketDetail,
+         cinema: cinema,
+         timeRange: timeRange,
+         onBack: onBack,
+       );
 
   final _BixAppBarVariant _variant;
   final String? title;
@@ -105,28 +95,26 @@ class BixAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String? date;
   final VoidCallback? onBack;
   final VoidCallback? onLocationTap;
-  
-  final dynamic leading;
 
   @override
   Size get preferredSize {
     switch (_variant) {
-    case _BixAppBarVariant.logo:
-      return const Size.fromHeight(68);  // 56 + 12
-    case _BixAppBarVariant.home:
-      return const Size.fromHeight(110); // 56+2+40 + 12
-    case _BixAppBarVariant.subtitle:
-      return const Size.fromHeight(112);  // 56+2 + 12 (minimal)
-    case _BixAppBarVariant.titled:
-      return const Size.fromHeight(68);  // 56 + 12
-    case _BixAppBarVariant.locationPicker:
-      return const Size.fromHeight(112); // 56+4+40 + 12
-    case _BixAppBarVariant.seatPicker:
-      return const Size.fromHeight(122); // 56+6+32 + 12
-    case _BixAppBarVariant.ticketDetail:
-      return const Size.fromHeight(110); // 56+6+32 + 12
+      case _BixAppBarVariant.logo:
+        return const Size.fromHeight(68); // 56 + 12
+      case _BixAppBarVariant.home:
+        return const Size.fromHeight(110); // 56+2+40 + 12
+      case _BixAppBarVariant.subtitle:
+        return const Size.fromHeight(112); // 56+2 + 12 (minimal)
+      case _BixAppBarVariant.titled:
+        return const Size.fromHeight(68); // 56 + 12
+      case _BixAppBarVariant.locationPicker:
+        return const Size.fromHeight(112); // 56+4+40 + 12
+      case _BixAppBarVariant.seatPicker:
+        return const Size.fromHeight(122); // 56+6+32 + 12
+      case _BixAppBarVariant.ticketDetail:
+        return const Size.fromHeight(110); // 56+6+32 + 12
+    }
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -134,62 +122,62 @@ class BixAppBar extends StatelessWidget implements PreferredSizeWidget {
       child: switch (_variant) {
         _BixAppBarVariant.logo => const _LogoRow(),
         _BixAppBarVariant.home => Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const _LogoRow(),
-              const SizedBox(height: 2),
-              _LocationDropdown(
-                location: location!,
-                isOpen: false,
-                onTap: onLocationTap,
-              ),
-            ],
-          ),
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const _LogoRow(),
+            const SizedBox(height: 2),
+            _LocationDropdown(
+              location: location!,
+              isOpen: false,
+              onTap: onLocationTap,
+            ),
+          ],
+        ),
         _BixAppBarVariant.subtitle => Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const _LogoRow(),
-              const SizedBox(height: 2),
-              _SubtitleBlock(title: title!, subtitle: subtitle),
-            ],
-          ),
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _BackLogoRow(onBack: onBack),
+            const SizedBox(height: 2),
+            _SubtitleBlock(title: title!, subtitle: subtitle),
+          ],
+        ),
         _BixAppBarVariant.titled => _BackTitleRow(
-            title: title!,
-            onBack: onBack,
-          ),
+          title: title!,
+          onBack: onBack,
+        ),
         _BixAppBarVariant.locationPicker => Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _BackLogoRow(onBack: onBack),
-              const SizedBox(height: 4),
-              _LocationDropdown(
-                location: location!,
-                isOpen: true,
-                onTap: onLocationTap,
-              ),
-            ],
-          ),
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _BackLogoRow(onBack: onBack),
+            const SizedBox(height: 4),
+            _LocationDropdown(
+              location: location!,
+              isOpen: true,
+              onTap: onLocationTap,
+            ),
+          ],
+        ),
         _BixAppBarVariant.seatPicker => Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _BackLogoRow(onBack: onBack),
-              const SizedBox(height: 6),
-              _FilmInfoCard(
-                movieTitle: movieTitle!,
-                cinema: cinema!,
-                timeRange: timeRange!,
-                date: date!,
-              ),
-            ],
-          ),
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _BackLogoRow(onBack: onBack),
+            const SizedBox(height: 6),
+            _FilmInfoCard(
+              movieTitle: movieTitle!,
+              cinema: cinema!,
+              timeRange: timeRange!,
+              date: date!,
+            ),
+          ],
+        ),
         _BixAppBarVariant.ticketDetail => Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _BackLogoRow(onBack: onBack),
-              const SizedBox(height: 6),
-              _TicketInfoCard(cinema: cinema!, timeRange: timeRange!),
-            ],
-          ),
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _BackLogoRow(onBack: onBack),
+            const SizedBox(height: 6),
+            _TicketInfoCard(cinema: cinema!, timeRange: timeRange!),
+          ],
+        ),
       },
     );
   }
@@ -206,7 +194,6 @@ enum _BixAppBarVariant {
   ticketDetail,
 }
 
-
 //  Container latar biru
 class _BixAppBarContainer extends StatelessWidget {
   const _BixAppBarContainer({required this.child});
@@ -216,9 +203,15 @@ class _BixAppBarContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        color: _kBlue,
+        color: Color.fromARGB(255, 5, 53, 125),
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(16)),
-        boxShadow: [BoxShadow(color: Color(0x40000000), blurRadius: 8, offset: Offset(0, 4))],
+        boxShadow: [
+          BoxShadow(
+            color: Color(0x40000000),
+            blurRadius: 8,
+            offset: Offset(0, 4),
+          ),
+        ],
       ),
       child: SafeArea(
         bottom: false,
@@ -237,11 +230,18 @@ class _LogoRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 56,
-      child: Center(
-        child: Image.asset('lib/assets/images/icons/iconbix3.png', height: 28, fit: BoxFit.contain),
-      ),
+    return Column(
+      children:[
+        Center(
+          child: Image.asset(
+            'lib/assets/images/icons/iconbix3.png',
+            height: 32,
+            fit: BoxFit.contain,
+          ),
+        ),
+        const SizedBox(height: 24),
+        // const Divider(endIndent: 1,)
+      ]
     );
   }
 }
@@ -260,9 +260,15 @@ class _BackLogoRow extends StatelessWidget {
         children: [
           Align(
             alignment: Alignment.centerLeft,
-            child: _BackButton(onTap: onBack ?? () => Navigator.maybePop(context)),
+            child: _BackButton(
+              onTap: onBack ?? () => Navigator.maybePop(context),
+            ),
           ),
-          Image.asset('lib/assets/images/icons/iconbix3.png', height: 24, fit: BoxFit.contain),
+          Image.asset(
+            'lib/assets/images/icons/iconbix3.png',
+            height: 32,
+            fit: BoxFit.contain,
+          ),
         ],
       ),
     );
@@ -284,11 +290,17 @@ class _BackTitleRow extends StatelessWidget {
         children: [
           Align(
             alignment: Alignment.centerLeft,
-            child: _BackButton(onTap: onBack ?? () => Navigator.maybePop(context)),
+            child: _BackButton(
+              onTap: onBack ?? () => Navigator.maybePop(context),
+            ),
           ),
           Text(
             title,
-            style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ],
       ),
@@ -309,10 +321,14 @@ class _BackButton extends StatelessWidget {
         width: 36,
         height: 36,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Color.fromARGB(255, 5, 53, 125),
           borderRadius: BorderRadius.circular(10),
         ),
-        child: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 16),
+        child: const Icon(
+          Icons.arrow_back_ios_new_rounded,
+          color: Colors.white,
+          size: 24,
+        ),
       ),
     );
   }
@@ -329,13 +345,21 @@ class _SubtitleBlock extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(title,
-            style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
+        Text(
+          title,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
         if (subtitle != null) ...[
           const SizedBox(height: 2),
-          Text(subtitle!,
-              style: TextStyle(color: Colors.white54, fontSize: 12),
-              textAlign: TextAlign.center),
+          Text(
+            subtitle!,
+            style: TextStyle(color: Colors.white, fontSize: 12),
+            textAlign: TextAlign.center,
+          ),
         ],
       ],
     );
@@ -344,7 +368,11 @@ class _SubtitleBlock extends StatelessWidget {
 
 //  Dropdown lokasi
 class _LocationDropdown extends StatelessWidget {
-  const _LocationDropdown({required this.location, required this.isOpen, this.onTap});
+  const _LocationDropdown({
+    required this.location,
+    required this.isOpen,
+    this.onTap,
+  });
   final String location;
   final bool isOpen;
   final VoidCallback? onTap;
@@ -363,14 +391,29 @@ class _LocationDropdown extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(children: [
-              const Icon(Icons.location_on_outlined, color: Colors.white, size: 18),
-              const SizedBox(width: 6),
-              Text(location,
-                  style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500)),
-            ]),
-            Icon(isOpen ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                color: Colors.white, size: 20),
+            Row(
+              children: [
+                const Icon(
+                  Icons.location_on_outlined,
+                  color: Colors.white,
+                  size: 18,
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  location,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+            Icon(
+              isOpen ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+              color: Colors.white,
+              size: 20,
+            ),
           ],
         ),
       ),
@@ -399,23 +442,40 @@ class _FilmInfoCard extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(movieTitle,
-                style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
-            const SizedBox(height: 2),
-            Text(cinema, style: TextStyle(color: Colors.white60, fontSize: 11)),
-          ]),
-          Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-            Text(timeRange, style: const TextStyle(color: Colors.white, fontSize: 12)),
-            const SizedBox(height: 2),
-            Text(date, style: TextStyle(color: Colors.white60, fontSize: 11)),
-          ]),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                movieTitle,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                cinema,
+                style: TextStyle(color: Colors.white60, fontSize: 11),
+              ),
+            ],
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                timeRange,
+                style: const TextStyle(color: Colors.white, fontSize: 12),
+              ),
+              const SizedBox(height: 2),
+              Text(date, style: TextStyle(color: Colors.white60, fontSize: 11)),
+            ],
+          ),
         ],
       ),
     );
   }
 }
-
 
 //  Info card — bioskop & waktu (Lihat Tiket)
 
@@ -434,159 +494,20 @@ class _TicketInfoCard extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(cinema,
-              style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
-          Text(timeRange, style: const TextStyle(color: Colors.white, fontSize: 12)),
+          Text(
+            cinema,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          Text(
+            timeRange,
+            style: const TextStyle(color: Colors.white, fontSize: 12),
+          ),
         ],
       ),
     );
   }
-}
-
-//  Demo App
-void main() => runApp(const BixDemoApp());
-
-
-class BixDemoApp extends StatelessWidget {
-  const BixDemoApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'BIX Cinema',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: _kBlue), useMaterial3: true),
-      home: const _DemoHome(),
-    );
-  }
-}
-
-class _DemoHome extends StatelessWidget {
-  const _DemoHome();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: BixAppBar.home(location: 'Banjarbaru', onLocationTap: () {}),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          _NavTile('MovieList — Sedang Tayang', () => _push(context, _SedangTayangPage())),
-          _NavTile('MovieList — Akan Datang', () => _push(context, _AkanDatangPage())),
-          _NavTile('Pilih Lokasi Bioskop', () => _push(context, _PilihLokasiPage())),
-          _NavTile('Pilih Kursi', () => _push(context, _PilihKursiPage())),
-          _NavTile('Konfirmasi Pembayaran', () => _push(context, _PembayaranPage())),
-          _NavTile('Booking', () => _push(context, _BookingPage())),
-          _NavTile('Lihat Tiket', () => _push(context, _LihatTiketPage())),
-          _NavTile('Profile / Account', () => _push(context, _ProfilePage())),
-        ],
-      ),
-    );
-  }
-
-  void _push(BuildContext context, Widget page) =>
-      Navigator.push(context, MaterialPageRoute(builder: (_) => page));
-}
-
-Widget _NavTile(String label, VoidCallback onTap) => ListTile(
-      title: Text(label),
-      trailing: const Icon(Icons.chevron_right),
-      onTap: onTap,
-    );
-
-class _SedangTayangPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: BixAppBar.subtitle(
-          leading: BackButton(color: Colors.white, onPressed: () => context.push('/home')),
-          title: 'Sedang Tayang',
-          subtitle: 'Sedang tayang hari ini di BIX Cinema ✦',
-        ),
-        body: const Center(child: Text('Daftar film sedang tayang')),
-      );
-}
-
-class _AkanDatangPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: BixAppBar.subtitle(
-          leading: BackButton(color: Colors.white, onPressed: () => context.push('/home')),
-          title: 'Akan Mendatang',
-          subtitle: 'Rencanakan tontonanmu dari sekarang! ✦',
-        ),
-        body: const Center(child: Text('Daftar film akan datang')),
-      );
-}
-
-class _PilihLokasiPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: BixAppBar.locationPicker(
-          location: 'Banjarbaru',
-          onBack: () => Navigator.pop(context),
-          onLocationTap: () {},
-        ),
-        body: const Center(child: Text('Daftar bioskop')),
-      );
-}
-
-class _PilihKursiPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: BixAppBar.seatPicker(
-          movieTitle: 'Avatar Fire And Ash',
-          cinema: 'Q Mall Banjarbaru',
-          timeRange: '14:25 - 16:40',
-          date: 'Kam, 19 2026',
-          onBack: () => Navigator.pop(context),
-        ),
-        body: const Center(child: Text('Layout kursi')),
-      );
-}
-
-class _PembayaranPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: BixAppBar.titled(
-          title: 'Konfirmasi Pembayaran',
-          onBack: () => Navigator.pop(context),
-        ),
-        body: const Center(child: Text('Form pembayaran')),
-      );
-}
-
-class _BookingPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: BixAppBar.subtitle(
-          leading: BackButton(color: Color.fromARGB(0, 255, 255, 255), onPressed: null),
-          title: 'Booking',
-          subtitle: 'Menampilkan detail pesanan tiket yang sudah di Booking',
-        ),
-        body: const Center(child: Text('Detail booking')),
-      );
-}
-
-class _LihatTiketPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: BixAppBar.ticketDetail(
-          cinema: 'Q Mall Banjarbaru',
-          timeRange: '14:25 - 16:40',
-          onBack: () => Navigator.pop(context),
-        ),
-        body: const Center(child: Text('Detail tiket yang dibeli')),
-      );
-}
-
-class _ProfilePage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: const BixAppBar.subtitle(
-          leading: BackButton(color: Color.fromARGB(0, 255, 255, 255), onPressed: null),
-          title: 'Account',
-          subtitle: 'Tempat untuk melihat dan mengatur Akun anda',
-        ),
-        body: const Center(child: Text('Halaman profil')),
-      );
 }

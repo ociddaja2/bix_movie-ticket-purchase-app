@@ -2,6 +2,7 @@
 
 import 'package:bixcinema/core/app/route.dart';
 import 'package:bixcinema/ui/widgets/appbar_2.dart';
+import 'package:bixcinema/ui/widgets/decorativebackground.dart';
 import 'package:bixcinema/ui/widgets/navbar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -39,10 +40,7 @@ class _SedangTayangPageState extends State<SedangTayangPage> {
             appBar: BixAppBar.subtitle(
               title: 'Sedang Tayang',
               subtitle: 'Film Yang Sedang Tayang',
-              leading: BackButton(
-                color: Colors.white,
-                onPressed: () => context.push('/home')),
-            ),
+              ),
             body: const Center(child: CircularProgressIndicator()),
           );
         }
@@ -51,14 +49,12 @@ class _SedangTayangPageState extends State<SedangTayangPage> {
         futureMovies = _fetchNowShowingForTeater(selectedTeaterId);
 
         return Scaffold(
-          backgroundColor: Colors.white,
           appBar: BixAppBar.subtitle(
-            title: 'Sedang Tayang',
-            subtitle: 'Film Yang Sedang Tayang',
-            leading: BackButton(
-              color: Colors.white,
-              onPressed: () => context.push('/home')),
-          ),
+              title: 'Coming Soon',
+              subtitle: 'Film Yang Sedang Tayang',
+              onBack: () => context.go('/home'),
+              ),
+          backgroundColor: Colors.white,
           bottomNavigationBar: const Navbar(currentIndex: 0),
           body: FutureBuilder<List<MovieModel>>(
             future: futureMovies,
@@ -77,22 +73,28 @@ class _SedangTayangPageState extends State<SedangTayangPage> {
                 return const Center(child: Text('No movies available'));
               }
 
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8),
-                child: GridView.builder(
-                  itemCount: movies.length,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 16,
-                    childAspectRatio: 0.62,
+              return SafeArea(
+                child: Stack(
+                  children: [ const DecorativeCirclesBackground(),
+                    Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8),
+                    child: GridView.builder(
+                      itemCount: movies.length,
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 12,
+                        mainAxisSpacing: 16,
+                        childAspectRatio: 0.62,
+                      ),
+                      itemBuilder: (context, index) {
+                        return MovieCard(
+                          movie: movies[index],
+                          selectedTeaterId: selectedTeaterId,
+                        );
+                      },
+                    ),
                   ),
-                  itemBuilder: (context, index) {
-                    return MovieCard(
-                      movie: movies[index],
-                      selectedTeaterId: selectedTeaterId,
-                    );
-                  },
+                  ],
                 ),
               );
             },

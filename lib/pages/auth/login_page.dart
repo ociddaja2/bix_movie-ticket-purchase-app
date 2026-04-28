@@ -1,7 +1,7 @@
 import 'package:bixcinema/core/app/route.dart';
 import 'package:bixcinema/core/services/auth_service.dart';
 import 'package:bixcinema/core/services/validation_service.dart';
-import 'package:bixcinema/ui/widgets/backgroundLoginWidget.dart';
+import 'package:bixcinema/ui/widgets/decorativebackground.dart';
 // import 'package:firebase_auth/firebase_auth.dart';
 // import 'package:firebase_core_dart/firebase_core_dart.dart';
 import 'package:flutter/material.dart';
