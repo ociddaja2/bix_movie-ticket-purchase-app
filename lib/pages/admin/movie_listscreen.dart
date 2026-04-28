@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:bixcinema/core/models/movie_model.dart';
 
 void main() {
   runApp(const BixCinemaApp());
@@ -26,24 +27,6 @@ class BixCinemaApp extends StatelessWidget {
 }
 
 // ─── Data Model ───────────────────────────────────────────────────────────────
-
-class Movie {
-  final String title;
-  final String genres;
-  final String duration;
-  final String ageRating;
-  final String format;
-  final String posterAsset; // use a network image or placeholder
-
-  const Movie({
-    required this.title,
-    required this.genres,
-    required this.duration,
-    required this.ageRating,
-    required this.format,
-    required this.posterAsset,
-  });
-}
 
 final List<Movie> demoMovies = [
   Movie(

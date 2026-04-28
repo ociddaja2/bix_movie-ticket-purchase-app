@@ -40,6 +40,7 @@ class _SedangTayangPageState extends State<SedangTayangPage> {
             appBar: BixAppBar.subtitle(
               title: 'Sedang Tayang',
               subtitle: 'Film Yang Sedang Tayang',
+              onBack: () => context.go('/home'),
               ),
             body: const Center(child: CircularProgressIndicator()),
           );

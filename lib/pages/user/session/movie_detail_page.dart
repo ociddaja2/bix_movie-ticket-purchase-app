@@ -1,6 +1,6 @@
 import 'package:bixcinema/core/models/movie_model.dart';
 import 'package:bixcinema/core/models/tayang_model.dart';
-// import 'package:bixcinema/core/repo/tayang_repo.dart';
+import 'package:bixcinema/pages/user/session/pilih_kursi.dart';
 // import 'package:bixcinema/core/models/teater_model.dart';
 import 'package:flutter/material.dart';
 
@@ -35,13 +35,13 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
     _tayangFuture = Future.value([widget.tayang]);
 
     // debug;
-  print('Movie ID: ${widget.movie.id}');
-  print('Movie Judul: ${widget.movie.judul}');
-  print('Tayang ID: ${widget.tayang.tayangId}');
-  print('Tayang Teater ID: ${widget.tayang.teaterId}');
-  print('Tayang Nama Teater: ${widget.tayang.namaTeater.namaTeater}');
-  print('Tayang Kota: ${widget.tayang.namaTeater.kota}');
-  print('Tanggal: ${widget.tayang.tanggal}');
+  // print('Movie ID: ${widget.movie.id}');
+  // print('Movie Judul: ${widget.movie.judul}');
+  // print('Tayang ID: ${widget.tayang.tayangId}');
+  // print('Tayang Teater ID: ${widget.tayang.teaterId}');
+  // print('Tayang Nama Teater: ${widget.tayang.namaTeater.namaTeater}');
+  // print('Tayang Kota: ${widget.tayang.namaTeater.kota}');
+  // print('Tanggal: ${widget.tayang.tanggal}');
   }
 
   @override
@@ -518,7 +518,27 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
         border: Border(top: BorderSide(color: Color(0xFFEEEEEE))),
       ),
       child: ElevatedButton(
-        onPressed: selectedShowtime != null ? () {} : null,
+        // bayar
+        onPressed: selectedShowtime != null
+           ? () {
+            final selectedDate = widget.tayang.tanggal[selectedDateIndex];
+
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PilihKursiPage(
+                  movie: widget.movie,
+                  tayang: widget.tayang.teaterId,
+                  selectedShowtime: selectedShowtime!,
+                  selectedDate: selectedDate, 
+                ),
+              )
+            );
+
+            print('Memesan: ${widget.movie.judul} di ${widget.tayang.namaTeater.namaTeater} jam $selectedShowtime'); 
+           } : null,
+
+
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color.fromARGB(255, 0, 46, 107),
           disabledBackgroundColor: Colors.grey.shade300,
