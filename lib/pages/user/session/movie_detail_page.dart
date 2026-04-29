@@ -10,11 +10,11 @@ class MovieDetailPage extends StatefulWidget {
   final String id;
 
   const MovieDetailPage({
-    super.key, 
+    super.key,
     required this.movie,
     required this.tayang,
-    required this.id
-    });
+    required this.id,
+  });
 
   @override
   State<MovieDetailPage> createState() => _MovieDetailPageState();
@@ -26,7 +26,6 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
   bool _synopsisExpanded = false;
 
   late Future<List<TayangModel>> _tayangFuture;
-  
 
   @override
   void initState() {
@@ -35,82 +34,82 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
     _tayangFuture = Future.value([widget.tayang]);
 
     // debug;
-  // print('Movie ID: ${widget.movie.id}');
-  // print('Movie Judul: ${widget.movie.judul}');
-  // print('Tayang ID: ${widget.tayang.tayangId}');
-  // print('Tayang Teater ID: ${widget.tayang.teaterId}');
-  // print('Tayang Nama Teater: ${widget.tayang.namaTeater.namaTeater}');
-  // print('Tayang Kota: ${widget.tayang.namaTeater.kota}');
-  // print('Tanggal: ${widget.tayang.tanggal}');
+    // print('Movie ID: ${widget.movie.id}');
+    // print('Movie Judul: ${widget.movie.judul}');
+    // print('Tayang ID: ${widget.tayang.tayangId}');
+    // print('Tayang Teater ID: ${widget.tayang.teaterId}');
+    // print('Tayang Nama Teater: ${widget.tayang.namaTeater.namaTeater}');
+    // print('Tayang Kota: ${widget.tayang.namaTeater.kota}');
+    // print('Tanggal: ${widget.tayang.tanggal}');
   }
 
   @override
- Widget build(BuildContext context) {
-  return Scaffold(
-    backgroundColor: Colors.white,
-    body: SafeArea(
-      child: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildHeroSection(),
-                  _buildMovieInfo(),
-                  const Divider(thickness: 8, color: Color(0xFFF5F5F5)),
-                  _buildSynopsis(),
-                  const Divider(thickness: 8, color: Color(0xFFF5F5F5)),
-  
-                  if (widget.movie.status) ...[
-                    _buildDateSelector(),
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildHeroSection(),
+                    _buildMovieInfo(),
                     const Divider(thickness: 8, color: Color(0xFFF5F5F5)),
-                    _buildCinemaSection(),
-                  ] else ...[
-                    // Coming Soon
-                    Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Container(
-                        width: double.infinity,
+                    _buildSynopsis(),
+                    const Divider(thickness: 8, color: Color(0xFFF5F5F5)),
+
+                    if (widget.movie.status) ...[
+                      _buildDateSelector(),
+                      const Divider(thickness: 8, color: Color(0xFFF5F5F5)),
+                      _buildCinemaSection(),
+                    ] else ...[
+                      // Coming Soon
+                      Padding(
                         padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFFF3E0),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: const Color(0xFFFFB74D)),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.info_outline,
-                              color: Color(0xFFF57C00),
-                              size: 24,
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                'Film ini akan segera tayang',
-                                style: TextStyle(
-                                  color: const Color(0xFFF57C00),
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFF3E0),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: const Color(0xFFFFB74D)),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.info_outline,
+                                color: Color(0xFFF57C00),
+                                size: 24,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  'Film ini akan segera tayang',
+                                  style: TextStyle(
+                                    color: const Color(0xFFF57C00),
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
-                    ),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
-          ),
-          if (widget.movie.status) _buildBuyButton(),
-        ],
+            if (widget.movie.status) _buildBuyButton(),
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _buildHeroSection() {
     return Stack(
@@ -120,16 +119,12 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
           height: 200,
           color: Colors.black87,
           child: Image.network(
-                  widget.movie.posterUrl,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, _, _) => _posterFallback(),
-                ),
+            widget.movie.posterUrl,
+            fit: BoxFit.cover,
+            errorBuilder: (_, _, _) => _posterFallback(),
+          ),
         ),
-        Container(
-          width: double.infinity,
-          height: 200,
-          color: Colors.black
-        ),
+        Container(width: double.infinity, height: 200, color: Colors.black),
         Positioned(
           top: 12,
           left: 12,
@@ -141,7 +136,11 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                 color: const Color.fromARGB(255, 15, 0, 111),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.arrow_back, color: Color.fromARGB(255, 255, 255, 255), size: 20),
+              child: const Icon(
+                Icons.arrow_back,
+                color: Color.fromARGB(255, 255, 255, 255),
+                size: 20,
+              ),
             ),
           ),
         ),
@@ -152,7 +151,6 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
               child: GestureDetector(
                 onTap: () {
                   // TODO: navigasi ke halaman trailer
-                  
                 },
                 child: Container(
                   width: 52,
@@ -161,9 +159,16 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                     color: Colors.white,
                     shape: BoxShape.circle,
                   ),
-                  child: IconButton(onPressed: () {
-                    // Navigasi ke halaman trailer, passing URL trailer
-                  }, icon: Icon(Icons.play_arrow, color: Colors.black87, size: 32))
+                  child: IconButton(
+                    onPressed: () {
+                      // Navigasi ke halaman trailer, passing URL trailer
+                    },
+                    icon: Icon(
+                      Icons.play_arrow,
+                      color: Colors.black87,
+                      size: 32,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -191,12 +196,12 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
           ClipRRect(
             borderRadius: BorderRadius.circular(6),
             child: Image.network(
-                    widget.movie.posterUrl,
-                    width: 64,
-                    height: 90,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => _thumbnailFallback(),
-                  ),
+              widget.movie.posterUrl,
+              width: 64,
+              height: 90,
+              fit: BoxFit.cover,
+              errorBuilder: (_, _, _) => _thumbnailFallback(),
+            ),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -214,7 +219,11 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                 const SizedBox(height: 4),
                 Text(
                   widget.movie.genre.join(', '),
-                  style: const TextStyle(fontSize: 13, color: Colors.black, fontWeight: FontWeight.w400),
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Colors.black,
+                    fontWeight: FontWeight.w400,
+                  ),
                 ),
                 const SizedBox(height: 10),
                 Wrap(
@@ -232,6 +241,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
       ),
     );
   }
+
   Widget _thumbnailFallback() {
     return Container(
       width: 64,
@@ -240,6 +250,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
       child: const Icon(Icons.movie, color: Colors.grey),
     );
   }
+
   Widget _buildTag(String label) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -290,7 +301,9 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                         () => _synopsisExpanded = !_synopsisExpanded,
                       ),
                       child: Text(
-                        _synopsisExpanded ? ' Sembunyikan' : ' Lihat Selengkapnya',
+                        _synopsisExpanded
+                            ? ' Sembunyikan'
+                            : ' Lihat Selengkapnya',
                         style: const TextStyle(
                           fontSize: 14,
                           color: Color(0xFF1A73E8),
@@ -306,7 +319,6 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
     );
   }
 
-
   // pilih hari nonton
   Widget _buildDateSelector() {
     // status cek
@@ -315,38 +327,38 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
     }
 
     return FutureBuilder<List<TayangModel>>(
-    future: _tayangFuture,
-    builder: (context, snapshot) {
-      if (snapshot.connectionState == ConnectionState.waiting) {
-        return const Center(child: CircularProgressIndicator());
-      }
-      
-      if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
-        return const Text('Tidak ada jadwal tayang');
-      }
+      future: _tayangFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-      final tayangList = snapshot.data!;
-      
-      return Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Tayang',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: 14),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: List.generate(
-                  tayangList.first.tanggal.length,
-                  (index) {
+        if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Text('Tidak ada jadwal tayang');
+        }
+
+        final tayangList = snapshot.data!;
+
+        return Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Tayang',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(height: 14),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: List.generate(tayangList.first.tanggal.length, (
+                    index,
+                  ) {
                     final tanggal = tayangList.first.tanggal[index];
                     final dayName = _getDayName(tanggal.weekday);
                     final dayNumber = tanggal.day.toString();
-                    
+
                     return Padding(
                       padding: const EdgeInsets.only(right: 12),
                       child: GestureDetector(
@@ -399,25 +411,31 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                         ),
                       ),
                     );
-                  },
+                  }),
                 ),
               ),
-            ),
-          ],
-        ),
-      );
-    },
-  );
-  
+            ],
+          ),
+        );
+      },
+    );
   }
-   String _getDayName(int weekday) {
-    const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+
+  String _getDayName(int weekday) {
+    const days = [
+      'Senin',
+      'Selasa',
+      'Rabu',
+      'Kamis',
+      'Jumat',
+      'Sabtu',
+      'Minggu',
+    ];
     return days[weekday - 1];
   }
 
   // pilih jam nonton
   Widget _buildCinemaSection() {
-    
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -433,8 +451,12 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
           Row(
             children: [
               // Icon Location
-              const Icon(Icons.location_on_outlined, color: Color.fromARGB(255, 0, 0, 94), size: 20),
-              
+              const Icon(
+                Icons.location_on_outlined,
+                color: Color.fromARGB(255, 0, 0, 94),
+                size: 20,
+              ),
+
               const SizedBox(width: 6),
               Text(
                 // widget.movie.teater,
@@ -473,7 +495,10 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
               return GestureDetector(
                 onTap: () => setState(() => selectedShowtime = time),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     border: Border.all(
                       color: isSelected
@@ -487,8 +512,12 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                     time,
                     style: TextStyle(
                       fontSize: 13,
-                      color: isSelected ? const Color.fromARGB(255, 1, 48, 110) : Colors.black54,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                      color: isSelected
+                          ? const Color.fromARGB(255, 1, 48, 110)
+                          : Colors.black54,
+                      fontWeight: isSelected
+                          ? FontWeight.w600
+                          : FontWeight.normal,
                     ),
                   ),
                 ),
@@ -500,6 +529,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
       ),
     );
   }
+
   String _formatHarga(int harga) {
     // Format angka dengan titik ribuan: 50000 → 50.000
     return harga.toString().replaceAllMapped(
@@ -520,32 +550,32 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
       child: ElevatedButton(
         // bayar
         onPressed: selectedShowtime != null
-           ? () {
-            final selectedDate = widget.tayang.tanggal[selectedDateIndex];
+            ? () {
+                final selectedDate = widget.tayang.tanggal[selectedDateIndex];
 
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => PilihKursiPage(
-                  movie: widget.movie,
-                  tayang: widget.tayang.teaterId,
-                  selectedShowtime: selectedShowtime!,
-                  selectedDate: selectedDate, 
-                ),
-              )
-            );
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PilihKursiPage(
+                      movie: widget.movie,
+                      tayang: widget.tayang,
+                      selectedDate: selectedDate,
+                      selectedTime: selectedShowtime!,
+                    ),
+                  ),
+                );
 
-            print('Memesan: ${widget.movie.judul} di ${widget.tayang.namaTeater.namaTeater} jam $selectedShowtime'); 
-           } : null,
-
+                print(
+                  'Memesan: ${widget.movie.judul} di ${widget.tayang.namaTeater.namaTeater} jam $selectedShowtime',
+                );
+              }
+            : null,
 
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color.fromARGB(255, 0, 46, 107),
           disabledBackgroundColor: Colors.grey.shade300,
           padding: const EdgeInsets.symmetric(vertical: 14),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           elevation: 0,
         ),
         child: const Text(

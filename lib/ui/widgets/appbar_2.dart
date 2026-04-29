@@ -110,7 +110,7 @@ class BixAppBar extends StatelessWidget implements PreferredSizeWidget {
       case _BixAppBarVariant.locationPicker:
         return const Size.fromHeight(112); // 56+4+40 + 12
       case _BixAppBarVariant.seatPicker:
-        return const Size.fromHeight(122); // 56+6+32 + 12
+        return const Size.fromHeight(127); // 56+6+32 + 12
       case _BixAppBarVariant.ticketDetail:
         return const Size.fromHeight(110); // 56+6+32 + 12
     }
@@ -436,7 +436,6 @@ class _FilmInfoCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white60,
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
@@ -447,6 +446,9 @@ class _FilmInfoCard extends StatelessWidget {
             children: [
               Text(
                 movieTitle,
+                // maxLines: 1,
+                maxLines: 2,
+                overflow: TextOverflow.clip,
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 13,
@@ -456,7 +458,7 @@ class _FilmInfoCard extends StatelessWidget {
               const SizedBox(height: 2),
               Text(
                 cinema,
-                style: TextStyle(color: Colors.white60, fontSize: 11),
+                style: TextStyle(color: Colors.white, fontSize: 11),
               ),
             ],
           ),
@@ -468,7 +470,7 @@ class _FilmInfoCard extends StatelessWidget {
                 style: const TextStyle(color: Colors.white, fontSize: 12),
               ),
               const SizedBox(height: 2),
-              Text(date, style: TextStyle(color: Colors.white60, fontSize: 11)),
+              Text(date, style: TextStyle(color: Colors.white, fontSize: 11)),
             ],
           ),
         ],

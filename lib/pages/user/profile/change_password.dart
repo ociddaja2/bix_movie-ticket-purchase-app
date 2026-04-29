@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:bixcinema/ui/widgets/appbar_2.dart';
+import 'package:go_router/go_router.dart';
 
 class ChangePasswordPage extends StatefulWidget {
   const ChangePasswordPage({super.key});
@@ -15,13 +17,15 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: const Icon(Icons.arrow_back, color: Colors.black),
+      appBar: BixAppBar.subtitle(
+        title: 'Ubah Password',
+        subtitle: 'Pastikan password baru Anda aman',
+        onBack: () => context.go('/profile'),
       ),
+  
+
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
