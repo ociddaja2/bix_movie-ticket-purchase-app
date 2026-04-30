@@ -9,6 +9,7 @@ class PembayaranModel {
   final int totalHarga;
   final int biayaLayanan;
   final DateTime paidAt;
+  final DateTime createdAt;
 
   PembayaranModel({
     required this.pembayaranId,
@@ -20,6 +21,7 @@ class PembayaranModel {
     required this.totalHarga,
     required this.biayaLayanan,
     required this.paidAt,
+    required this.createdAt,
   });
 
   factory PembayaranModel.fromJson(Map<String, dynamic> json) {
@@ -33,6 +35,7 @@ class PembayaranModel {
       totalHarga: json['totalHarga'] as int,
       biayaLayanan: json['biayaLayanan'] as int,
       paidAt: (json['paidAt']?.toDate()) ?? DateTime.now(),
+      createdAt: (json['createdAt']?.toDate()) ?? DateTime.now(),
     );
   }
 
@@ -47,6 +50,7 @@ class PembayaranModel {
       'totalHarga': totalHarga,
       'biayaLayanan': biayaLayanan,
       'paidAt': paidAt.toIso8601String(),
+      'createdAt': createdAt.toIso8601String(),
     };
   }
 }

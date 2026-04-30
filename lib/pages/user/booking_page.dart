@@ -2,10 +2,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:bixcinema/ui/widgets/appbar_2.dart';
-import 'package:bixcinema/ui/widgets/navbar.dart';
 import 'package:bixcinema/core/repo/pembayaran_repo.dart';
 import 'package:bixcinema/core/repo/tayang_repo.dart';
 import 'package:bixcinema/core/repo/movie_repo.dart';
+import 'package:bixcinema/core/models/pembayaran_model.dart';
 import 'package:go_router/go_router.dart';
 
 class BookingPage extends StatefulWidget {

@@ -20,6 +20,7 @@ class PembayaranRepository {
         'id': docRef.id,
         'userId': userId,
         'tayangId': tayangId,
+        'biayaLayanan': 5000,  // Contoh biaya layanan tetap
         'seats': seats,  // Simpan kursi yang dipesan
         'harga': harga,
         'totalHarga': totalHarga,
@@ -40,6 +41,7 @@ class PembayaranRepository {
     try {
       await _db.collection('pembayaran').doc(pembayaranId).update({
         'status': 'paid',
+        'createdAt': DateTime.now(),
         'paidAt': DateTime.now(),
       });
 

@@ -24,7 +24,7 @@ class _PembayaranPageState extends State<PembayaranPage> {
   late Future<Map<String, dynamic>?> _pembayaranFuture;
   bool _isProcessing = false;
 
-  final hargaLayanan = 2000; // Contoh biaya layanan per transaksi
+  // final hargaLayanan = 2000; // Contoh biaya layanan per transaksi
 
   @override
   void initState() {
@@ -33,7 +33,7 @@ class _PembayaranPageState extends State<PembayaranPage> {
   }
 
   // ✅ Handle pembayaran
-  Future<void> _handlePayment(Map<String, dynamic> pembayaran) async {
+  Future<void> _handlePayment(Map<String, dynamic> pembayaranId) async {
     if (_isProcessing) return;
 
     setState(() => _isProcessing = true);
@@ -47,7 +47,7 @@ class _PembayaranPageState extends State<PembayaranPage> {
 
       // Sekarang baru book kursi ke collection 'kursi'
       final userId = FirebaseAuth.instance.currentUser?.uid ?? '';
-      final tayangId = pembayaran['tayangId'] as String;
+      final tayangId = pembayaranId['tayangId'] as String;
 
       await KursiRepository().bookSeats(
         tayangId: tayangId,
@@ -300,6 +300,27 @@ class _PembayaranPageState extends State<PembayaranPage> {
                                 ),
                               ],
                             ),
+                            Row(
+                              mainAxisAlignment:
+                                  MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  'Biaya Layanan',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.black54,
+                                  ),
+                                ),
+                                Text(
+                                  // 'Rp${_formatPrice(biayaLayanan)}',
+                                  'test',
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                              ],
+                            ),
                             const SizedBox(height: 8),
                             Divider(color: Colors.grey.shade300),
                             const SizedBox(height: 8),
@@ -317,7 +338,10 @@ class _PembayaranPageState extends State<PembayaranPage> {
                                   ),
                                 ),
                                 Text(
-                                  'Rp${_formatPrice(totalHarga)}',
+                                  'Rp${_formatPrice(
+                                  totalHarga 
+                                  // + hargaLayanan
+                                  )}',
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
@@ -326,6 +350,7 @@ class _PembayaranPageState extends State<PembayaranPage> {
                                 ),
                               ],
                             ),
+
                           ],
                         ),
                       ),
@@ -420,7 +445,9 @@ class _PembayaranPageState extends State<PembayaranPage> {
                                 ),
                               ),
                               Text(
-                                'Total: Rp${_formatPrice(totalHarga)}',
+                                'Total: Rp${_formatPrice(totalHarga 
+                                // + biayaLayanan
+                                )}',
                                 style: const TextStyle(
                                   fontSize: 11,
                                   fontFamily: 'Courier',
