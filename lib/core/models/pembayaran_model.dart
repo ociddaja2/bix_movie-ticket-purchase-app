@@ -1,9 +1,9 @@
 class PembayaranModel {
   final String pembayaranId;
   final String userId;
-  final String bookingId;
   final String metodePembayaran;
   final String status;
+  final List<Map> seats;
   // final String snapToken;
 
   final int totalHarga;
@@ -14,9 +14,9 @@ class PembayaranModel {
   PembayaranModel({
     required this.pembayaranId,
     required this.userId,
-    required this.bookingId,
     required this.metodePembayaran,
     required this.status,
+    required this.seats,
     // required this.snapToken,
     required this.totalHarga,
     required this.biayaLayanan,
@@ -28,10 +28,11 @@ class PembayaranModel {
     return PembayaranModel(
       pembayaranId: json['id'] as String,
       userId: json['userId'] as String,
-      bookingId: json['bookingId'] as String,
+      // bookingId: json['bookingId'] as String,
       metodePembayaran: json['metodePembayaran'] as String,
       status: json['status'] as String,
       // snapToken: json['snap_token'] as String,
+      seats: List<Map>.from(json['seats'] as List<dynamic>),
       totalHarga: json['totalHarga'] as int,
       biayaLayanan: json['biayaLayanan'] as int,
       paidAt: (json['paidAt']?.toDate()) ?? DateTime.now(),
@@ -43,10 +44,11 @@ class PembayaranModel {
     return {
       'id': pembayaranId,
       'userId': userId,
-      'bookingId': bookingId,
+      // 'bookingId': bookingId,
       'metodePembayaran': metodePembayaran,
       'status': status,
       // 'snap_token': snapToken,
+      'seats': seats,
       'totalHarga': totalHarga,
       'biayaLayanan': biayaLayanan,
       'paidAt': paidAt.toIso8601String(),

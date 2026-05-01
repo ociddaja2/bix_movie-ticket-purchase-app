@@ -312,8 +312,7 @@ class _PembayaranPageState extends State<PembayaranPage> {
                                   ),
                                 ),
                                 Text(
-                                  // 'Rp${_formatPrice(biayaLayanan)}',
-                                  'test',
+                                  'Rp${_formatPrice(pembayaran['biayaLayanan'] as int? ?? 0)}',
                                   style: const TextStyle(
                                     fontSize: 13,
                                     color: Colors.black87,
@@ -339,8 +338,8 @@ class _PembayaranPageState extends State<PembayaranPage> {
                                 ),
                                 Text(
                                   'Rp${_formatPrice(
-                                  totalHarga 
-                                  // + hargaLayanan
+                                  totalHarga + (pembayaran['biayaLayanan'] as int? ?? 0)
+
                                   )}',
                                   style: const TextStyle(
                                     fontSize: 16,

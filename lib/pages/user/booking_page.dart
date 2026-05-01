@@ -70,6 +70,24 @@ class _BookingPageState extends State<BookingPage> {
     }
   }
 
+  // demo booked movie
+  final List<Map<String, dynamic>> _demoBookings = [
+    PembayaranModel(
+      pembayaranId: '',
+      userId: '',
+      metodePembayaran: '',
+      status: 'paid',
+      seats: [
+        {'row': 'A', 'number': 5},
+        {'row': 'A', 'number': 6},
+      ],
+      totalHarga: 25000,
+      biayaLayanan: 2000, 
+      paidAt: DateTime.now(), 
+      createdAt: DateTime.now(),
+    ).toJson()
+  ];
+
   String _formatPrice(int price) {
     final s = price.toString();
     final buffer = StringBuffer();
