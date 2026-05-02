@@ -33,6 +33,21 @@ class MovieRepository {
         .toList();
   }
 
+  // ✅ Fetch single movie by ID
+  Future<MovieModel?> fetchMovieById(String movieId) async {
+    if (movieId.isEmpty) return null;
+    try {
+      final doc = await _db.collection('movies').doc(movieId).get();
+      if (doc.exists) {
+        return MovieModel.fromJson({...doc.data()!, 'id': doc.id});
+      }
+      return null;
+    } catch (e) {
+      print('Error fetching movie by id: $e');
+      return null;
+    }
+  }
+
   // Fetch multiple movies by array of IDs
   Future<List<MovieModel>> fetchMoviesById(List<String> movieId) async {
     if (movieId.isEmpty) return [];

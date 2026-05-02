@@ -1,9 +1,12 @@
 class PembayaranModel {
   final String pembayaranId;
   final String userId;
+  final String tayangId;  // ✅ Tambah tayangId
+  final String movieId;   // ✅ Tambah movieId
+  final String tanggal;   // ✅ Tambah tanggal (format: yyyy-MM-dd)
+  final String jam;
   final String metodePembayaran;
   final String status;
-  final String jam;
   final List<Map> seats;
   // final String snapToken;
 
@@ -15,9 +18,13 @@ class PembayaranModel {
   PembayaranModel({
     required this.pembayaranId,
     required this.userId,
+    required this.tayangId,
+    required this.movieId,
+    required this.tanggal,
+    required this.jam,
     required this.metodePembayaran,
     required this.status,
-    required this.jam,
+    // required this.jam,
     required this.seats,
     // required this.snapToken,
     required this.totalHarga,
@@ -30,11 +37,12 @@ class PembayaranModel {
     return PembayaranModel(
       pembayaranId: json['id'] as String,
       userId: json['userId'] as String,
-      // bookingId: json['bookingId'] as String,
-      metodePembayaran: json['metodePembayaran'] as String,
+      tayangId: json['tayangId'] as String? ?? '',
+      movieId: json['movieId'] as String? ?? '',
+      tanggal: json['tanggal'] as String? ?? '',
+      jam: json['jam'] as String? ?? '',
+      metodePembayaran: json['metodePembayaran'] as String? ?? '',
       status: json['status'] as String,
-      jam: json['jam'] as String,
-      // snapToken: json['snap_token'] as String,
       seats: List<Map>.from(json['seats'] as List<dynamic>),
       totalHarga: json['totalHarga'] as int,
       biayaLayanan: json['biayaLayanan'] as int,
@@ -47,10 +55,12 @@ class PembayaranModel {
     return {
       'id': pembayaranId,
       'userId': userId,
-      // 'bookingId': bookingId,
+      'tayangId': tayangId,
+      'movieId': movieId,
+      'tanggal': tanggal,
+      'jam': jam,
       'metodePembayaran': metodePembayaran,
       'status': status,
-      // 'snap_token': snapToken,
       'seats': seats,
       'totalHarga': totalHarga,
       'biayaLayanan': biayaLayanan,

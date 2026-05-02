@@ -62,18 +62,18 @@ class _PembayaranPageState extends State<PembayaranPage> {
       );
 
       if (mounted) {
-        // ScaffoldMessenger.of(context).showSnackBar(
-        //   const SnackBar(
-        //     content: Text('✅ Pembayaran berhasil! Kursi telah dipesan.'),
-        //     backgroundColor: Colors.green,
-        //     duration: Duration(seconds: 3),
-        //   ),
-        // );
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('✅ Pembayaran berhasil! Kursi telah dipesan.'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 3),
+          ),
+        );
 
         // // Navigate ke halaman sukses atau booking
         Future.delayed(const Duration(seconds: 2), () {
           if (mounted) {
-            Navigator.pushReplacementNamed(context, '/pembayaran-berhasil');
+            context.go('/booking'); // Ganti dengan route yang sesuai untuk halaman booking/sukses
           }
         });
       }
@@ -343,10 +343,7 @@ class _PembayaranPageState extends State<PembayaranPage> {
                                   ),
                                 ),
                                 Text(
-                                  'Rp${_formatPrice(
-                                  totalHarga + (pembayaran['biayaLayanan'] as int? ?? 0)
-
-                                  )}',
+                                  'Rp${_formatPrice(totalHarga)}',
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,

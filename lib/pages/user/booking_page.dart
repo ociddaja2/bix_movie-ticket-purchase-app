@@ -1,12 +1,13 @@
 // ignore_for_file: deprecated_member_use
 
-import 'package:bixcinema/ui/widgets/appbar_2.dart';
-import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:bixcinema/ui/widgets/appbar_2.dart';
 import 'package:bixcinema/core/repo/pembayaran_repo.dart';
 import 'package:bixcinema/core/repo/tayang_repo.dart';
 import 'package:bixcinema/core/repo/movie_repo.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 
 class BookingPage extends StatelessWidget {
   const BookingPage({super.key});
@@ -53,14 +54,14 @@ enum BookingStatus { paid, pending, cancelled }
 /// Model utama Booking — field 1-to-1 dengan Firestore
 class BookingItem {
   final String id;
-  final int biayaLayanan;   // biaya layanan / service fee
+  final int biayaLayanan; // biaya layanan / service fee
   final DateTime createdAt;
-  final int harga;          // harga per tiket
+  final int harga; // harga per tiket
   final DateTime? paidAt;
   final List<SeatItem> seats;
   final BookingStatus status;
-  final String tayangId;    // ID jadwal tayang
-  final int totalHarga;     // total yang dibayar
+  final String tayangId; // ID jadwal tayang
+  final int totalHarga; // total yang dibayar
   final String userId;
 
   // Field tambahan yang diambil dari koleksi Tayang / Film
@@ -72,7 +73,7 @@ class BookingItem {
   final String? format;
   final String? cinema;
   final String? showTime;
-  final String? imagePath;
+  final String? posterUrl;  // ✅ URL poster film dari Firebase
 
   const BookingItem({
     required this.id,
@@ -92,7 +93,7 @@ class BookingItem {
     this.format,
     this.cinema,
     this.showTime,
-    this.imagePath,
+    this.posterUrl,
   });
 
   /// Dari dokumen Firestore (Map)
@@ -144,7 +145,7 @@ class BookingItem {
     String? format,
     String? cinema,
     String? showTime,
-    String? imagePath,
+    String? posterUrl,
   }) {
     return BookingItem(
       id: id,
@@ -164,7 +165,7 @@ class BookingItem {
       format: format ?? this.format,
       cinema: cinema ?? this.cinema,
       showTime: showTime ?? this.showTime,
-      imagePath: imagePath ?? this.imagePath,
+      posterUrl: posterUrl ?? this.posterUrl,
     );
   }
 
@@ -188,6 +189,105 @@ class BookingItem {
       '${createdAt.day.toString().padLeft(2, '0')}-'
       '${createdAt.month.toString().padLeft(2, '0')}-'
       '${createdAt.year}';
+}
+
+// ✅ Helper function untuk fetch bookings dari backend
+Future<List<BookingItem>> fetchUserBookings() async {
+  try {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) return [];
+
+    final pembayaranList =
+        await PembayaranRepository().getUserPaidPembayaran(userId);
+    final bookingDetails = <BookingItem>[];
+
+    for (var pembayaran in pembayaranList) {
+      try {
+        // Convert seats dari List<Map> to List<SeatItem>
+        final seats = (pembayaran.seats as List<dynamic>)
+            .map((s) => SeatItem.fromMap(Map<String, dynamic>.from(s as Map)))
+            .toList();
+
+        // Tentukan status
+        BookingStatus status;
+        switch (pembayaran.status.toLowerCase()) {
+          case 'paid':
+            status = BookingStatus.paid;
+            break;
+          case 'pending':
+            status = BookingStatus.pending;
+            break;
+          default:
+            status = BookingStatus.cancelled;
+        }
+
+        // Fetch tayang details
+        final tayang =
+            await TayangRepository().fetchTayangById(pembayaran.tayangId);
+
+        String movieTitle = 'Film';
+        String cinema = 'Teater';
+        String? genre;
+        String? duration;
+        String? ageRating;
+        String? format;
+        String? posterUrl;  // ✅ Poster URL dari Firebase
+
+        if (tayang != null) {
+          cinema = tayang.namaTeater.namaTeater;
+
+          // Fetch movie details
+          if (pembayaran.movieId.isNotEmpty) {
+            final movie =
+                await MovieRepository().fetchMovieById(pembayaran.movieId);
+            if (movie != null) {
+              movieTitle = movie.judul;
+              genre = movie.genre.join(', ');
+              duration = movie.durasi;
+              ageRating = movie.rating;
+              format = movie.format;
+              posterUrl = movie.posterUrl;  // ✅ Ambil poster URL
+            }
+          }
+        }
+
+        // Hitung harga per kursi jika belum ada
+        int hargaPerKursi =
+            seats.isNotEmpty ? (pembayaran.totalHarga ~/ seats.length) : 0;
+
+        bookingDetails.add(
+          BookingItem(
+            id: pembayaran.pembayaranId,
+            biayaLayanan: pembayaran.biayaLayanan,
+            createdAt: pembayaran.createdAt,
+            harga: hargaPerKursi,
+            paidAt: pembayaran.paidAt,
+            seats: seats,
+            status: status,
+            tayangId: pembayaran.tayangId,
+            totalHarga: pembayaran.totalHarga,
+            userId: pembayaran.userId,
+            movieTitle: movieTitle,
+            cinema: cinema,
+            showTime: pembayaran.jam,
+            genre: genre,
+            duration: duration,
+            ageRating: ageRating,
+            format: format,
+            posterUrl: posterUrl,  // ✅ URL poster dari movie
+          ),
+        );
+      } catch (e) {
+        print('Error processing pembayaran: $e');
+        continue;
+      }
+    }
+
+    return bookingDetails;
+  } catch (e) {
+    print('Error fetching user bookings: $e');
+    return [];
+  }
 }
 
 class MoviePoster extends StatelessWidget {
@@ -332,87 +432,18 @@ class _BookingScreenState extends State<BookingScreen> {
   @override
   void initState() {
     super.initState();
-    _bookingsFuture = _fetchUserBookings();
-  }
-
-  // ✅ Fetch semua pembayaran user yang status = "paid" dan join dengan tayang + movie
-  Future<List<BookingItem>> _fetchUserBookings() async {
-    try {
-      final userId = FirebaseAuth.instance.currentUser?.uid;
-      if (userId == null) return [];
-
-      final pembayaranList =
-          await PembayaranRepository().getUserPaidPembayaran(userId);
-
-      // Untuk setiap pembayaran, fetch detail tayang dan movie
-      final bookingDetails = <BookingItem>[];
-
-      for (var pembayaran in pembayaranList) {
-        try {
-          // Convert PembayaranModel to Map if needed
-          final pembayaranData = pembayaran is Map<String, dynamic> 
-              ? pembayaran 
-              : (pembayaran as dynamic).toJson() as Map<String, dynamic>;
-          
-          final tayangId = pembayaranData['tayangId'] as String? ?? '';
-
-          // Fetch tayang details
-          final tayang =
-              await TayangRepository().fetchTayangById(tayangId);
-
-          if (tayang != null) {
-            // Ambil movieId dari tayang.movieId (list)
-            final movieId = tayang.movieId.isNotEmpty ? tayang.movieId.first : '';
-            
-            // Fetch movie details
-            final movies = movieId.isNotEmpty
-                ? await MovieRepository().fetchMoviesById([movieId])
-                : [];
-            final movie = movies.isNotEmpty ? movies.first : null;
-
-            // Buat BookingItem dari pembayaran
-            final bookingItem = BookingItem.fromFirestore(pembayaranData);
-            
-            // Tambahkan info film dari tayang dan movie
-            final bookingWithMovieInfo = bookingItem.copyWithMovieInfo(
-              movieTitle: movie?.judul,
-              genre: movie?.genre.join(', '),
-              duration: movie?.durasi,
-              ageRating: movie?.rating,
-              format: movie?.format,
-              cinema: tayang.namaTeater.namaTeater,
-              showTime: tayang.tanggal.isNotEmpty 
-                  ? _formatShowTime(tayang.tanggal.first) 
-                  : '-',
-              imagePath: movie?.id,
-            );
-
-            bookingDetails.add(bookingWithMovieInfo);
-          }
-        } catch (e) {
-          print('Error processing booking: $e');
-          continue;
-        }
-      }
-
-      return bookingDetails;
-    } catch (e) {
-      print('Error fetching bookings: $e');
-      return [];
-    }
-  }
-
-  String _formatShowTime(DateTime date) {
-    return '${date.day.toString().padLeft(2, '0')}/'
-        '${date.month.toString().padLeft(2, '0')}/'
-        '${date.year}';
+    _bookingsFuture = fetchUserBookings();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF2F4F7),
-      appBar: BixAppBar.subtitle(title: 'Booking', subtitle: 'Menampilkan detail Pesanan tiket yang sudah di Booking', onBack: () => context.go('/booking')),
+      appBar: BixAppBar.subtitle(
+        title: 'Booking',
+        subtitle: 'Menampilkan detail Pesanan tiket yang sudah di Booking',
+        onBack: () => context.go('/home'),
+      ),
       body: FutureBuilder<List<BookingItem>>(
         future: _bookingsFuture,
         builder: (context, snapshot) {
@@ -427,16 +458,9 @@ class _BookingScreenState extends State<BookingScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text('Error loading bookings'),
+                  const Icon(Icons.error, size: 48, color: Colors.red),
                   const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        _bookingsFuture = _fetchUserBookings();
-                      });
-                    },
-                    child: const Text('Retry'),
-                  ),
+                  Text('Error: ${snapshot.error}'),
                 ],
               ),
             );
@@ -449,21 +473,16 @@ class _BookingScreenState extends State<BookingScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(
-                    Icons.confirmation_number_outlined,
-                    size: 64,
-                    color: Colors.grey,
-                  ),
+                  const Icon(Icons.inbox, size: 64, color: Colors.grey),
                   const SizedBox(height: 16),
                   const Text(
                     'Belum ada pemesanan',
                     style: TextStyle(fontSize: 16, color: Colors.grey),
                   ),
                   const SizedBox(height: 24),
-                  ElevatedButton.icon(
+                  ElevatedButton(
                     onPressed: () => context.go('/home'),
-                    icon: const Icon(Icons.movie),
-                    label: const Text('Pesan Tiket Sekarang'),
+                    child: const Text('Pesan Sekarang'),
                   ),
                 ],
               ),
@@ -480,7 +499,13 @@ class _BookingScreenState extends State<BookingScreen> {
                     final booking = bookings[index];
                     return _BookingCard(
                       booking: booking,
-                      onTap: () => context.push('/booking-detail', extra: booking),
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              BookingDetailScreen(booking: booking),
+                        ),
+                      ),
                     );
                   },
                 ),
@@ -524,7 +549,44 @@ class _BookingCard extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                MoviePoster(movieId: booking.imagePath ?? '', width: 70, height: 90),
+                // ✅ Display poster dari URL dengan error handling
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Container(
+                    width: 70,
+                    height: 90,
+                    color: Colors.grey[300],
+                    child: booking.posterUrl != null &&
+                            booking.posterUrl!.isNotEmpty
+                        ? Image.network(
+                            booking.posterUrl!,
+                            fit: BoxFit.cover,
+                            loadingBuilder: (context, child, progress) {
+                              if (progress == null) return child;
+                              return Center(
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  value: progress.expectedTotalBytes != null
+                                      ? progress.cumulativeBytesLoaded /
+                                          progress.expectedTotalBytes!
+                                      : null,
+                                ),
+                              );
+                            },
+                            errorBuilder: (_, __, ___) => Container(
+                              color: Colors.grey[400],
+                              child: const Icon(
+                                Icons.movie,
+                                color: Colors.white54,
+                              ),
+                            ),
+                          )
+                        : Icon(
+                            Icons.movie,
+                            color: Colors.grey[600],
+                          ),
+                  ),
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -556,7 +618,11 @@ class _BookingCard extends StatelessWidget {
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
-                                Icon(Icons.chevron_right, size: 16, color: Color(0xFF1A5BB5)),
+                                Icon(
+                                  Icons.chevron_right,
+                                  size: 16,
+                                  color: Color(0xFF1A5BB5),
+                                ),
                               ],
                             ),
                           ),
@@ -565,7 +631,10 @@ class _BookingCard extends StatelessWidget {
                       const SizedBox(height: 3),
                       Text(
                         booking.genre ?? '',
-                        style: const TextStyle(fontSize: 12, color: Color(0xFF888888)),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Color(0xFF888888),
+                        ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -578,20 +647,30 @@ class _BookingCard extends StatelessWidget {
                       const SizedBox(height: 8),
                       Row(
                         children: [
-                          const Icon(Icons.chair_outlined, size: 14, color: Color(0xFF888888)),
+                          const Icon(
+                            Icons.chair_outlined,
+                            size: 14,
+                            color: Color(0xFF888888),
+                          ),
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(
                               // seats[].row + seats[].number → "J1, J2"
                               booking.seatsLabel,
-                              style: const TextStyle(fontSize: 12, color: Color(0xFF555555)),
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Color(0xFF555555),
+                              ),
                             ),
                           ),
                           Text(
                             booking.paidAt != null
                                 ? booking.tanggalPembayaran
                                 : booking.tanggalPemesanan,
-                            style: const TextStyle(fontSize: 12, color: Color(0xFF888888)),
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Color(0xFF888888),
+                            ),
                           ),
                         ],
                       ),
@@ -607,3 +686,449 @@ class _BookingCard extends StatelessWidget {
   }
 }
 
+class BookingDetailScreen extends StatelessWidget {
+  final BookingItem booking;
+  const BookingDetailScreen({super.key, required this.booking});
+
+  String _fmt(int amount) {
+    final s = amount.toString().split('').reversed.toList();
+    final chunks = <String>[];
+    for (int i = 0; i < s.length; i += 3) {
+      chunks.add(s.sublist(i, i + 3 < s.length ? i + 3 : s.length).join());
+    }
+    return 'Rp${chunks.join('.').split('').reversed.join()}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF2F4F7),
+      appBar: BixAppBar.subtitle(
+        title: booking.movieTitle ?? 'Detail Booking',
+        subtitle: 'Menampilkan detail Pesanan tiket yang sudah di Booking',
+        onBack: () => context.go('/home'),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    // Info film
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // ✅ Display poster dari URL
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Container(
+                              width: 82,
+                              height: 108,
+                              color: Colors.grey[300],
+                              child: booking.posterUrl != null &&
+                                      booking.posterUrl!.isNotEmpty
+                                  ? Image.network(
+                                      booking.posterUrl!,
+                                      fit: BoxFit.cover,
+                                      loadingBuilder:
+                                          (context, child, progress) {
+                                        if (progress == null) return child;
+                                        return Center(
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            value: progress
+                                                        .expectedTotalBytes !=
+                                                    null
+                                                ? progress
+                                                        .cumulativeBytesLoaded /
+                                                    progress.expectedTotalBytes!
+                                                : null,
+                                          ),
+                                        );
+                                      },
+                                      errorBuilder: (_, __, ___) =>
+                                          Container(
+                                        color: Colors.grey[400],
+                                        child: const Icon(
+                                          Icons.movie,
+                                          color: Colors.white54,
+                                        ),
+                                      ),
+                                    )
+                                  : Icon(
+                                      Icons.movie,
+                                      color: Colors.grey[600],
+                                    ),
+                            ),
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  booking.movieTitle ?? 'Film',
+                                  style: const TextStyle(
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.w800,
+                                    color: Color(0xFF1A1A2E),
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  booking.genre ?? '',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Color(0xFF888888),
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                MovieBadgeRow(
+                                  duration: booking.duration,
+                                  ageRating: booking.ageRating,
+                                  format: booking.format,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    _DashedDivider(),
+
+                    // Detail pembayaran
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Detail Pembayaran',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF1A1A2E),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+
+                          // Kursi dari seats[].row + seats[].number
+                          _PaymentRow(
+                            label: 'Tiket ${booking.format ?? '2D'}',
+                            value: booking.seatsLabel,
+                            valueStyle: const TextStyle(
+                              fontSize: 13,
+                              color: Color(0xFF1A5BB5),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+
+                          // harga (per tiket) × jumlahKursi
+                          _PaymentRow(
+                            label: 'Harga Tiket',
+                            value:
+                                '${_fmt(booking.harga)} × ${booking.jumlahKursi}',
+                          ),
+                          const SizedBox(height: 8),
+
+                          // subtotal = harga × jumlahKursi
+                          _PaymentRow(
+                            label: 'Sub total',
+                            value: _fmt(booking.subtotal),
+                          ),
+                          const SizedBox(height: 8),
+
+                          // biayaLayanan dari Firestore
+                          _PaymentRow(
+                            label: 'Biaya Layanan',
+                            value: _fmt(booking.biayaLayanan),
+                          ),
+
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 10),
+                            child: Divider(color: Color(0xFFEEEEEE)),
+                          ),
+
+                          // totalHarga dari Firestore
+                          _PaymentRow(
+                            label: 'Total',
+                            value: _fmt(booking.totalHarga),
+                            labelStyle: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF1A1A2E),
+                            ),
+                            valueStyle: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF1A1A2E),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Status pembayaran
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
+                      child: booking.status == BookingStatus.paid
+                          ? _PaidStatus(date: booking.tanggalPembayaran)
+                          : _PendingStatus(),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // Info teknis (ID, tayangId, userId)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+              child: _InfoTeknis(booking: booking),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// Status
+class _PaidStatus extends StatelessWidget {
+  final String date;
+  const _PaidStatus({required this.date});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          width: 56,
+          height: 56,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: const Color(0xFF22C55E).withOpacity(0.12),
+            border: Border.all(color: const Color(0xFF22C55E), width: 2),
+          ),
+          child: const Icon(Icons.check, color: Color(0xFF22C55E), size: 30),
+        ),
+        const SizedBox(height: 10),
+        const Text(
+          'Pembayaran Berhasil !',
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF1A1A2E),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          date,
+          style: const TextStyle(fontSize: 13, color: Color(0xFF888888)),
+        ),
+      ],
+    );
+  }
+}
+
+class _PendingStatus extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          width: 56,
+          height: 56,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: const Color(0xFFF59E0B).withOpacity(0.12),
+            border: Border.all(color: const Color(0xFFF59E0B), width: 2),
+          ),
+          child: const Icon(
+            Icons.hourglass_top,
+            color: Color(0xFFF59E0B),
+            size: 28,
+          ),
+        ),
+        const SizedBox(height: 10),
+        const Text(
+          'Menunggu Pembayaran',
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF1A1A2E),
+          ),
+        ),
+        const SizedBox(height: 4),
+        const Text(
+          'Selesaikan pembayaran Anda',
+          style: TextStyle(fontSize: 13, color: Color(0xFF888888)),
+        ),
+      ],
+    );
+  }
+}
+
+//debug
+class _InfoTeknis extends StatelessWidget {
+  final BookingItem booking;
+  const _InfoTeknis({required this.booking});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFEEEEEE)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Info Pemesanan',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF555555),
+            ),
+          ),
+          const SizedBox(height: 8),
+          _InfoRow(label: 'ID Booking', value: booking.id),
+          const SizedBox(height: 4),
+          _InfoRow(label: 'Tayang ID', value: booking.tayangId),
+          const SizedBox(height: 4),
+          _InfoRow(
+            label: 'User ID',
+            value: booking.userId.length > 20
+                ? '${booking.userId.substring(0, 20)}...'
+                : booking.userId,
+          ),
+          const SizedBox(height: 4),
+          _InfoRow(label: 'Dibuat', value: booking.tanggalPemesanan),
+        ],
+      ),
+    );
+  }
+}
+
+class _InfoRow extends StatelessWidget {
+  final String label;
+  final String value;
+  const _InfoRow({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        SizedBox(
+          width: 90,
+          child: Text(
+            label,
+            style: const TextStyle(fontSize: 12, color: Color(0xFF888888)),
+          ),
+        ),
+        const Text(
+          ': ',
+          style: TextStyle(fontSize: 12, color: Color(0xFF888888)),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: const TextStyle(
+              fontSize: 12,
+              color: Color(0xFF333333),
+              fontWeight: FontWeight.w500,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// =================== HELPER WIDGETS ===================
+
+class _PaymentRow extends StatelessWidget {
+  final String label;
+  final String value;
+  final TextStyle? labelStyle;
+  final TextStyle? valueStyle;
+
+  const _PaymentRow({
+    required this.label,
+    required this.value,
+    this.labelStyle,
+    this.valueStyle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style:
+              labelStyle ??
+              const TextStyle(fontSize: 13, color: Color(0xFF666666)),
+        ),
+        Text(
+          value,
+          style:
+              valueStyle ??
+              const TextStyle(
+                fontSize: 13,
+                color: Color(0xFF1A1A2E),
+                fontWeight: FontWeight.w500,
+              ),
+        ),
+      ],
+    );
+  }
+}
+
+class _DashedDivider extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      size: const Size(double.infinity, 1),
+      painter: _DashedLinePainter(),
+    );
+  }
+}
+
+class _DashedLinePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0xFFDDDDDD)
+      ..strokeWidth = 1.5;
+    double x = 0;
+    while (x < size.width) {
+      canvas.drawLine(Offset(x, 0), Offset(x + 6, 0), paint);
+      x += 10;
+    }
+  }
+
+  @override
+  bool shouldRepaint(_DashedLinePainter old) => false;
+}

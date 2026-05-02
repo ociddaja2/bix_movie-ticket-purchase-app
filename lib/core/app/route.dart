@@ -17,7 +17,6 @@ import '../../pages/user/coming_soon.dart';
 import '../../pages/user/profile/change_password.dart';
 import '../../pages/user/profile/edit_profile.dart';
 import '../../pages/user/session/pembayaran.dart';
-import '../../pages/user/session/booking_detail_page.dart';
 import '../../pages/user/session/pembayaran_berhasil.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -112,13 +111,6 @@ class AppRoutes {
         path: pembayaran,
         builder: (context, state) => const PembayaranPage(pembayaranId: '', seats: [],),
       ),
-      GoRoute(
-        path: bookingDetail,
-        builder: (context, state) {
-          final booking = state.extra as BookingItem;
-          return BookingDetailScreen(booking: booking);
-          },
-        ),
       GoRoute( 
         path: pembayaranBerhasil,
         builder: (context, state) => const PembayaranBerhasilPage(),
