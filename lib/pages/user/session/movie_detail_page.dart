@@ -67,33 +67,46 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                       _buildCinemaSection(),
                     ] else ...[
                       // Coming Soon
-                      Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFFF3E0),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: const Color(0xFFFFB74D)),
-                          ),
-                          child: Row(
+                      Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 16),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(
-                                Icons.info_outline,
-                                color: Color(0xFFF57C00),
-                                size: 24,
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Text(
-                                  'Film ini akan segera tayang',
-                                  style: TextStyle(
-                                    color: const Color(0xFFF57C00),
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                  ),
+                              // Sad face icon
+                              Container(
+                                width: 80,
+                                height: 80,
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFFBDBDBD),
+                                  shape: BoxShape.circle,
                                 ),
+                                child: const Icon(
+                                  Icons.sentiment_dissatisfied,
+                                  color: Colors.white,
+                                  size: 48,
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              // Bold title
+                              const Text(
+                                'Film akan segera tayang',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 6),
+                              // Subtitle with sparkle emoji
+                              const Text(
+                                'Setelah tayang, Kembali lagi untuk beli tiketnya ✨',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.black87,
+                                ),
+                                textAlign: TextAlign.center,
                               ),
                             ],
                           ),
