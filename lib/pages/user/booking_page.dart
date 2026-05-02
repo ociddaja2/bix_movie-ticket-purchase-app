@@ -1,22 +1,334 @@
-// lib/pages/user/booking_page.dart
-import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+// ignore_for_file: deprecated_member_use
+
 import 'package:bixcinema/ui/widgets/appbar_2.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:bixcinema/core/repo/pembayaran_repo.dart';
 import 'package:bixcinema/core/repo/tayang_repo.dart';
 import 'package:bixcinema/core/repo/movie_repo.dart';
-import 'package:bixcinema/core/models/pembayaran_model.dart';
-import 'package:go_router/go_router.dart';
 
-class BookingPage extends StatefulWidget {
-  const BookingPage({Key? key}) : super(key: key);
+class BookingPage extends StatelessWidget {
+  const BookingPage({super.key});
 
   @override
-  State<BookingPage> createState() => _BookingPageState();
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'BIX Cinema',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF1A5BB5)),
+        useMaterial3: true,
+      ),
+      home: const BookingScreen(),
+    );
+  }
 }
 
-class _BookingPageState extends State<BookingPage> {
-  late Future<List<Map<String, dynamic>>> _bookingsFuture;
+/// Satu kursi: row (huruf) + number (angka)
+/// Contoh Firestore: { "row": "J", "number": 1 }
+class SeatItem {
+  final String row;
+  final int number;
+
+  const SeatItem({required this.row, required this.number});
+
+  /// Dari Map Firestore
+  factory SeatItem.fromMap(Map<String, dynamic> map) {
+    return SeatItem(
+      row: map['row'] as String,
+      number: (map['number'] as num).toInt(),
+    );
+  }
+
+  Map<String, dynamic> toMap() => {'row': row, 'number': number};
+
+  /// Tampilkan sebagai "J1"
+  String get label => '$row$number';
+}
+
+/// Status pemesanan
+enum BookingStatus { paid, pending, cancelled }
+
+/// Model utama Booking — field 1-to-1 dengan Firestore
+class BookingItem {
+  final String id;
+  final int biayaLayanan;   // biaya layanan / service fee
+  final DateTime createdAt;
+  final int harga;          // harga per tiket
+  final DateTime? paidAt;
+  final List<SeatItem> seats;
+  final BookingStatus status;
+  final String tayangId;    // ID jadwal tayang
+  final int totalHarga;     // total yang dibayar
+  final String userId;
+
+  // Field tambahan yang diambil dari koleksi Tayang / Film
+  // (join di sisi app, bukan dari dokumen booking)
+  final String? movieTitle;
+  final String? genre;
+  final String? duration;
+  final String? ageRating;
+  final String? format;
+  final String? cinema;
+  final String? showTime;
+  final String? imagePath;
+
+  const BookingItem({
+    required this.id,
+    required this.biayaLayanan,
+    required this.createdAt,
+    required this.harga,
+    this.paidAt,
+    required this.seats,
+    required this.status,
+    required this.tayangId,
+    required this.totalHarga,
+    required this.userId,
+    this.movieTitle,
+    this.genre,
+    this.duration,
+    this.ageRating,
+    this.format,
+    this.cinema,
+    this.showTime,
+    this.imagePath,
+  });
+
+  /// Dari dokumen Firestore (Map)
+  factory BookingItem.fromFirestore(Map<String, dynamic> data) {
+    final rawSeats = data['seats'] as List<dynamic>? ?? [];
+    final seats = rawSeats
+        .map((s) => SeatItem.fromMap(Map<String, dynamic>.from(s as Map)))
+        .toList();
+
+    BookingStatus status;
+    switch ((data['status'] as String?)?.toLowerCase()) {
+      case 'paid':
+        status = BookingStatus.paid;
+        break;
+      case 'pending':
+        status = BookingStatus.pending;
+        break;
+      default:
+        status = BookingStatus.cancelled;
+    }
+
+    DateTime parseDate(dynamic raw) {
+      if (raw is DateTime) return raw;
+      // Jika pakai cloud_firestore, uncomment:
+      // if (raw is Timestamp) return raw.toDate();
+      return DateTime.now();
+    }
+
+    return BookingItem(
+      id: data['id'] as String? ?? '',
+      biayaLayanan: (data['biayaLayanan'] as num?)?.toInt() ?? 0,
+      createdAt: parseDate(data['createdAt']),
+      harga: (data['harga'] as num?)?.toInt() ?? 0,
+      paidAt: data['paidAt'] != null ? parseDate(data['paidAt']) : null,
+      seats: seats,
+      status: status,
+      tayangId: data['tayangId'] as String? ?? '',
+      totalHarga: (data['totalHarga'] as num?)?.toInt() ?? 0,
+      userId: data['userId'] as String? ?? '',
+    );
+  }
+
+  /// Salin dengan menambah info film dari koleksi Tayang
+  BookingItem copyWithMovieInfo({
+    String? movieTitle,
+    String? genre,
+    String? duration,
+    String? ageRating,
+    String? format,
+    String? cinema,
+    String? showTime,
+    String? imagePath,
+  }) {
+    return BookingItem(
+      id: id,
+      biayaLayanan: biayaLayanan,
+      createdAt: createdAt,
+      harga: harga,
+      paidAt: paidAt,
+      seats: seats,
+      status: status,
+      tayangId: tayangId,
+      totalHarga: totalHarga,
+      userId: userId,
+      movieTitle: movieTitle ?? this.movieTitle,
+      genre: genre ?? this.genre,
+      duration: duration ?? this.duration,
+      ageRating: ageRating ?? this.ageRating,
+      format: format ?? this.format,
+      cinema: cinema ?? this.cinema,
+      showTime: showTime ?? this.showTime,
+      imagePath: imagePath ?? this.imagePath,
+    );
+  }
+
+  /// Label kursi gabungan: "J1, J2, J3"
+  String get seatsLabel => seats.map((s) => s.label).join(', ');
+
+  /// Jumlah kursi
+  int get jumlahKursi => seats.length;
+
+  /// Subtotal (harga × jumlah kursi)
+  int get subtotal => harga * jumlahKursi;
+
+  String get tanggalPembayaran {
+    if (paidAt == null) return '-';
+    return '${paidAt!.day.toString().padLeft(2, '0')}-'
+        '${paidAt!.month.toString().padLeft(2, '0')}-'
+        '${paidAt!.year}';
+  }
+
+  String get tanggalPemesanan =>
+      '${createdAt.day.toString().padLeft(2, '0')}-'
+      '${createdAt.month.toString().padLeft(2, '0')}-'
+      '${createdAt.year}';
+}
+
+class MoviePoster extends StatelessWidget {
+  final String movieId;
+  final double width;
+  final double height;
+  final BorderRadius? borderRadius;
+
+  const MoviePoster({
+    super.key,
+    required this.movieId,
+    this.width = 70,
+    this.height = 90,
+    this.borderRadius,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final bool isAvatar = movieId == 'avatar';
+    return ClipRRect(
+      borderRadius: borderRadius ?? BorderRadius.circular(8),
+      child: Container(
+        width: width,
+        height: height,
+        decoration: BoxDecoration(
+          gradient: isAvatar
+              ? const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color(0xFF0D3B8E), Color(0xFF1A7A4A)],
+                )
+              : const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color(0xFF8B2252), Color(0xFF2D4A8A)],
+                ),
+        ),
+        child: Stack(
+          children: [
+            Positioned(
+              right: -8,
+              top: -8,
+              child: Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withOpacity(0.08),
+                ),
+              ),
+            ),
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    isAvatar ? Icons.movie_filter : Icons.pets,
+                    color: Colors.white.withOpacity(0.9),
+                    size: width * 0.38,
+                  ),
+                  const SizedBox(height: 4),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: Text(
+                      isAvatar ? 'AVATAR' : 'ZOOTOPIA',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: width * 0.11,
+                        fontWeight: FontWeight.w900,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class MovieBadge extends StatelessWidget {
+  final String text;
+  const MovieBadge({super.key, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1A5BB5),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        text,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+}
+
+class MovieBadgeRow extends StatelessWidget {
+  final String? duration;
+  final String? ageRating;
+  final String? format;
+
+  const MovieBadgeRow({super.key, this.duration, this.ageRating, this.format});
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 5,
+      children: [
+        if (duration != null) MovieBadge(text: duration!),
+        if (ageRating != null) MovieBadge(text: ageRating!),
+        if (format != null) MovieBadge(text: format!),
+      ],
+    );
+  }
+}
+
+// ====================== SCREENS ======================
+
+class BookingScreen extends StatefulWidget {
+  const BookingScreen({super.key});
+
+  @override
+  State<BookingScreen> createState() => _BookingScreenState();
+}
+
+class _BookingScreenState extends State<BookingScreen> {
+  late Future<List<BookingItem>> _bookingsFuture;
 
   @override
   void initState() {
@@ -24,8 +336,8 @@ class _BookingPageState extends State<BookingPage> {
     _bookingsFuture = _fetchUserBookings();
   }
 
-  // ✅ Fetch semua pembayaran user yang status = "paid"
-  Future<List<Map<String, dynamic>>> _fetchUserBookings() async {
+  // ✅ Fetch semua pembayaran user yang status = "paid" dan join dengan tayang + movie
+  Future<List<BookingItem>> _fetchUserBookings() async {
     try {
       final userId = FirebaseAuth.instance.currentUser?.uid;
       if (userId == null) return [];
@@ -34,32 +346,53 @@ class _BookingPageState extends State<BookingPage> {
           await PembayaranRepository().getUserPaidPembayaran(userId);
 
       // Untuk setiap pembayaran, fetch detail tayang dan movie
-      final bookingDetails = <Map<String, dynamic>>[];
+      final bookingDetails = <BookingItem>[];
 
       for (var pembayaran in pembayaranList) {
         try {
-          final tayangId = pembayaran['tayangId'] as String? ?? '';
+          // Convert PembayaranModel to Map if needed
+          final pembayaranData = pembayaran is Map<String, dynamic> 
+              ? pembayaran 
+              : (pembayaran as dynamic).toJson() as Map<String, dynamic>;
+          
+          final tayangId = pembayaranData['tayangId'] as String? ?? '';
 
           // Fetch tayang details
           final tayang =
               await TayangRepository().fetchTayangById(tayangId);
 
           if (tayang != null) {
-            // Fetch movie details
+            // Ambil movieId dari tayang.movieId (list)
             final movieId = tayang.movieId.isNotEmpty ? tayang.movieId.first : '';
-            final movie =
-                movieId.isNotEmpty
-                    ? await MovieRepository().fetchMoviesById(movieId)
-                    : null;
+            
+            // Fetch movie details
+            final movies = movieId.isNotEmpty
+                ? await MovieRepository().fetchMoviesById([movieId])
+                : [];
+            final movie = movies.isNotEmpty ? movies.first : null;
 
-            bookingDetails.add({
-              'pembayaran': pembayaran,
-              'tayang': tayang,
-              'movie': movie,
-            });
+            // Buat BookingItem dari pembayaran
+            final bookingItem = BookingItem.fromFirestore(pembayaranData);
+            
+            // Tambahkan info film dari tayang dan movie
+            final bookingWithMovieInfo = bookingItem.copyWithMovieInfo(
+              movieTitle: movie?.judul,
+              genre: movie?.genre.join(', '),
+              duration: movie?.durasi,
+              ageRating: movie?.rating,
+              format: movie?.format,
+              cinema: tayang.namaTeater.namaTeater,
+              showTime: tayang.tanggal.isNotEmpty 
+                  ? _formatShowTime(tayang.tanggal.first) 
+                  : '-',
+              imagePath: movie?.id,
+            );
+
+            bookingDetails.add(bookingWithMovieInfo);
           }
         } catch (e) {
-          print('Error fetching booking details: $e');
+          print('Error processing booking: $e');
+          continue;
         }
       }
 
@@ -70,54 +403,23 @@ class _BookingPageState extends State<BookingPage> {
     }
   }
 
-  // demo booked movie
-  final List<Map<String, dynamic>> _demoBookings = [
-    PembayaranModel(
-      pembayaranId: '',
-      userId: '',
-      metodePembayaran: '',
-      status: 'paid',
-      seats: [
-        {'row': 'A', 'number': 5},
-        {'row': 'A', 'number': 6},
-      ],
-      totalHarga: 25000,
-      biayaLayanan: 2000, 
-      paidAt: DateTime.now(), 
-      createdAt: DateTime.now(),
-    ).toJson()
-  ];
-
-  String _formatPrice(int price) {
-    final s = price.toString();
-    final buffer = StringBuffer();
-    for (int i = 0; i < s.length; i++) {
-      if (i > 0 && (s.length - i) % 3 == 0) buffer.write('.');
-      buffer.write(s[i]);
-    }
-    return buffer.toString();
-  }
-
-  String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
+  String _formatShowTime(DateTime date) {
+    return '${date.day.toString().padLeft(2, '0')}/'
+        '${date.month.toString().padLeft(2, '0')}/'
+        '${date.year}';
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: BixAppBar.subtitle(
-        title: 'Booking',
-        subtitle: 'Tiket Saya',
-        onBack: () => context.go('/home'),
-      ),
-      body: FutureBuilder<List<Map<String, dynamic>>>(
+      backgroundColor: const Color(0xFFF2F4F7),
+      appBar: BixAppBar.subtitle(title: 'Booking', subtitle: 'Menampilkan detail Pesanan tiket yang sudah di Booking', onBack: () => context.go('/booking')),
+      body: FutureBuilder<List<BookingItem>>(
         future: _bookingsFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
-              child: CircularProgressIndicator(
-                color: Color(0xFF1A3A8F),
-              ),
+              child: CircularProgressIndicator(),
             );
           }
 
@@ -126,19 +428,15 @@ class _BookingPageState extends State<BookingPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(
-                    Icons.error_outline,
-                    size: 64,
-                    color: Colors.red,
-                  ),
-                  const SizedBox(height: 16),
-                  const Text('Gagal memuat data booking'),
+                  const Text('Error loading bookings'),
                   const SizedBox(height: 16),
                   ElevatedButton(
-                    onPressed: () => setState(() {
-                      _bookingsFuture = _fetchUserBookings();
-                    }),
-                    child: const Text('Coba Lagi'),
+                    onPressed: () {
+                      setState(() {
+                        _bookingsFuture = _fetchUserBookings();
+                      });
+                    },
+                    child: const Text('Retry'),
                   ),
                 ],
               ),
@@ -154,332 +452,159 @@ class _BookingPageState extends State<BookingPage> {
                 children: [
                   const Icon(
                     Icons.confirmation_number_outlined,
-                    size: 80,
+                    size: 64,
                     color: Colors.grey,
                   ),
                   const SizedBox(height: 16),
                   const Text(
-                    'Belum ada tiket yang dipesan',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.black54,
-                      fontWeight: FontWeight.w500,
-                    ),
+                    'Belum ada pemesanan',
+                    style: TextStyle(fontSize: 16, color: Colors.grey),
                   ),
                   const SizedBox(height: 24),
-                  ElevatedButton(
-                    onPressed: () => context.go('/home'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF1A3A8F),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 32,
-                        vertical: 12,
-                      ),
-                    ),
-                    child: const Text(
-                      'Pesan Tiket Sekarang',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                  ElevatedButton.icon(
+                    onPressed: () => context.go('/booking'),
+                    icon: const Icon(Icons.movie),
+                    label: const Text('Pesan Tiket Sekarang'),
                   ),
                 ],
               ),
             );
           }
 
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: bookings.length,
-            itemBuilder: (context, index) {
-              final booking = bookings[index];
-              final pembayaran = booking['pembayaran'] as Map<String, dynamic>;
-              final tayang = booking['tayang'];
-              final movie = booking['movie'];
-
-              final seats = pembayaran['seats'] as List<dynamic>? ?? [];
-              final totalHarga = pembayaran['totalHarga'] as int? ?? 0;
-              final createdAt = pembayaran['createdAt'] as DateTime?;
-              final paidAt = pembayaran['paidAt'] as DateTime?;
-
-              final seatLabels = seats
-                  .map((s) => '${s['row']}${s['number']}')
-                  .toList()
-                  .join(', ');
-
-              return Card(
-                margin: const EdgeInsets.only(bottom: 16),
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+          return Column(
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: bookings.length,
+                  itemBuilder: (context, index) {
+                    final booking = bookings[index];
+                    return _BookingCard(
+                      booking: booking,
+                      onTap: () => context.push('/booking-detail', extra: booking),
+                    );
+                  },
                 ),
-                child: Column(
-                  children: [
-                    // Header dengan status
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF1A3A8F),
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(12),
-                          topRight: Radius.circular(12),
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Film title
-                          if (movie != null)
-                            Text(
-                              movie.judul ?? 'Film',
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                          const SizedBox(height: 8),
-                          // Status badge
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.check_circle,
-                                color: Colors.green,
-                                size: 16,
-                              ),
-                              const SizedBox(width: 8),
-                              const Text(
-                                'Pembayaran Berhasil',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.green,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // Detail tiket
-                    Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Teater & format
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.location_on_outlined,
-                                size: 18,
-                                color: Color(0xFF1A3A8F),
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  tayang?.namaTeater.namaTeater ??
-                                      'Teater',
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.black87,
-                                  ),
-                                ),
-                              ),
-                              Text(
-                                movie?.format ?? '',
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.black54,
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          const SizedBox(height: 12),
-                          Divider(
-                            color: Colors.grey.shade300,
-                            height: 1,
-                          ),
-
-                          const SizedBox(height: 12),
-
-                          // Tanggal & jam
-                          if (tayang != null && tayang.tanggal.isNotEmpty)
-                            Row(
-                              children: [
-                                const Icon(
-                                  Icons.calendar_today_outlined,
-                                  size: 18,
-                                  color: Color(0xFF1A3A8F),
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  _formatDate(tayang.tanggal.first),
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.black87,
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                const Icon(
-                                  Icons.schedule_outlined,
-                                  size: 18,
-                                  color: Color(0xFF1A3A8F),
-                                ),
-                                const SizedBox(width: 8),
-                                if (movie != null && movie.jam.isNotEmpty)
-                                  Text(
-                                    movie.jam.first,
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.black87,
-                                    ),
-                                  ),
-                              ],
-                            ),
-
-                          const SizedBox(height: 12),
-
-                          // Kursi yang dipesan
-                          Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Colors.blue.shade50,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Kursi Anda',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.black54,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Wrap(
-                                  spacing: 8,
-                                  children: seats
-                                      .map(
-                                        (seat) => Chip(
-                                          label: Text(
-                                            '${seat['row']}${seat['number']}',
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 12,
-                                            ),
-                                          ),
-                                          backgroundColor:
-                                              const Color(0xFF1A3A8F),
-                                        ),
-                                      )
-                                      .toList(),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          const SizedBox(height: 12),
-
-                          // Harga
-                          Row(
-                            mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text(
-                                'Total Pembayaran',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.black87,
-                                ),
-                              ),
-                              Text(
-                                'Rp${_formatPrice(totalHarga)}',
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF1A3A8F),
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          const SizedBox(height: 12),
-
-                          // Tanggal pemesanan
-                          if (paidAt != null)
-                            Text(
-                              'Dipesan pada: ${_formatDate(paidAt)}',
-                              style: const TextStyle(
-                                fontSize: 11,
-                                color: Colors.black54,
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-
-                    // Action buttons
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        border: Border(
-                          top: BorderSide(color: Colors.grey.shade300),
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: OutlinedButton.icon(
-                              onPressed: () {
-                                // TODO: Implement e-ticket/download
-                              },
-                              icon: const Icon(Icons.download),
-                              label: const Text('E-Ticket'),
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: const Color(0xFF1A3A8F),
-                                side: const BorderSide(
-                                  color: Color(0xFF1A3A8F),
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: ElevatedButton.icon(
-                              onPressed: () {
-                                // TODO: Implement share/show barcode
-                              },
-                              icon: const Icon(Icons.share),
-                              label: const Text('Bagikan'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF1A3A8F),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
+              ),
+            ],
           );
         },
       ),
     );
   }
 }
+
+class _BookingCard extends StatelessWidget {
+  final BookingItem booking;
+  final VoidCallback onTap;
+
+  const _BookingCard({required this.booking, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black26,
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                MoviePoster(movieId: booking.imagePath ?? '', width: 70, height: 90),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              booking.movieTitle ?? 'Film',
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF1A1A2E),
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: onTap,
+                            child: const Row(
+                              children: [
+                                Text(
+                                  'Detail Pesanan',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Color(0xFF1A5BB5),
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                Icon(Icons.chevron_right, size: 16, color: Color(0xFF1A5BB5)),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        booking.genre ?? '',
+                        style: const TextStyle(fontSize: 12, color: Color(0xFF888888)),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 8),
+                      MovieBadgeRow(
+                        duration: booking.duration,
+                        ageRating: booking.ageRating,
+                        format: booking.format,
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          const Icon(Icons.chair_outlined, size: 14, color: Color(0xFF888888)),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              // seats[].row + seats[].number → "J1, J2"
+                              booking.seatsLabel,
+                              style: const TextStyle(fontSize: 12, color: Color(0xFF555555)),
+                            ),
+                          ),
+                          Text(
+                            booking.paidAt != null
+                                ? booking.tanggalPembayaran
+                                : booking.tanggalPemesanan,
+                            style: const TextStyle(fontSize: 12, color: Color(0xFF888888)),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
