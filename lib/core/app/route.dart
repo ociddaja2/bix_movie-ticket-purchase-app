@@ -18,6 +18,7 @@ import '../../pages/user/profile/change_password.dart';
 import '../../pages/user/profile/edit_profile.dart';
 import '../../pages/user/session/pembayaran.dart';
 import '../../pages/user/session/booking_detail_page.dart';
+import '../../pages/user/session/pembayaran_berhasil.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
@@ -41,6 +42,7 @@ class AppRoutes {
   static const String editProfile = '/edit-profile';
   static const String pembayaran = '/pembayaran';
   static const String bookingDetail = '/booking-detail';
+  static const String pembayaranBerhasil = '/pembayaran-berhasil';
 
   // Fungsi untuk mendapatkan index navbar berdasarkan location
   static int _getNavbarIndex(String location) {
@@ -117,6 +119,10 @@ class AppRoutes {
           return BookingDetailScreen(booking: booking);
           },
         ),
+      GoRoute( 
+        path: pembayaranBerhasil,
+        builder: (context, state) => const PembayaranBerhasilPage(),
+      ),
       
 
       // fungsi navbar di page dgn navbar

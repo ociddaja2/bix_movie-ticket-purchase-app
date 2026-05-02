@@ -2,7 +2,6 @@
 
 import 'package:bixcinema/ui/widgets/appbar_2.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:bixcinema/core/repo/pembayaran_repo.dart';
@@ -462,7 +461,7 @@ class _BookingScreenState extends State<BookingScreen> {
                   ),
                   const SizedBox(height: 24),
                   ElevatedButton.icon(
-                    onPressed: () => context.go('/booking'),
+                    onPressed: () => context.go('/home'),
                     icon: const Icon(Icons.movie),
                     label: const Text('Pesan Tiket Sekarang'),
                   ),

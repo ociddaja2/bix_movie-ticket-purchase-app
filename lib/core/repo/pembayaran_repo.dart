@@ -17,7 +17,9 @@ class PembayaranRepository {
     try {
       final docRef = _db.collection('pembayaran').doc();
       
-      final totalHarga = seats.length * harga;
+      const biayalayanan = 5000; // Contoh biaya layanan tetap
+      final subtotal = seats.length * harga;
+      final totalHarga = subtotal + biayalayanan;
       
       await docRef.set({
         'id': docRef.id,
@@ -26,9 +28,10 @@ class PembayaranRepository {
         'movieId': movieId,  // ✅ Simpan movieId
         'tanggal': tanggal,  // ✅ Simpan tanggal
         'jam': jam,          // ✅ Simpan jam
-        'biayaLayanan': 5000,  // Contoh biaya layanan tetap
+        'biayaLayanan': biayalayanan,  // Contoh biaya layanan tetap
         'seats': seats,  // Simpan kursi yang dipesan
         'harga': harga,
+        'subtotal': subtotal,
         'totalHarga': totalHarga,
         'status': 'pending',  // Status awal: pending
         'createdAt': DateTime.now(),

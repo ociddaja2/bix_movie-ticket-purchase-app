@@ -62,18 +62,18 @@ class _PembayaranPageState extends State<PembayaranPage> {
       );
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('✅ Pembayaran berhasil! Kursi telah dipesan.'),
-            backgroundColor: Colors.green,
-            duration: Duration(seconds: 3),
-          ),
-        );
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   const SnackBar(
+        //     content: Text('✅ Pembayaran berhasil! Kursi telah dipesan.'),
+        //     backgroundColor: Colors.green,
+        //     duration: Duration(seconds: 3),
+        //   ),
+        // );
 
-        // Navigate ke halaman sukses atau booking
+        // // Navigate ke halaman sukses atau booking
         Future.delayed(const Duration(seconds: 2), () {
           if (mounted) {
-            Navigator.pushReplacementNamed(context, '/booking');
+            Navigator.pushReplacementNamed(context, '/pembayaran-berhasil');
           }
         });
       }
