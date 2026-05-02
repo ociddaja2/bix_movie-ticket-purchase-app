@@ -8,6 +8,9 @@ class PembayaranRepository {
   Future<String> createPembayaran({
     required String userId,
     required String tayangId,
+    required String movieId,  // ✅ Tambah movieId
+    required String tanggal,  // ✅ Tambah tanggal (format: yyyy-MM-dd)
+    required String jam,      // ✅ Tambah jam
     required List<Map<String, dynamic>> seats, // [{row, number}, ...]
     required int harga,
   }) async {
@@ -20,6 +23,9 @@ class PembayaranRepository {
         'id': docRef.id,
         'userId': userId,
         'tayangId': tayangId,
+        'movieId': movieId,  // ✅ Simpan movieId
+        'tanggal': tanggal,  // ✅ Simpan tanggal
+        'jam': jam,          // ✅ Simpan jam
         'biayaLayanan': 5000,  // Contoh biaya layanan tetap
         'seats': seats,  // Simpan kursi yang dipesan
         'harga': harga,

@@ -3,6 +3,7 @@ class PembayaranModel {
   final String userId;
   final String metodePembayaran;
   final String status;
+  final String jam;
   final List<Map> seats;
   // final String snapToken;
 
@@ -16,6 +17,7 @@ class PembayaranModel {
     required this.userId,
     required this.metodePembayaran,
     required this.status,
+    required this.jam,
     required this.seats,
     // required this.snapToken,
     required this.totalHarga,
@@ -31,6 +33,7 @@ class PembayaranModel {
       // bookingId: json['bookingId'] as String,
       metodePembayaran: json['metodePembayaran'] as String,
       status: json['status'] as String,
+      jam: json['jam'] as String,
       // snapToken: json['snap_token'] as String,
       seats: List<Map>.from(json['seats'] as List<dynamic>),
       totalHarga: json['totalHarga'] as int,

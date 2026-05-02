@@ -48,9 +48,15 @@ class _PembayaranPageState extends State<PembayaranPage> {
       // Sekarang baru book kursi ke collection 'kursi'
       final userId = FirebaseAuth.instance.currentUser?.uid ?? '';
       final tayangId = pembayaranId['tayangId'] as String;
+      final movieId = pembayaranId['movieId'] as String? ?? ''; // ✅ Ambil movieId
+      final tanggal = pembayaranId['tanggal'] as String? ?? '';  // ✅ Ambil tanggal
+      final jam = pembayaranId['jam'] as String? ?? '';  // ✅ Ambil jam
 
       await KursiRepository().bookSeats(
         tayangId: tayangId,
+        movieId: movieId,  // ✅ Pass movieId
+        tanggal: tanggal,  // ✅ Pass tanggal
+        jam: jam,          // ✅ Pass jam
         userId: userId,
         seats: widget.seats,
       );

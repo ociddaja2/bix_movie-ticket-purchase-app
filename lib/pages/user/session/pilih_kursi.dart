@@ -93,11 +93,20 @@ class _SeatBookingScreenState extends State<SeatBookingScreen> {
     _bookedSeatsFuture = _fetchBookedSeats();
   }
 
-  // ✅ Fetch kursi booked dari semua tayangId
+  // ✅ Fetch kursi booked berdasarkan tayangId, movieId, tanggal, dan jam
   Future<Set<String>> _fetchBookedSeats() async {
     try {
+      final movieId = widget.movie.id;
+      // Format tanggal: yyyy-MM-dd
+      final tanggalStr = '${widget.selectedDate.year.toString().padLeft(4, '0')}-${widget.selectedDate.month.toString().padLeft(2, '0')}-${widget.selectedDate.day.toString().padLeft(2, '0')}';
+      
       final bookedSeat = await KursiRepository()
-          .fetchBookedSeatsByTayangId(widget.tayang.tayangId); // tayangId array
+          .fetchBookedSeatsByTayangId(
+            widget.tayang.tayangId,
+            movieId,
+            tanggalStr,            // ✅ Pass tanggal sebagai string
+            widget.selectedTime,  // ✅ Pass selectedTime sebagai jam
+          );
       
       // _initSeats(bookedSeat);
       setState(() {
@@ -191,9 +200,15 @@ class _SeatBookingScreenState extends State<SeatBookingScreen> {
                   .toList();
 
               // ✅ Buat pembayaran PENDING (bukan langsung terisi)
+              // Format tanggal: yyyy-MM-dd
+              final tanggalStr = '${widget.selectedDate.year.toString().padLeft(4, '0')}-${widget.selectedDate.month.toString().padLeft(2, '0')}-${widget.selectedDate.day.toString().padLeft(2, '0')}';
+              
               final pembayaranId = await PembayaranRepository().createPembayaran(
                 userId: userId,
-                tayangId: widget.tayang.tayangId,  // ✅ Single tayangId
+                tayangId: widget.tayang.tayangId,   // ✅ Single tayangId
+                movieId: widget.movie.id,            // ✅ Pass movieId
+                tanggal: tanggalStr,                 // ✅ Pass tanggal sebagai string
+                jam: widget.selectedTime,            // ✅ Pass selectedTime sebagai jam
                 seats: seatsToBook,
                 harga: widget.tayang.harga,
               );
