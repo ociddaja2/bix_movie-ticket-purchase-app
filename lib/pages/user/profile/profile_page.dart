@@ -36,6 +36,7 @@ class ProfileScreen extends StatefulWidget {
 }
 
   class _ProfileScreenState extends State<ProfileScreen> {
+    // ignore: unused_field
     bool _isUploading = false;
 
   // Fungsi untuk handle upload avatar
