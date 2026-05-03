@@ -1,5 +1,6 @@
 import 'package:bixcinema/core/app/route.dart';
 import 'package:bixcinema/core/models/user_model.dart';
+import 'package:bixcinema/core/repo/user_repo.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -265,28 +266,31 @@ class Homepage extends StatelessWidget {
   }
 
   Widget _buildWelcome() {
+    return FutureBuilder<UserModel?>(
+      future: UserRepository().getUserById(FirebaseAuth.instance.currentUser!.uid),
+      builder: (context, snapshot) {
+        final userName = snapshot.data?.name.isNotEmpty == true
+            ? snapshot.data!.name
+            : 'Penonton';
 
-    final user = UserModel.fromFirebaseUser(FirebaseAuth.instance.currentUser!);
-    final userName = user?.name.trim().isNotEmpty == true
-        ? user!.displayName!
-        : 'Pengguna';
-
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Hi $userName, Selamat Datang di BIX Cinema!',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Hi $userName, Selamat Datang di BIX Cinema!',
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Nikmati pengalaman menonton film terbaik di kota Anda.',
+                style: TextStyle(fontSize: 14, color: Colors.black54),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
-          Text(
-            'Nikmati pengalaman menonton film terbaik di kota Anda.',
-            style: TextStyle(fontSize: 14, color: Colors.black54),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 

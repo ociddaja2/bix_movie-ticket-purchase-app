@@ -41,7 +41,20 @@ class UserModel {
     );
   }
 
-  static fromFirebaseUser(User user) {}
+  static fromFirebaseUser(User user) {
+    return UserModel(
+      id: user.uid,
+      name: user.displayName ?? '',
+      email: user.email ?? '',
+      password: '', // Password tidak disimpan di sini
+      phoneNumber: user.phoneNumber ?? '',
+      avatarUrl: user.photoURL,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+
+      role: 'user', // Default role
+    );
+  }
 }
 
 Map<String, dynamic> userToJson(UserModel user) {
