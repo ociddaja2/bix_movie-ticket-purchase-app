@@ -179,28 +179,45 @@ class _LoginPageState extends State<LoginPage> {
 
                         const SizedBox(height: 12),
 
-                        // Remember me checkbox
+                        // Remember me checkbox & Forgot Password
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: Checkbox(
-                                value: _rememberMe,
-                                onChanged: (value) {
-                                  setState(() {
-                                    _rememberMe = value ?? false;
-                                  });
-                                },
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(4),
+                            Row(
+                              children: [
+                                SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: Checkbox(
+                                    value: _rememberMe,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _rememberMe = value ?? false;
+                                      });
+                                    },
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                const Text(
+                                  'Remember me',
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                              ],
+                            ),
+                            GestureDetector(
+                              onTap: () => _showForgotPasswordDialog(),
+                              child: const Text(
+                                'Lupa Password?',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Color(0xFF003D82),
+                                  fontWeight: FontWeight.w600,
+                                  decoration: TextDecoration.underline,
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 8),
-                            const Text(
-                              'Remember me',
-                              style: TextStyle(fontSize: 14),
                             ),
                           ],
                         ),
@@ -249,7 +266,7 @@ class _LoginPageState extends State<LoginPage> {
 
                                     // 3. Login dengan AuthService
                                     final result = await AuthService.signIn(
-                                      email: _emailController.text,
+                                      emailOrPhone: _emailController.text,
                                       password: _passwordController.text,
                                     );
 
@@ -384,6 +401,115 @@ class _LoginPageState extends State<LoginPage> {
         ],
       ),
     );
+  }
+
+  void _showForgotPasswordDialog() {
+    final TextEditingController forgotPasswordController = TextEditingController();
+    bool isSending = false;
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('Lupa Password?'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Masukkan email atau nomor telepon Anda untuk menerima link reset password.',
+                  style: TextStyle(fontSize: 13, color: Colors.black87),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: forgotPasswordController,
+                  decoration: InputDecoration(
+                    labelText: 'Email atau Nomor Telepon',
+                    hintText: 'Contoh: email@example.com atau 08123456789',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Batal'),
+            ),
+            ElevatedButton(
+              onPressed: isSending
+                  ? null
+                  : () async {
+                      final emailOrPhone = forgotPasswordController.text.trim();
+
+                      if (emailOrPhone.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Silakan masukkan email atau nomor telepon'),
+                          ),
+                        );
+                        return;
+                      }
+
+                      setState(() => isSending = true);
+
+                      final result = await AuthService.forgotPassword(
+                        emailOrPhone: emailOrPhone,
+                      );
+
+                      setState(() => isSending = false);
+
+                      if (mounted) {
+                        if (result['success']) {
+                          Navigator.pop(context);
+                          _showSuccessDialog(
+                            'Permintaan Terkirim',
+                            result['message'] ?? 'Link reset password telah dikirim ke email Anda.',
+                            () {},
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                result['error'] ?? 'Terjadi kesalahan',
+                              ),
+                            ),
+                          );
+                        }
+                      }
+                    },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF003D82),
+                disabledBackgroundColor: Colors.grey,
+              ),
+              child: isSending
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          Colors.white,
+                        ),
+                      ),
+                    )
+                  : const Text(
+                      'Kirim',
+                      style: TextStyle(color: Colors.white),
+                    ),
+            ),
+          ],
+        ),
+      ),
+    ).then((_) => forgotPasswordController);
   }
 
   @override

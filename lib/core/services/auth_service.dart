@@ -7,12 +7,28 @@ import 'package:bixcinema/core/models/user_model.dart';
 class AuthService {
   static UserModel? cachedUser;
 
-  // login
+  // login dengan email atau phone number
   static Future<Map<String, dynamic>> signIn({
-    required String email,
+    required String emailOrPhone,
     required String password,
   }) async {
     try {
+      String email = emailOrPhone;
+      
+      // Cek apakah input adalah nomor telepon
+      if (!emailOrPhone.contains('@')) {
+        // Input adalah nomor telepon, cari email terkait
+        final foundEmail = await FirebaseService.getUserEmailByPhoneNumber(emailOrPhone);
+        
+        if (foundEmail == null) {
+          return {
+            'success': false,
+            'error': 'Nomor telepon tidak terdaftar. Silakan daftar terlebih dahulu.',
+          };
+        }
+        email = foundEmail;
+      }
+
       final userCredential = await FirebaseService.signInWithEmailPassword(
         email: email,
         password: password,
@@ -104,5 +120,43 @@ class AuthService {
   // get cached user
   static UserModel? getCachedUser() {
     return cachedUser;
+  }
+
+  // forgot password
+  static Future<Map<String, dynamic>> forgotPassword({
+    required String emailOrPhone,
+  }) async {
+    try {
+      await FirebaseAuth.instance.setSettings(appVerificationDisabledForTesting: true);
+
+      String email = emailOrPhone;
+      
+      // Cek apakah input adalah nomor telepon
+      if (!emailOrPhone.contains('@')) {
+        // Input adalah nomor telepon, cari email terkait
+        final foundEmail = await FirebaseService.getUserEmailByPhoneNumber(emailOrPhone);
+        
+        if (foundEmail == null) {
+          return {
+            'success': false,
+            'error': 'Nomor telepon tidak terdaftar.',
+          };
+        }
+        email = foundEmail;
+      }
+
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+
+      return {
+        'success': true,
+        'message': 'Link reset password telah dikirim ke email Anda.',
+      };
+    } catch (e) {
+      print('Error in forgotPassword: $e');
+      return {
+        'success': false,
+        'error': e.toString().replaceAll('Exception: ', ''),
+      };
+    }
   }
 }

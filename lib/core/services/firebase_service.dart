@@ -166,6 +166,33 @@ class FirebaseService {
     return Exception(message);
   }
 
+  /// Get user email by phone number
+  static Future<String?> getUserEmailByPhoneNumber(String phoneNumber) async {
+    try {
+      final result = await _firestore
+          .collection('users')
+          .where('phoneNumber', isEqualTo: phoneNumber)
+          .limit(1)
+          .get();
+
+      if (result.docs.isNotEmpty) {
+        return result.docs.first.data()['email'] as String?;
+      }
+      return null;
+    } catch (e) {
+      throw Exception('Error fetching user by phone: $e');
+    }
+  }
+
+  /// Send Password Reset Email
+  static Future<void> sendPasswordResetEmail(String email) async {
+    try {
+      await _firebaseAuth.sendPasswordResetEmail(email: email);
+    } on FirebaseAuthException catch (e) {
+      throw _handleAuthException(e);
+    }
+  }
+
   /// Update User Avatar URL
   static Future<void> updateUserAvatar(String userId, String avatarUrl) async {
     try {
