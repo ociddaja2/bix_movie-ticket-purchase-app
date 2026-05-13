@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:bixcinema/ui/widgets/logoBoxWidget.dart';
 import 'package:go_router/go_router.dart';
 import 'package:bixcinema/core/services/storage_service.dart';
+import 'package:bixcinema/ui/widgets/customAlert.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -23,6 +24,8 @@ class _LoginPageState extends State<LoginPage> {
   bool _isLoading = false;
   bool isIconVisible = false;
   bool hidePassword = true;
+
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -41,264 +44,257 @@ class _LoginPageState extends State<LoginPage> {
 
             // Main content
             SingleChildScrollView(
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 60),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 60),
 
-                        // Welcome text
-                        const Text(
-                          'Selamat datang di\nBIX Cinema',
-                          style: TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            height: 1.3,
-                          ),
-                        ),
-
-                        const SizedBox(height: 12),
-
-                        const Text(
-                          'Nikmati pengalaman menonton yang nyaman dan\npenuh cerita di setiap momen.',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Colors.black,
-                            height: 1.4,
-                          ),
-                        ),
-                        const SizedBox(height: 30),
-
-                        // Input Form disini
-
-                        // Email field
-                        const Text(
-                          'Email or WhatsApp Number',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-
-                        const SizedBox(height: 8),
-
-                        TextFormField(
-                          controller: _emailController,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Email atau nomor tidak boleh kosong';
-                            }
-                            return null;
-                          },
-                          decoration: InputDecoration(
-                            hoverColor: Colors.transparent,
-                            labelText: 'Masukkan Email Atau Nomor',
-                            labelStyle: TextStyle(color: Colors.black54),
-                            floatingLabelBehavior: FloatingLabelBehavior.never,
-                            filled: true,
-                            fillColor: Colors.white,
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide(color: Colors.black),
+                          // Welcome text
+                          const Text(
+                            'Selamat datang di\nBIX Cinema',
+                            style: TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                              height: 1.3,
                             ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(
-                                color: Color(0xFF003D82),
+                          ),
+
+                          const SizedBox(height: 12),
+
+                          const Text(
+                            'Nikmati pengalaman menonton yang nyaman dan\npenuh cerita di setiap momen.',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.black,
+                              height: 1.4,
+                            ),
+                          ),
+                          const SizedBox(height: 30),
+
+                          // Email field
+                          const Text(
+                            'Email or WhatsApp Number',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+
+                          const SizedBox(height: 8),
+
+                          TextFormField(
+                            controller: _emailController,
+                            validator: (value) =>
+                                ValidationService.validateEmailOrPhone(value ?? ''),
+                            decoration: InputDecoration(
+                              hoverColor: Colors.transparent,
+                              labelText: 'Masukkan Email Atau Nomor',
+                              labelStyle: const TextStyle(color: Colors.black54),
+                              floatingLabelBehavior: FloatingLabelBehavior.never,
+                              filled: true,
+                              fillColor: Colors.white,
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: const BorderSide(color: Colors.black),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: const BorderSide(
+                                  color: Color(0xFF003D82),
+                                ),
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: const BorderSide(color: Colors.red),
+                              ),
+                              focusedErrorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: const BorderSide(color: Colors.red),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 14,
                               ),
                             ),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 14,
+                          ),
+                          const SizedBox(height: 12),
+
+                          // Password field
+                          const Text(
+                            'Password',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 20),
+                          const SizedBox(height: 8),
 
-                        // Password field
-                        const Text(
-                          'Password',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-
-                        TextFormField(
-                          onChanged: (value) {
-                            value.isNotEmpty 
-                            ? setState(() => isIconVisible = true)
-                            : setState(() => isIconVisible = false);
-                          },
-
-                          controller: _passwordController,
-                          validator: (value) => (value == null || value.isEmpty)
-                              ? 'Password tidak boleh kosong'
-                              : null,
-                          obscureText: hidePassword,
-                          // lihat password toggle
-                        
-                          decoration: InputDecoration(
-                            hoverColor: Colors.transparent,
-                            labelText: 'Masukkan Password',
-                            labelStyle: TextStyle(color: Colors.black54),
-                            floatingLabelBehavior: FloatingLabelBehavior.never,
-                            filled: true,
-                            fillColor: Colors.white,
-
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide(color: Colors.black),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(
-                                color: Color(0xFF003D82),
+                          TextFormField(
+                            onChanged: (value) {
+                              value.isNotEmpty
+                                  ? setState(() => isIconVisible = true)
+                                  : setState(() => isIconVisible = false);
+                            },
+                            controller: _passwordController,
+                            validator: (value) =>
+                                ValidationService.validatePassword(value ?? ''),
+                            obscureText: hidePassword,
+                            decoration: InputDecoration(
+                              hoverColor: Colors.transparent,
+                              labelText: 'Masukkan Password',
+                              labelStyle: const TextStyle(color: Colors.black54),
+                              floatingLabelBehavior: FloatingLabelBehavior.never,
+                              filled: true,
+                              fillColor: Colors.white,
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: const BorderSide(color: Colors.black),
                               ),
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 14,
-                            ),
-
-                            suffixIcon: isIconVisible ? IconButton(
-                              onPressed: () {
-                                setState(() => hidePassword = !hidePassword);
-                              },
-                              icon: Icon(
-                                hidePassword ? Icons.visibility_off : Icons.visibility,
-                                color: Colors.black54,
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: const BorderSide(
+                                  color: Color(0xFF003D82),
+                                ),
                               ),
-                            ) : null,
+                              errorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: const BorderSide(color: Colors.red),
+                              ),
+                              focusedErrorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: const BorderSide(color: Colors.red),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 14,
+                              ),
+                              suffixIcon: isIconVisible
+                                  ? IconButton(
+                                      onPressed: () {
+                                        setState(() => hidePassword = !hidePassword);
+                                      },
+                                      icon: Icon(
+                                        hidePassword
+                                            ? Icons.visibility_off
+                                            : Icons.visibility,
+                                        color: Colors.black54,
+                                      ),
+                                    )
+                                  : null,
+                            ),
                           ),
-                        ),
 
-                        const SizedBox(height: 12),
+                          const SizedBox(height: 12),
 
-                        // Remember me checkbox & Forgot Password
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: Checkbox(
-                                    value: _rememberMe,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _rememberMe = value ?? false;
-                                      });
-                                    },
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(4),
+                          // Remember me checkbox & Forgot Password
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: Checkbox(
+                                      value: _rememberMe,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _rememberMe = value ?? false;
+                                        });
+                                      },
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
                                     ),
                                   ),
-                                ),
-                                const SizedBox(width: 8),
-                                const Text(
-                                  'Remember me',
-                                  style: TextStyle(fontSize: 14),
-                                ),
-                              ],
-                            ),
-                            GestureDetector(
-                              onTap: () => _showForgotPasswordDialog(),
-                              child: const Text(
-                                'Lupa Password?',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Color(0xFF003D82),
-                                  fontWeight: FontWeight.w600,
-                                  decoration: TextDecoration.underline,
+                                  const SizedBox(width: 8),
+                                  const Text(
+                                    'Remember me',
+                                    style: TextStyle(fontSize: 14),
+                                  ),
+                                ],
+                              ),
+                              GestureDetector(
+                                onTap: () => _showForgotPasswordDialog(),
+                                child: const Text(
+                                  'Lupa Password?',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Color(0xFF003D82),
+                                    fontWeight: FontWeight.w600,
+                                    decoration: TextDecoration.underline,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 24),
+                            ],
+                          ),
+                          const SizedBox(height: 24),
 
-                        // Login button
-                        SizedBox(
-                          width: double.infinity,
-                          height: 50,
-                          child: ElevatedButton(
-                            onPressed: _isLoading
-                                ? null
-                                : () async {
-                                    // 1. Validasi input
-                                    final emailError =
-                                        ValidationService.validateEmailOrPhone(
-                                          _emailController.text,
-                                        );
-                                    final passwordError =
-                                        ValidationService.validatePassword(
-                                          _passwordController.text,
-                                        );
+                          // Login button
+                          SizedBox(
+                            width: double.infinity,
+                            height: 50,
+                            child: ElevatedButton(
+                              onPressed: _isLoading
+                                  ? null
+                                  : () async {
+                                      // 1. Validasi form secara real-time
+                                      if (!_formKey.currentState!.validate()) {
+                                        return;
+                                      }
 
-                                    if (emailError != null ||
-                                        passwordError != null) {
-                                      // Tampilkan error dialog
-                                      _showErrorDialog(
-                                        'Validasi Gagal',
-                                        emailError ??
-                                            passwordError ??
-                                            'Error tidak diketahui',
+                                      // Set loading state
+                                      setState(() {
+                                        _isLoading = true;
+                                      });
+
+                                      // 2. Simpan credentials jika remember me dicentang
+                                      await StorageService.saveLoginCredentials(
+                                        email: _emailController.text,
+                                        rememberMe: _rememberMe,
                                       );
-                                      return;
-                                    }
 
-                                    // Set loading state
-                                    setState(() {
-                                      _isLoading = true;
-                                    });
+                                      // 3. Login dengan AuthService
+                                      final result = await AuthService.signIn(
+                                        emailOrPhone: _emailController.text,
+                                        password: _passwordController.text,
+                                      );
 
-                                    // 2. Simpan credentials jika remember me dicentang
-                                    await StorageService.saveLoginCredentials(
-                                      email: _emailController.text,
-                                      rememberMe: _rememberMe,
-                                    );
+                                      // Stop loading
+                                      setState(() {
+                                        _isLoading = false;
+                                      });
 
-                                    // 3. Login dengan AuthService
-                                    final result = await AuthService.signIn(
-                                      emailOrPhone: _emailController.text,
-                                      password: _passwordController.text,
-                                    );
-
-                                    // Stop loading
-                                    setState(() {
-                                      _isLoading = false;
-                                    });
-
-                                    if (result['success']) {
-                                      // Tampilkan success dialog sebelum navigate
-                                      if (mounted) {
-                                        _showSuccessDialog(
-                                          'Login Berhasil',
-                                          'Selamat datang kembali! Anda akan dialihkan ke halaman utama.',
-                                          () {
-                                            // Navigate ke loading screen
-                                            // ignore: use_build_context_synchronously
-                                            context.go(AppRoutes.loading);
-                                          },
-                                        );
+                                      if (result['success']) {
+                                        // Tampilkan success dialog sebelum navigate
+                                        if (mounted) {
+                                          _showSuccessDialog(
+                                            'Login Berhasil',
+                                            'Selamat datang kembali! Anda akan dialihkan ke halaman utama.',
+                                            () {
+                                              // Navigate ke loading screen
+                                              // ignore: use_build_context_synchronously
+                                              context.go(AppRoutes.loading);
+                                            },
+                                          );
+                                        }
+                                      } else {
+                                        // Tampilkan error dialog
+                                        if (mounted) {
+                                          _showErrorDialog(
+                                            'Login Gagal',
+                                            result['error'] ??
+                                                'Terjadi kesalahan yang tidak diketahui',
+                                          );
+                                        }
                                       }
-                                    } else {
-                                      // Tampilkan error dialog
-                                      if (mounted) {
-                                        _showErrorDialog(
-                                          'Login Gagal',
-                                          result['error'] ??
-                                          'Terjadi kesalahan yang tidak diketahui',
-                                        );
-                                      }
-                                    }
-                                  },
+                                    },
                             style: ElevatedButton.styleFrom(
                               shadowColor: Colors.transparent,
                               backgroundColor: const Color(0xFF003D82),
@@ -358,26 +354,16 @@ class _LoginPageState extends State<LoginPage> {
                 ],
               ),
             ),
+            )
           ],
+
         ),
       ),
     );
   }
 
   void _showErrorDialog(String title, String message) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(title),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
+    BixAlert.error(context, message, title: title);
   }
 
   void _showSuccessDialog(
@@ -385,22 +371,7 @@ class _LoginPageState extends State<LoginPage> {
     String message,
     VoidCallback onOk,
   ) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(title),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              onOk();
-            },
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
+    BixAlert.success(context, message, title: title, onConfirm: onOk);
   }
 
   void _showForgotPasswordDialog() {
