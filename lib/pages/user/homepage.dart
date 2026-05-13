@@ -174,72 +174,71 @@ class Homepage extends StatelessWidget {
     double height,
     String selectedTeaterId,
   ) {
-    return GestureDetector(
-      onTap: () async { 
-        // Ambil tayang berdasarkan movieId
-        try {
-          final tayangList = await TayangRepository()
-            .fetchTayangByMovieAndTeater(movie.id, selectedTeaterId);
+    return Container(
+      width: 140,
+      margin: const EdgeInsets.only(right: 16),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () async {
+            // Ambil tayang berdasarkan movieId
+            try {
+              final tayangList = await TayangRepository()
+                  .fetchTayangByMovieAndTeater(movie.id, selectedTeaterId);
 
-          if (tayangList.isNotEmpty) {
-            if (context.mounted) {
-              context.push('${AppRoutes.movieDetail}?id=${movie.id}',
-              extra: MovieDetailParams(
-                movie: movie,
-                tayang: tayangList.first
-                )
-              );
+              if (tayangList.isNotEmpty) {
+                if (context.mounted) {
+                  context.push('${AppRoutes.movieDetail}?id=${movie.id}',
+                      extra: MovieDetailParams(
+                          movie: movie, tayang: tayangList.first));
+                }
+              } else {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('Showtimes not available for this movie')),
+                  );
+                }
+              }
+            } catch (e) {
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Error fetching showtimes: $e')),
+                );
+              }
             }
-          } else {
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Showtimes not available for this movie')),
-              );
-            }
-          }
-        } catch (e) {
-          if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Error fetching showtimes: $e')),
-              );
-            }
-          }
-        },
-          // =>
-          // context.push('${AppRoutes.movieDetail}?id=${movie.id}', extra: movie),
-      child: Container(
-        width: 140,
-        margin: const EdgeInsets.only(right: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Stack(
-                children: [
-                  // Poster dari URL, fallback ke asset lokal
-                  // movie.posterUrl.isNotEmpty ?
-                  Image.network(
-                    movie.posterUrl,
-                    height: height,
-                    width: 140,
-                    fit: BoxFit.cover,
-                    loadingBuilder: (context, child, loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      return Container(
-                        height: height,
-                        width: 140,
-                        color: Colors.grey[300],
-                        child: const Center(child: CircularProgressIndicator()),
-                      );
-                    },
-                    errorBuilder: (_, _, _) => _posterFallback(height),
-                  ),
-                  // : _posterFallback(height),
-                ],
+          },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Stack(
+                  children: [
+                    Image.network(
+                      movie.posterUrl,
+                      height: height,
+                      width: 140,
+                      fit: BoxFit.cover,
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Container(
+                          height: height,
+                          width: 140,
+                          color: Colors.grey[200],
+                          child: const Center(
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        );
+                      },
+                      errorBuilder: (_, _, _) => _posterFallback(height),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
