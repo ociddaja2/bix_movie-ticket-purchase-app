@@ -6,6 +6,8 @@ import 'package:bixcinema/core/repo/pembayaran_repo.dart';
 import 'package:bixcinema/core/repo/kursi_repo.dart';
 import 'package:go_router/go_router.dart';
 
+enum PaymentMethod { bank, ewallet, other }
+
 class PembayaranPage extends StatefulWidget {
   final String pembayaranId;
   final List<Map<String, dynamic>> seats;
@@ -23,13 +25,16 @@ class PembayaranPage extends StatefulWidget {
 class _PembayaranPageState extends State<PembayaranPage> {
   late Future<Map<String, dynamic>?> _pembayaranFuture;
   bool _isProcessing = false;
+  PaymentMethod _selectedPaymentMethod = PaymentMethod.bank;
 
   // final hargaLayanan = 2000; // Contoh biaya layanan per transaksi
 
   @override
   void initState() {
     super.initState();
-    _pembayaranFuture = PembayaranRepository().getPembayaran(widget.pembayaranId);
+    _pembayaranFuture = PembayaranRepository().getPembayaran(
+      widget.pembayaranId,
+    );
   }
 
   // ✅ Handle pembayaran
@@ -48,15 +53,17 @@ class _PembayaranPageState extends State<PembayaranPage> {
       // Sekarang baru book kursi ke collection 'kursi'
       final userId = FirebaseAuth.instance.currentUser?.uid ?? '';
       final tayangId = pembayaranId['tayangId'] as String;
-      final movieId = pembayaranId['movieId'] as String? ?? ''; // ✅ Ambil movieId
-      final tanggal = pembayaranId['tanggal'] as String? ?? '';  // ✅ Ambil tanggal
-      final jam = pembayaranId['jam'] as String? ?? '';  // ✅ Ambil jam
+      final movieId =
+          pembayaranId['movieId'] as String? ?? ''; // ✅ Ambil movieId
+      final tanggal =
+          pembayaranId['tanggal'] as String? ?? ''; // ✅ Ambil tanggal
+      final jam = pembayaranId['jam'] as String? ?? ''; // ✅ Ambil jam
 
       await KursiRepository().bookSeats(
         tayangId: tayangId,
-        movieId: movieId,  // ✅ Pass movieId
-        tanggal: tanggal,  // ✅ Pass tanggal
-        jam: jam,          // ✅ Pass jam
+        movieId: movieId, // ✅ Pass movieId
+        tanggal: tanggal, // ✅ Pass tanggal
+        jam: jam, // ✅ Pass jam
         userId: userId,
         seats: widget.seats,
       );
@@ -73,7 +80,9 @@ class _PembayaranPageState extends State<PembayaranPage> {
         // // Navigate ke halaman sukses atau booking
         Future.delayed(const Duration(seconds: 2), () {
           if (mounted) {
-            context.go('/booking'); // Ganti dengan route yang sesuai untuk halaman booking/sukses
+            context.go(
+              '/booking',
+            ); // Ganti dengan route yang sesuai untuk halaman booking/sukses
           }
         });
       }
@@ -102,6 +111,155 @@ class _PembayaranPageState extends State<PembayaranPage> {
     return buffer.toString();
   }
 
+  Widget _buildPaymentMethodWidget() {
+    switch (_selectedPaymentMethod) {
+      case PaymentMethod.bank:
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            border: Border.all(color: const Color(0xFF1A3A8F), width: 2),
+            borderRadius: BorderRadius.circular(8),
+            color: const Color(0xFF1A3A8F).withOpacity(0.05),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Row(
+                children: [
+                  Icon(Icons.credit_card, color: Color(0xFF1A3A8F)),
+                  SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Transfer Bank',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      SizedBox(height: 2),
+                      Text(
+                        'Transfer ke rekening yang tersedia',
+                        style: TextStyle(fontSize: 11, color: Colors.black54),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Rekening Tujuan:',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black54,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      'Bank BCA',
+                      style: TextStyle(fontSize: 12, color: Colors.black87),
+                    ),
+                    Text(
+                      'No. Rekening: 1234567890',
+                      style: TextStyle(fontSize: 12, color: Colors.black87),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      'Atas Nama: PT Bix Cinema',
+                      style: TextStyle(fontSize: 12, color: Colors.black87),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      case PaymentMethod.ewallet:
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            border: Border.all(color: const Color(0xFF1A3A8F), width: 2),
+            borderRadius: BorderRadius.circular(8),
+            color: const Color(0xFF1A3A8F).withOpacity(0.05),
+          ),
+          child: const Row(
+            children: [
+              Icon(Icons.phone_android, color: Color(0xFF1A3A8F)),
+              SizedBox(width: 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'E-Wallet (QRIS)',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  SizedBox(height: 2),
+                  Text(
+                    'Scan QR code dengan e-wallet Anda',
+                    style: TextStyle(fontSize: 11, color: Colors.black54),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      case PaymentMethod.other:
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            border: Border.all(color: const Color(0xFF1A3A8F), width: 2),
+            borderRadius: BorderRadius.circular(8),
+            color: const Color(0xFF1A3A8F).withOpacity(0.05),
+          ),
+          child: const Row(
+            children: [
+              Icon(Icons.more_horiz, color: Color(0xFF1A3A8F)),
+              SizedBox(width: 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Metode Lainnya',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  SizedBox(height: 2),
+                  Text(
+                    'Hubungi customer service',
+                    style: TextStyle(fontSize: 11, color: Colors.black54),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -109,16 +267,14 @@ class _PembayaranPageState extends State<PembayaranPage> {
       appBar: BixAppBar.subtitle(
         title: 'Booking',
         subtitle: 'Detail Pembayaran',
-        onBack: () => context.go('/home'),
+        onBack: () => context.go(''),
       ),
       body: FutureBuilder<Map<String, dynamic>?>(
         future: _pembayaranFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
-              child: CircularProgressIndicator(
-                color: Color(0xFF1A3A8F),
-              ),
+              child: CircularProgressIndicator(color: Color(0xFF1A3A8F)),
             );
           }
 
@@ -185,14 +341,6 @@ class _PembayaranPageState extends State<PembayaranPage> {
                                     : Colors.green,
                               ),
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'ID Pembayaran: ${widget.pembayaranId}',
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: Colors.black54,
-                              ),
-                            ),
                           ],
                         ),
                       ),
@@ -229,28 +377,24 @@ class _PembayaranPageState extends State<PembayaranPage> {
                             // Kursi yang dipesan
                             Wrap(
                               spacing: 8,
-                              children: List.generate(
-                                seats.length,
-                                (index) {
-                                  final seat = seats[index];
-                                  final row = seat['row'] ?? '';
-                                  final number = seat['number'] ?? 0;
-                                  return Chip(
-                                    label: Text(
-                                      '$row$number',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w600,
-                                      ),
+                              children: List.generate(seats.length, (index) {
+                                final seat = seats[index];
+                                final row = seat['row'] ?? '';
+                                final number = seat['number'] ?? 0;
+                                return Chip(
+                                  label: Text(
+                                    '$row$number',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
                                     ),
-                                    backgroundColor:
-                                        const Color(0xFF1A3A8F),
-                                    side: const BorderSide(
-                                      color: Color(0xFF1A3A8F),
-                                    ),
-                                  );
-                                },
-                              ),
+                                  ),
+                                  backgroundColor: const Color(0xFF1A3A8F),
+                                  side: const BorderSide(
+                                    color: Color(0xFF1A3A8F),
+                                  ),
+                                );
+                              }),
                             ),
                             const SizedBox(height: 12),
                             Text(
@@ -287,8 +431,7 @@ class _PembayaranPageState extends State<PembayaranPage> {
                           children: [
                             // Harga per kursi
                             Row(
-                              mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
                                   '${seats.length} × Kursi Reguler 2D',
@@ -307,8 +450,7 @@ class _PembayaranPageState extends State<PembayaranPage> {
                               ],
                             ),
                             Row(
-                              mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 const Text(
                                   'Biaya Layanan',
@@ -331,8 +473,7 @@ class _PembayaranPageState extends State<PembayaranPage> {
                             const SizedBox(height: 8),
                             // Total
                             Row(
-                              mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 const Text(
                                   'Total Pembayaran',
@@ -352,7 +493,6 @@ class _PembayaranPageState extends State<PembayaranPage> {
                                 ),
                               ],
                             ),
-
                           ],
                         ),
                       ),
@@ -361,7 +501,7 @@ class _PembayaranPageState extends State<PembayaranPage> {
 
                       // Metode Pembayaran
                       const Text(
-                        'Metode Pembayaran',
+                        'Pilih Metode Pembayaran',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -369,96 +509,164 @@ class _PembayaranPageState extends State<PembayaranPage> {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey.shade300),
-                          borderRadius: BorderRadius.circular(8),
-                          color: Colors.grey.shade50,
-                        ),
-                        child: const Row(
-                          children: [
-                            Icon(Icons.credit_card, color: Color(0xFF1A3A8F)),
-                            SizedBox(width: 12),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Transfer Bank (Simulasi)',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.black87,
-                                  ),
-                                ),
-                                SizedBox(height: 2),
-                                Text(
-                                  'Klik tombol Bayar untuk simulasi',
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    color: Colors.black54,
-                                  ),
-                                ),
-                              ],
+
+                      // Payment method selection
+                      Column(
+                        children: [
+                          GestureDetector(
+                            onTap: () => setState(
+                              () => _selectedPaymentMethod = PaymentMethod.bank,
                             ),
-                          ],
-                        ),
+                            child: Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(12),
+                              margin: const EdgeInsets.only(bottom: 8),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color:
+                                      _selectedPaymentMethod ==
+                                          PaymentMethod.bank
+                                      ? const Color(0xFF1A3A8F)
+                                      : Colors.grey.shade300,
+                                  width:
+                                      _selectedPaymentMethod ==
+                                          PaymentMethod.bank
+                                      ? 2
+                                      : 1,
+                                ),
+                                borderRadius: BorderRadius.circular(8),
+                                color:
+                                    _selectedPaymentMethod == PaymentMethod.bank
+                                    ? const Color(0xFF1A3A8F).withOpacity(0.05)
+                                    : Colors.white,
+                              ),
+                              child: Row(
+                                children: [
+                                  Radio<PaymentMethod>(
+                                    value: PaymentMethod.bank,
+                                    groupValue: _selectedPaymentMethod,
+                                    onChanged: (value) {
+                                      if (value != null) {
+                                        setState(
+                                          () => _selectedPaymentMethod = value,
+                                        );
+                                      }
+                                    },
+                                    activeColor: const Color(0xFF1A3A8F),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  const Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Transfer Bank',
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.black87,
+                                          ),
+                                        ),
+                                        Text(
+                                          'Transfer langsung ke rekening kami',
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            color: Colors.black54,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () => setState(
+                              () => _selectedPaymentMethod =
+                                  PaymentMethod.ewallet,
+                            ),
+                            child: Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(12),
+                              margin: const EdgeInsets.only(bottom: 8),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color:
+                                      _selectedPaymentMethod ==
+                                          PaymentMethod.ewallet
+                                      ? const Color(0xFF1A3A8F)
+                                      : Colors.grey.shade300,
+                                  width:
+                                      _selectedPaymentMethod ==
+                                          PaymentMethod.ewallet
+                                      ? 2
+                                      : 1,
+                                ),
+                                borderRadius: BorderRadius.circular(8),
+                                color:
+                                    _selectedPaymentMethod ==
+                                        PaymentMethod.ewallet
+                                    ? const Color(0xFF1A3A8F).withOpacity(0.05)
+                                    : Colors.white,
+                              ),
+                              child: Row(
+                                children: [
+                                  Radio<PaymentMethod>(
+                                    value: PaymentMethod.ewallet,
+                                    groupValue: _selectedPaymentMethod,
+                                    onChanged: (value) {
+                                      if (value != null) {
+                                        setState(
+                                          () => _selectedPaymentMethod = value,
+                                        );
+                                      }
+                                    },
+                                    activeColor: const Color(0xFF1A3A8F),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'E-Wallet (QRIS)',
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.black87,
+                                          ),
+                                        ),
+                                        Text(
+                                          'Scan QR code dengan aplikasi e-wallet',
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            color: Colors.black54,
+                                          ),
+                                        ),
+                                        Image.asset(
+                                          'assets/images/qris_example.png',
+                                          width: 50,
+                                          height: 50,
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
 
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 16),
 
-                      // Debug Info
-                      if (status == 'pending')
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.blue.shade50,
-                            border: Border.all(color: Colors.blue.shade300),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Debug Info:',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.blue,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'Pembayaran ID: ${widget.pembayaranId}',
-                                style: const TextStyle(
-                                  fontSize: 11,
-                                  fontFamily: 'Courier',
-                                  color: Colors.black54,
-                                ),
-                              ),
-                              Text(
-                                'Jumlah Kursi: ${seats.length}',
-                                style: const TextStyle(
-                                  fontSize: 11,
-                                  fontFamily: 'Courier',
-                                  color: Colors.black54,
-                                ),
-                              ),
-                              Text(
-                                'Total: Rp${_formatPrice(totalHarga 
-                                // + biayaLayanan
-                                )}',
-                                style: const TextStyle(
-                                  fontSize: 11,
-                                  fontFamily: 'Courier',
-                                  color: Colors.black54,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                      // Dynamic payment method display
+                      _buildPaymentMethodWidget(),
+
+                      const SizedBox(height: 32),
                     ],
                   ),
                 ),
@@ -518,8 +726,7 @@ class _PembayaranPageState extends State<PembayaranPage> {
                       height: 20,
                       width: 20,
                       child: CircularProgressIndicator(
-                        valueColor:
-                            AlwaysStoppedAnimation<Color>(Colors.white),
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                         strokeWidth: 2,
                       ),
                     )

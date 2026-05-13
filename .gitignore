@@ -28,6 +28,7 @@ migrate_working_dir/
 **/ios/Flutter/.last_build_id
 android/app/google-services.json
 android/app/google-services.json.txt
+lib/core/services/imgbbapi_service.dart
 .dart_tool/
 .flutter-plugins-dependencies
 .pub-cache/
