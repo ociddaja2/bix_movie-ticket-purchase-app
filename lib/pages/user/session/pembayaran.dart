@@ -198,28 +198,41 @@ class _PembayaranPageState extends State<PembayaranPage> {
             borderRadius: BorderRadius.circular(8),
             color: const Color(0xFF1A3A8F).withOpacity(0.05),
           ),
-          child: const Row(
+          child: Column(
             children: [
-              Icon(Icons.phone_android, color: Color(0xFF1A3A8F)),
-              SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              Row(
                 children: [
-                  Text(
-                    'E-Wallet (QRIS)',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                    ),
+                  Icon(Icons.phone_android, color: Color(0xFF1A3A8F)),
+                  SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'E-Wallet (QRIS)',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      SizedBox(height: 2),
+                      Text(
+                        'Scan QR code dengan e-wallet Anda',
+                        style: TextStyle(fontSize: 11, color: Colors.black54),
+                      ),
+                      SizedBox(height: 2),
+                      
+                    ],
                   ),
-                  SizedBox(height: 2),
-                  Text(
-                    'Scan QR code dengan e-wallet Anda',
-                    style: TextStyle(fontSize: 11, color: Colors.black54),
-                  ),
+                  
                 ],
               ),
+              Image.asset(
+                        'lib/assets/images/qr_example.png',
+                        height: 250,
+                        width: 250,
+                        fit: BoxFit.contain,
+                      ),
             ],
           ),
         );
@@ -626,7 +639,7 @@ class _PembayaranPageState extends State<PembayaranPage> {
                                     activeColor: const Color(0xFF1A3A8F),
                                   ),
                                   const SizedBox(width: 8),
-                                  Expanded(
+                                  const Expanded(
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
@@ -646,11 +659,6 @@ class _PembayaranPageState extends State<PembayaranPage> {
                                             color: Colors.black54,
                                           ),
                                         ),
-                                        Image.asset(
-                                          'assets/images/qris_example.png',
-                                          width: 50,
-                                          height: 50,
-                                        )
                                       ],
                                     ),
                                   ),
