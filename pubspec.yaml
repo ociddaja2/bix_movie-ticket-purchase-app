@@ -112,6 +112,13 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+  fonts:
+      - family: caveat
+        fonts:
+          - asset: lib/assets/fonts/Caveat-Regular.ttf
+          - asset: lib/assets/fonts/Caveat-Bold.ttf
+            weight: 700
+
 flutter_launcher_icons:
     android: true
     ios: true
