@@ -73,7 +73,7 @@ class BookingItem {
   final String? format;
   final String? cinema;
   final String? showTime;
-  final String? posterUrl;  // ✅ URL poster film dari Firebase
+  final String? posterUrl; // ✅ URL poster film dari Firebase
 
   const BookingItem({
     required this.id,
@@ -197,8 +197,9 @@ Future<List<BookingItem>> fetchUserBookings() async {
     final userId = FirebaseAuth.instance.currentUser?.uid;
     if (userId == null) return [];
 
-    final pembayaranList =
-        await PembayaranRepository().getUserPaidPembayaran(userId);
+    final pembayaranList = await PembayaranRepository().getUserPaidPembayaran(
+      userId,
+    );
     final bookingDetails = <BookingItem>[];
 
     for (var pembayaran in pembayaranList) {
@@ -222,8 +223,9 @@ Future<List<BookingItem>> fetchUserBookings() async {
         }
 
         // Fetch tayang details
-        final tayang =
-            await TayangRepository().fetchTayangById(pembayaran.tayangId);
+        final tayang = await TayangRepository().fetchTayangById(
+          pembayaran.tayangId,
+        );
 
         String movieTitle = 'Film';
         String cinema = 'Teater';
@@ -231,29 +233,31 @@ Future<List<BookingItem>> fetchUserBookings() async {
         String? duration;
         String? ageRating;
         String? format;
-        String? posterUrl;  // ✅ Poster URL dari Firebase
+        String? posterUrl; // ✅ Poster URL dari Firebase
 
         if (tayang != null) {
           cinema = tayang.namaTeater.namaTeater;
 
           // Fetch movie details
           if (pembayaran.movieId.isNotEmpty) {
-            final movie =
-                await MovieRepository().fetchMovieById(pembayaran.movieId);
+            final movie = await MovieRepository().fetchMovieById(
+              pembayaran.movieId,
+            );
             if (movie != null) {
               movieTitle = movie.judul;
               genre = movie.genre.join(', ');
               duration = movie.durasi;
               ageRating = movie.rating;
               format = movie.format;
-              posterUrl = movie.posterUrl;  // ✅ Ambil poster URL
+              posterUrl = movie.posterUrl; // ✅ Ambil poster URL
             }
           }
         }
 
         // Hitung harga per kursi jika belum ada
-        int hargaPerKursi =
-            seats.isNotEmpty ? (pembayaran.totalHarga ~/ seats.length) : 0;
+        int hargaPerKursi = seats.isNotEmpty
+            ? (pembayaran.totalHarga ~/ seats.length)
+            : 0;
 
         bookingDetails.add(
           BookingItem(
@@ -274,7 +278,7 @@ Future<List<BookingItem>> fetchUserBookings() async {
             duration: duration,
             ageRating: ageRating,
             format: format,
-            posterUrl: posterUrl,  // ✅ URL poster dari movie
+            posterUrl: posterUrl, // ✅ URL poster dari movie
           ),
         );
       } catch (e) {
@@ -448,9 +452,7 @@ class _BookingScreenState extends State<BookingScreen> {
         future: _bookingsFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+            return const Center(child: CircularProgressIndicator());
           }
 
           if (snapshot.hasError) {
@@ -502,8 +504,7 @@ class _BookingScreenState extends State<BookingScreen> {
                       onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) =>
-                              BookingDetailScreen(booking: booking),
+                          builder: (_) => BookingDetailScreen(booking: booking),
                         ),
                       ),
                     );
@@ -556,7 +557,8 @@ class _BookingCard extends StatelessWidget {
                     width: 70,
                     height: 90,
                     color: Colors.grey[300],
-                    child: booking.posterUrl != null &&
+                    child:
+                        booking.posterUrl != null &&
                             booking.posterUrl!.isNotEmpty
                         ? Image.network(
                             booking.posterUrl!,
@@ -568,7 +570,7 @@ class _BookingCard extends StatelessWidget {
                                   strokeWidth: 2,
                                   value: progress.expectedTotalBytes != null
                                       ? progress.cumulativeBytesLoaded /
-                                          progress.expectedTotalBytes!
+                                            progress.expectedTotalBytes!
                                       : null,
                                 ),
                               );
@@ -581,10 +583,7 @@ class _BookingCard extends StatelessWidget {
                               ),
                             ),
                           )
-                        : Icon(
-                            Icons.movie,
-                            color: Colors.grey[600],
-                          ),
+                        : Icon(Icons.movie, color: Colors.grey[600]),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -740,29 +739,28 @@ class BookingDetailScreen extends StatelessWidget {
                               width: 82,
                               height: 108,
                               color: Colors.grey[300],
-                              child: booking.posterUrl != null &&
+                              child:
+                                  booking.posterUrl != null &&
                                       booking.posterUrl!.isNotEmpty
                                   ? Image.network(
                                       booking.posterUrl!,
                                       fit: BoxFit.cover,
-                                      loadingBuilder:
-                                          (context, child, progress) {
+                                      loadingBuilder: (context, child, progress) {
                                         if (progress == null) return child;
                                         return Center(
                                           child: CircularProgressIndicator(
                                             strokeWidth: 2,
-                                            value: progress
-                                                        .expectedTotalBytes !=
+                                            value:
+                                                progress.expectedTotalBytes !=
                                                     null
-                                                ? progress
-                                                        .cumulativeBytesLoaded /
-                                                    progress.expectedTotalBytes!
+                                                ? progress.cumulativeBytesLoaded /
+                                                      progress
+                                                          .expectedTotalBytes!
                                                 : null,
                                           ),
                                         );
                                       },
-                                      errorBuilder: (_, __, ___) =>
-                                          Container(
+                                      errorBuilder: (_, __, ___) => Container(
                                         color: Colors.grey[400],
                                         child: const Icon(
                                           Icons.movie,
@@ -770,10 +768,7 @@ class BookingDetailScreen extends StatelessWidget {
                                         ),
                                       ),
                                     )
-                                  : Icon(
-                                      Icons.movie,
-                                      color: Colors.grey[600],
-                                    ),
+                                  : Icon(Icons.movie, color: Colors.grey[600]),
                             ),
                           ),
                           const SizedBox(width: 14),
@@ -810,7 +805,7 @@ class BookingDetailScreen extends StatelessWidget {
                       ),
                     ),
 
-                    _DashedDivider(),
+                    const Divider(color: Color.fromARGB(255, 203, 203, 203)),
 
                     // Detail pembayaran
                     Padding(
@@ -863,7 +858,7 @@ class BookingDetailScreen extends StatelessWidget {
 
                           const Padding(
                             padding: EdgeInsets.symmetric(vertical: 10),
-                            child: Divider(color: Color(0xFFEEEEEE)),
+                            child: Divider(color: Color.fromARGB(255, 193, 193, 193)),
                           ),
 
                           // totalHarga dari Firestore
@@ -895,12 +890,6 @@ class BookingDetailScreen extends StatelessWidget {
                   ],
                 ),
               ),
-            ),
-
-            // Info teknis (ID, tayangId, userId)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-              child: _InfoTeknis(booking: booking),
             ),
           ],
         ),
@@ -986,86 +975,8 @@ class _PendingStatus extends StatelessWidget {
 }
 
 //debug
-class _InfoTeknis extends StatelessWidget {
-  final BookingItem booking;
-  const _InfoTeknis({required this.booking});
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFEEEEEE)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Info Pemesanan',
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF555555),
-            ),
-          ),
-          const SizedBox(height: 8),
-          _InfoRow(label: 'ID Booking', value: booking.id),
-          const SizedBox(height: 4),
-          _InfoRow(label: 'Tayang ID', value: booking.tayangId),
-          const SizedBox(height: 4),
-          _InfoRow(
-            label: 'User ID',
-            value: booking.userId.length > 20
-                ? '${booking.userId.substring(0, 20)}...'
-                : booking.userId,
-          ),
-          const SizedBox(height: 4),
-          _InfoRow(label: 'Dibuat', value: booking.tanggalPemesanan),
-        ],
-      ),
-    );
-  }
-}
-
-class _InfoRow extends StatelessWidget {
-  final String label;
-  final String value;
-  const _InfoRow({required this.label, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        SizedBox(
-          width: 90,
-          child: Text(
-            label,
-            style: const TextStyle(fontSize: 12, color: Color(0xFF888888)),
-          ),
-        ),
-        const Text(
-          ': ',
-          style: TextStyle(fontSize: 12, color: Color(0xFF888888)),
-        ),
-        Expanded(
-          child: Text(
-            value,
-            style: const TextStyle(
-              fontSize: 12,
-              color: Color(0xFF333333),
-              fontWeight: FontWeight.w500,
-            ),
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-// =================== HELPER WIDGETS ===================
+// Row utk menampilkan label & value di detail pembayaran
 
 class _PaymentRow extends StatelessWidget {
   final String label;
@@ -1104,31 +1015,4 @@ class _PaymentRow extends StatelessWidget {
       ],
     );
   }
-}
-
-class _DashedDivider extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return CustomPaint(
-      size: const Size(double.infinity, 1),
-      painter: _DashedLinePainter(),
-    );
-  }
-}
-
-class _DashedLinePainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = const Color(0xFFDDDDDD)
-      ..strokeWidth = 1.5;
-    double x = 0;
-    while (x < size.width) {
-      canvas.drawLine(Offset(x, 0), Offset(x + 6, 0), paint);
-      x += 10;
-    }
-  }
-
-  @override
-  bool shouldRepaint(_DashedLinePainter old) => false;
 }

@@ -128,7 +128,7 @@ class BixAppBar extends StatelessWidget implements PreferredSizeWidget {
             const SizedBox(height: 2),
             _LocationDropdown(
               location: location!,
-              isOpen: false,
+              // isOpen: false,
               onTap: onLocationTap,
             ),
           ],
@@ -152,7 +152,7 @@ class BixAppBar extends StatelessWidget implements PreferredSizeWidget {
             const SizedBox(height: 4),
             _LocationDropdown(
               location: location!,
-              isOpen: true,
+              // isOpen: true,
               onTap: onLocationTap,
             ),
           ],
@@ -370,11 +370,11 @@ class _SubtitleBlock extends StatelessWidget {
 class _LocationDropdown extends StatelessWidget {
   const _LocationDropdown({
     required this.location,
-    required this.isOpen,
+    // required this.isOpen,
     this.onTap,
   });
   final String location;
-  final bool isOpen;
+  // final bool isOpen;
   final VoidCallback? onTap;
 
   @override
@@ -410,7 +410,7 @@ class _LocationDropdown extends StatelessWidget {
               ],
             ),
             Icon(
-              isOpen ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+              Icons.search,
               color: Colors.white,
               size: 20,
             ),

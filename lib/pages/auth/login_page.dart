@@ -228,7 +228,7 @@ class _LoginPageState extends State<LoginPage> {
                                     fontSize: 14,
                                     color: Color(0xFF003D82),
                                     fontWeight: FontWeight.w600,
-                                    decoration: TextDecoration.underline,
+                                    
                                   ),
                                 ),
                               ),
@@ -342,7 +342,6 @@ class _LoginPageState extends State<LoginPage> {
                                   fontSize: 14,
                                   color: Color(0xFF003D82),
                                   fontWeight: FontWeight.w600,
-                                  decoration: TextDecoration.underline,
                                 ),
                               ),
                             ),

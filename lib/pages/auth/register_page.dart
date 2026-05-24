@@ -494,7 +494,6 @@ class _RegisterPageState extends State<RegisterPage> {
                                     fontSize: 14,
                                     color: Color(0xFF003D82),
                                     fontWeight: FontWeight.w600,
-                                    decoration: TextDecoration.underline,
                                   ),
                                 ),
                               ),
