@@ -1,6 +1,7 @@
 import 'package:bixcinema/core/models/movie_model.dart';
 import 'package:bixcinema/core/models/tayang_model.dart';
 import 'package:bixcinema/pages/user/session/pilih_kursi.dart';
+import 'package:bixcinema/ui/widgets/trailer_popup.dart';
 // import 'package:bixcinema/core/models/teater_model.dart';
 import 'package:flutter/material.dart';
 
@@ -163,7 +164,13 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
             child: Center(
               child: GestureDetector(
                 onTap: () {
-                  // TODO: navigasi ke halaman trailer
+                  showDialog(
+                    context: context,
+                    builder: (context) => TrailerPopup(
+                      trailerUrl: widget.movie.trailerUrl!,
+                      movieTitle: widget.movie.judul,
+                    ),
+                  );
                 },
                 child: Container(
                   width: 52,
@@ -174,7 +181,13 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                   ),
                   child: IconButton(
                     onPressed: () {
-                      // Navigasi ke halaman trailer, passing URL trailer
+                      showDialog(
+                        context: context,
+                        builder: (context) => TrailerPopup(
+                          trailerUrl: widget.movie.trailerUrl!,
+                          movieTitle: widget.movie.judul,
+                        ),
+                      );
                     },
                     icon: Icon(
                       Icons.play_arrow,

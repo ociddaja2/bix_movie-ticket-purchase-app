@@ -51,7 +51,7 @@ class _SedangTayangPageState extends State<SedangTayangPage> {
 
         return Scaffold(
           appBar: BixAppBar.subtitle(
-              title: 'Coming Soon',
+              title: 'Sedang Tayang',
               subtitle: 'Film Yang Sedang Tayang',
               onBack: () => context.go('/home'),
               ),

@@ -1,5 +1,6 @@
 import 'package:bixcinema/core/app/route.dart';
 import 'package:bixcinema/core/models/user_model.dart';
+import 'package:bixcinema/core/repo/user_repo.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -173,72 +174,71 @@ class Homepage extends StatelessWidget {
     double height,
     String selectedTeaterId,
   ) {
-    return GestureDetector(
-      onTap: () async { 
-        // Ambil tayang berdasarkan movieId
-        try {
-          final tayangList = await TayangRepository()
-            .fetchTayangByMovieAndTeater(movie.id, selectedTeaterId);
+    return Container(
+      width: 140,
+      margin: const EdgeInsets.only(right: 16),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () async {
+            // Ambil tayang berdasarkan movieId
+            try {
+              final tayangList = await TayangRepository()
+                  .fetchTayangByMovieAndTeater(movie.id, selectedTeaterId);
 
-          if (tayangList.isNotEmpty) {
-            if (context.mounted) {
-              context.push('${AppRoutes.movieDetail}?id=${movie.id}',
-              extra: MovieDetailParams(
-                movie: movie,
-                tayang: tayangList.first
-                )
-              );
+              if (tayangList.isNotEmpty) {
+                if (context.mounted) {
+                  context.push('${AppRoutes.movieDetail}?id=${movie.id}',
+                      extra: MovieDetailParams(
+                          movie: movie, tayang: tayangList.first));
+                }
+              } else {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('Showtimes not available for this movie')),
+                  );
+                }
+              }
+            } catch (e) {
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Error fetching showtimes: $e')),
+                );
+              }
             }
-          } else {
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Showtimes not available for this movie')),
-              );
-            }
-          }
-        } catch (e) {
-          if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Error fetching showtimes: $e')),
-              );
-            }
-          }
-        },
-          // =>
-          // context.push('${AppRoutes.movieDetail}?id=${movie.id}', extra: movie),
-      child: Container(
-        width: 140,
-        margin: const EdgeInsets.only(right: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Stack(
-                children: [
-                  // Poster dari URL, fallback ke asset lokal
-                  // movie.posterUrl.isNotEmpty ?
-                  Image.network(
-                    movie.posterUrl,
-                    height: height,
-                    width: 140,
-                    fit: BoxFit.cover,
-                    loadingBuilder: (context, child, loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      return Container(
-                        height: height,
-                        width: 140,
-                        color: Colors.grey[300],
-                        child: const Center(child: CircularProgressIndicator()),
-                      );
-                    },
-                    errorBuilder: (_, _, _) => _posterFallback(height),
-                  ),
-                  // : _posterFallback(height),
-                ],
+          },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Stack(
+                  children: [
+                    Image.network(
+                      movie.posterUrl,
+                      height: height,
+                      width: 140,
+                      fit: BoxFit.cover,
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Container(
+                          height: height,
+                          width: 140,
+                          color: Colors.grey[200],
+                          child: const Center(
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        );
+                      },
+                      errorBuilder: (_, _, _) => _posterFallback(height),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -265,28 +265,31 @@ class Homepage extends StatelessWidget {
   }
 
   Widget _buildWelcome() {
+    return FutureBuilder<UserModel?>(
+      future: UserRepository().getUserById(FirebaseAuth.instance.currentUser!.uid),
+      builder: (context, snapshot) {
+        final userName = snapshot.data?.name.isNotEmpty == true
+            ? snapshot.data!.name
+            : 'Penonton';
 
-    final user = UserModel.fromFirebaseUser(FirebaseAuth.instance.currentUser!);
-    final userName = user?.name.trim().isNotEmpty == true
-        ? user!.displayName!
-        : 'Pengguna';
-
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Hi $userName, Selamat Datang di BIX Cinema!',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Hi $userName, Selamat Datang di BIX Cinema!',
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Nikmati pengalaman menonton film terbaik di kota Anda.',
+                style: TextStyle(fontSize: 14, color: Colors.black54),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
-          Text(
-            'Nikmati pengalaman menonton film terbaik di kota Anda.',
-            style: TextStyle(fontSize: 14, color: Colors.black54),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
