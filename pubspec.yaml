@@ -31,29 +31,31 @@ dependencies:
   flutter:
     sdk: flutter
 
-  go_router: ^17.1.0
+  go_router: ^17.1.0 # untuk navigasi antar halaman, memungkinkan pengelolaan rute yang lebih mudah dan terstruktur dalam aplikasi, serta mendukung fitur seperti deep linking dan nested navigation
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
-  animated_splash_screen: ^1.3.0
-  carousel_slider: ^5.1.1
-  firebase_core: ^4.6.0
-  firebase_core_dart: ^1.0.1
-  firebase_auth: ^6.3.0
-  cloud_firestore: ^6.2.0
-  custom_loading_loader: ^2.0.2
-  shared_preferences: ^2.5.5
-  cached_network_image: ^3.4.1
-  http: ^1.6.0
-  image_picker: ^1.2.1
-  permission_handler: ^12.0.1
-  flutter_launcher_icons: ^0.14.4
-  flutter_riverpod: ^3.3.1
-  provider: ^6.1.5+1
-  video_player: ^2.8.2
-  youtube_player_flutter: ^9.1.3
-  youtube_player_iframe: ^5.2.2
+  animated_splash_screen: ^1.3.0 # untuk splash screen, spesifiknya untuk menampilkan logo BIX Cinema saat aplikasi dibuka
+  carousel_slider: ^5.1.1 # untuk membuat carousel banner di halaman utama
+  custom_loading_loader: ^2.0.2 # untuk menampilkan indikator loading yang kustom saat aplikasi sedang memproses data atau menunggu respons dari server
+
+  firebase_core: ^4.6.0 # untuk inisialisasi Firebase, memungkinkan aplikasi terhubung dengan layanan Firebase seperti Authentication dan Firestore
+  firebase_core_dart: ^1.0.1 # untuk inisialisasi Firebase di platform yang tidak didukung oleh firebase_core, seperti web
+  firebase_auth: ^6.3.0 # untuk fitur autentikasi pengguna, memungkinkan pengguna untuk mendaftar, masuk, dan keluar menggunakan email dan password
+  cloud_firestore: ^6.2.0 # untuk menyimpan dan mengambil data pengguna, film, jadwal, dan transaksi dari database Firestore
+
+  shared_preferences: ^2.5.5 # untuk menyimpan data secara lokal di perangkat, seperti status login pengguna atau preferensi aplikasi
+  cached_network_image: ^3.4.1  # untuk menampilkan gambar dari URL dengan caching, sehingga gambar yang sudah pernah diunduh akan disimpan secara lokal untuk penggunaan berikutnya, meningkatkan performa dan mengurangi penggunaan data, untuk menampilkan poster film, banner, dan gambar lainnya yang diambil dari URL
+
+  http: ^1.6.0 # untuk URL
+  image_picker: ^1.2.1 # untuk memilih gambar dari galeri atau mengambil foto menggunakan kamera, yang dapat digunakan untuk fitur seperti mengunggah foto profil pengguna
+  permission_handler: ^12.0.1 # untuk mengelola izin aplikasi, seperti meminta izin akses kamera atau penyimpanan saat pengguna mencoba menggunakan fitur yang memerlukan izin tersebut
+
+  flutter_launcher_icons: ^0.14.4 # untuk membuat ikon aplikasi yang konsisten di berbagai platform, memungkinkan pengembang untuk menghasilkan ikon aplikasi dengan berbagai ukuran dan format yang diperlukan untuk Android dan iOS dari satu gambar sumber
+  flutter_riverpod: ^3.3.1 # untuk state management, memungkinkan pengelolaan state aplikasi dengan cara yang lebih efisien dan terstruktur, memudahkan komunikasi antara widget dan logika bisnis aplikasi
+  provider: ^6.1.5+1 # untuk state management, memungkinkan pengelolaan state aplikasi dengan cara yang lebih efisien dan terstruktur, memudahkan komunikasi antara widget dan logika bisnis aplikasi
+  youtube_player_flutter: ^9.1.3 # untuk memutar video YouTube, yang dapat digunakan untuk fitur seperti menampilkan trailer film yang dihosting di YouTube di halaman detail film
 
 dev_dependencies:
   flutter_test:

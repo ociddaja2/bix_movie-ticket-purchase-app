@@ -345,7 +345,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
     );
   }
 
-  // pilih hari nonton
+  // PENTING: pilih hari nonton
   Widget _buildDateSelector() {
     // status cek
     if (!widget.movie.status) {
@@ -460,20 +460,13 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
     return days[weekday - 1];
   }
 
-  // pilih jam nonton
+  // PENTING: pilih jam nonton
   Widget _buildCinemaSection() {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Row(
-          //   children: const [
-          //     Icon(Icons.location_on_outlined, color: Colors.black54, size: 20),
-          //     SizedBox(width: 6),
-          //   ],
-          // ),
-          // // Nama teater dari model
           Row(
             children: [
               // Icon Location
@@ -574,7 +567,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
         border: Border(top: BorderSide(color: Color(0xFFEEEEEE))),
       ),
       child: ElevatedButton(
-        // bayar
+        // bayar PENTING
         onPressed: selectedShowtime != null
             ? () {
                 final selectedDate = widget.tayang.tanggal[selectedDateIndex];
@@ -589,10 +582,6 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                       selectedTime: selectedShowtime!,
                     ),
                   ),
-                );
-
-                print(
-                  'Memesan: ${widget.movie.judul} di ${widget.tayang.namaTeater.namaTeater} jam $selectedShowtime',
                 );
               }
             : null,

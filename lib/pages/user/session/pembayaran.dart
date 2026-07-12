@@ -91,7 +91,7 @@ class _PembayaranPageState extends State<PembayaranPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('❌ Pembayaran gagal: $e'),
+            content: Text('Pembayaran gagal: $e'),
             backgroundColor: Colors.red,
           ),
         );
